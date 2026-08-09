@@ -21,3 +21,4 @@ export { generatePropCollisionTiles } from './props.js';
 export { createItemRegistry, createWorldItems } from './items.js';
 export { createEntityManager } from './entities.js';
 export { createDialogueSystem } from './dialogue.js';
+export { createInteractionManager } from './interactions.js';
