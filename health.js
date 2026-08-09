@@ -24,3 +24,17 @@ export function healPlayer(amount) {
     player.health = Math.min(player.maxHealth, player.health + amount);
     engine.emit('health-changed', { health: player.health, maxHealth: player.maxHealth });
 }
+
+/**
+ * Create a damage cooldown timer for post-hit invincibility frames.
+ * @param {number} frames - Duration of cooldown in frames
+ * @returns {{ canDamage: Function, recordHit: Function, tick: Function }}
+ */
+export function createDamageCooldown(frames = 60) {
+    let cooldown = 0;
+    return {
+        canDamage() { return cooldown === 0; },
+        recordHit() { cooldown = frames; },
+        tick() { if (cooldown > 0) cooldown--; },
+    };
+}

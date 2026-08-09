@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { player } from './state.js';
-import { damagePlayer, healPlayer, setOnGameOverCallback } from './health.js';
+import { damagePlayer, healPlayer, setOnGameOverCallback, createDamageCooldown } from './health.js';
 import { engine } from './events.js';
 
 beforeEach(() => {
@@ -127,5 +127,46 @@ describe('health events', () => {
         damagePlayer(-10);
         expect(fn).not.toHaveBeenCalled();
         engine.off('health-changed', fn);
+    });
+});
+
+describe('createDamageCooldown', () => {
+    it('canDamage returns true initially', () => {
+        const cd = createDamageCooldown(60);
+        expect(cd.canDamage()).toBe(true);
+    });
+
+    it('canDamage returns false after recordHit', () => {
+        const cd = createDamageCooldown(60);
+        cd.recordHit();
+        expect(cd.canDamage()).toBe(false);
+    });
+
+    it('tick decrements cooldown', () => {
+        const cd = createDamageCooldown(3);
+        cd.recordHit();
+        cd.tick();
+        cd.tick();
+        expect(cd.canDamage()).toBe(false);
+        cd.tick();
+        expect(cd.canDamage()).toBe(true);
+    });
+
+    it('does not go below 0', () => {
+        const cd = createDamageCooldown(2);
+        cd.tick();
+        cd.tick();
+        cd.tick();
+        cd.tick();
+        expect(cd.canDamage()).toBe(true);
+    });
+
+    it('uses default duration of 60', () => {
+        const cd = createDamageCooldown();
+        cd.recordHit();
+        for (let i = 0; i < 59; i++) cd.tick();
+        expect(cd.canDamage()).toBe(false);
+        cd.tick();
+        expect(cd.canDamage()).toBe(true);
     });
 });
