@@ -178,6 +178,42 @@ describe('handleMovement', () => {
         });
     });
 
+    describe('delta time', () => {
+        it('defaults to dt=1 (same as before)', () => {
+            const player = createPlayer(5, 5);
+            keys['w'] = true;
+            handleMovement(player, { speed: 1 });
+            expect(player.y).toBe(4);
+        });
+
+        it('dt < 1 moves slower', () => {
+            const player = createPlayer(5, 5);
+            keys['w'] = true;
+            handleMovement(player, { speed: 1, dt: 0.5 });
+            expect(player.y).toBe(4.5);
+        });
+
+        it('dt > 1 moves faster', () => {
+            const player = createPlayer(5, 5);
+            keys['w'] = true;
+            handleMovement(player, { speed: 1, dt: 2 });
+            expect(player.y).toBe(3);
+        });
+
+        it('dt scales diagonal movement', () => {
+            const player = createPlayer(5, 5);
+            keys['w'] = true;
+            keys['d'] = true;
+            handleMovement(player, { speed: 1, dt: 2 });
+            expect(player.x).toBeGreaterThan(5);
+            expect(player.y).toBeLessThan(5);
+            const dx = Math.abs(player.x - 5);
+            const dy = Math.abs(player.y - 5);
+            expect(dx).toBeCloseTo(1 / Math.SQRT2 * 2, 2);
+            expect(dy).toBeCloseTo(1 / Math.SQRT2 * 2, 2);
+        });
+    });
+
     describe('door boundary movement', () => {
         it('player moves onto tile adjacent to solid wall below (exit trigger scenario)', () => {
             isSolid.mockImplementation((x, y) => y >= 6);

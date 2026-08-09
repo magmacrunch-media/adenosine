@@ -21,10 +21,11 @@ export function createGameLoop({ update, render, fps = 30 } = {}) {
         accumulatedTime += deltaTime;
 
         if (accumulatedTime >= targetFrameTime) {
+            const deltaFactor = accumulatedTime / targetFrameTime;
             accumulatedTime = accumulatedTime % targetFrameTime;
 
             if (!gamePaused && !gameOver && update) {
-                update();
+                update(deltaFactor);
             }
 
             if (ctx && canvas) {

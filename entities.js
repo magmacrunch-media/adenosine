@@ -57,10 +57,10 @@ export function createEntityManager() {
             return mapName ? enemies.filter(e => e.map === mapName) : [...enemies];
         },
 
-        updateEnemies(mapName, isSolidFn) {
+        updateEnemies(mapName, isSolidFn, dt = 1) {
             for (const enemy of enemies) {
                 if (enemy.map !== mapName) continue;
-                enemy.moveCounter++;
+                enemy.moveCounter += dt;
                 if (enemy.moveCounter >= enemy.moveSpeed) {
                     enemy.moveCounter = 0;
                     const nextX = enemy.x + enemy.direction;

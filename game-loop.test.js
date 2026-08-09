@@ -61,6 +61,18 @@ describe('createGameLoop', () => {
         expect(update).toHaveBeenCalled();
     });
 
+    it('passes deltaFactor to update', () => {
+        const update = vi.fn();
+        const loop = createGameLoop({ update, fps: 30 });
+        loop.start();
+
+        const targetFrameTime = 1000 / 30;
+        rafCallbacks[0](100);
+        rafCallbacks[0](100 + targetFrameTime * 1.5);
+
+        expect(update).toHaveBeenCalledWith(1.5);
+    });
+
     it('does not call update before target frame time', () => {
         const update = vi.fn();
         const loop = createGameLoop({ update, fps: 30 });

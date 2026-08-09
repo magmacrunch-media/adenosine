@@ -12,12 +12,13 @@ import { DEFAULT_BINDINGS } from './bindings.js';
  * @param {object} player
  * @param {object} opts
  * @param {number} opts.speed - Movement speed in tiles per frame
+ * @param {number} opts.dt - Delta time factor (1.0 = normal, >1.0 = lag, <1.0 = fast frame)
  * @param {Function} opts.isBlocked - Additional blocking check (e.g. dialogue active)
  * @param {object} opts.collisionOpts - Options passed to isSolid (map, solidTiles, entities, props)
  * @param {object} opts.bindings - Key bindings (defaults to DEFAULT_BINDINGS)
  * @returns {boolean} Whether the player moved
  */
-export function handleMovement(player, { speed = 0.4, isBlocked, collisionOpts = {}, bindings = DEFAULT_BINDINGS } = {}) {
+export function handleMovement(player, { speed = 0.4, dt = 1, isBlocked, collisionOpts = {}, bindings = DEFAULT_BINDINGS } = {}) {
     if (speed <= 0) return false;
 
     const upKeys = bindings.moveUp.map(k => k.toLowerCase());
@@ -54,8 +55,8 @@ export function handleMovement(player, { speed = 0.4, isBlocked, collisionOpts =
     }
 
     // Check collision before moving
-    const newX = player.x + dx * speed;
-    const newY = player.y + dy * speed;
+    const newX = player.x + dx * speed * dt;
+    const newY = player.y + dy * speed * dt;
 
     // Allow movement if at least one axis is free
     if (dx !== 0 && !isSolid(newX, player.y, collisionOpts)) {
