@@ -1,6 +1,6 @@
 # Magma Engine
 
-A lightweight, zero-dependency 2D tile-based game engine. Written as ES modules — import what you need.
+A lightweight, zero runtime dependencies 2D tile-based game engine. Written in TypeScript — import what you need.
 
 ## Features
 
@@ -87,37 +87,50 @@ loop.start();
 </script>
 ```
 
+## TypeScript
+
+The engine is written in TypeScript with full type definitions.
+
+```bash
+npm run build       # emit dist/index.js + dist/index.d.ts
+npm run typecheck   # type-check without emitting
+```
+
+All interfaces are exported: `Player`, `NPC`, `Enemy`, `Entity`, `Direction`,
+`EventBus`, `EventMap`, `Inventory`, `DialogueSystem`, and more.
+See [API Reference](API.md) for the full list.
+
 ## Modules
 
 | Module | Description |
 |--------|-------------|
-| `state.js` | Centralized game state (player, map, flags) |
-| `game-loop.js` | Fixed-timestep game loop with delta-time support |
-| `input.js` | Keyboard input tracking with configurable bindings |
-| `bindings.js` | Default key bindings (WASD/arrows, Escape, Space) |
-| `camera.js` | Smooth-follow camera with bounds clamping |
-| `collision.js` | Tile + entity + prop collision detection |
-| `movement.js` | Player movement with diagonal normalization and collision |
-| `renderer.js` | Y-sorted rendering pipeline with sprite registry |
-| `detection.js` | Entity/prop facing and proximity detection |
-| `interactions.js` | Priority-based interaction dispatch |
-| `dialogue.js` | Multi-line dialogue with choices and callbacks |
-| `entities.js` | NPC and enemy management with patrol AI |
-| `inventory.js` | Two-hand inventory with backpack storage |
-| `items.js` | Item type registry and world item management |
-| `props.js` | Prop collision tile generation |
-| `health.js` | Damage/healing with cooldowns and game-over |
-| `notifications.js` | SNES-style floating messages with themes |
-| `transitions.js` | Map enter/exit with position locking |
-| `animation.js` | Rate-limited animation frame counters |
-| `events.js` | Pub/sub event bus for inter-module communication |
-| `index.js` | Main entry point — re-exports all modules |
+| `state.ts` | Centralized game state (player, map, flags) |
+| `game-loop.ts` | Fixed-timestep game loop with delta-time support |
+| `input.ts` | Keyboard input tracking with configurable bindings |
+| `bindings.ts` | Default key bindings (WASD/arrows, Escape, Space) |
+| `camera.ts` | Smooth-follow camera with bounds clamping |
+| `collision.ts` | Tile + entity + prop collision detection |
+| `movement.ts` | Player movement with diagonal normalization and collision |
+| `renderer.ts` | Y-sorted rendering pipeline with sprite registry |
+| `detection.ts` | Entity/prop facing and proximity detection |
+| `interactions.ts` | Priority-based interaction dispatch |
+| `dialogue.ts` | Multi-line dialogue with choices and callbacks |
+| `entities.ts` | NPC and enemy management with patrol AI |
+| `inventory.ts` | Two-hand inventory with backpack storage |
+| `items.ts` | Item type registry and world item management |
+| `props.ts` | Prop collision tile generation |
+| `health.ts` | Damage/healing with cooldowns and game-over |
+| `notifications.ts` | SNES-style floating messages with themes |
+| `transitions.ts` | Map enter/exit with position locking |
+| `animation.ts` | Rate-limited animation frame counters |
+| `events.ts` | Pub/sub event bus for inter-module communication |
+| `index.ts` | Main entry point — re-exports all modules |
 
 ## Event System
 
 The engine emits events you can subscribe to:
 
-```js
+```ts
 import { engine } from './engine/index.js';
 
 engine.on('player-died', () => showGameOver());
@@ -132,7 +145,7 @@ engine.on('dialogue-start', ({ speaker }) => lockPlayer());
 
 The game loop passes a `deltaFactor` to `update()`:
 
-```js
+```ts
 const loop = createGameLoop({
   update: (dt) => {
     // dt = 1.0 at target FPS, >1.0 on lag, <1.0 on fast frames
@@ -147,7 +160,7 @@ const loop = createGameLoop({
 
 Override default WASD/arrow keys:
 
-```js
+```ts
 import { DEFAULT_BINDINGS, initInput } from './engine/index.js';
 
 const customBindings = {
@@ -165,8 +178,8 @@ initInput({ bindings: customBindings });
 - **No globals** — everything is imported/exported
 - **No opinions** — the engine provides systems, you wire them together
 - **Configurable** — pass callbacks and data, don't inherit from base classes
-- **Tiny** — ~900 lines total, zero dependencies
-- **Tested** — 334 tests covering all modules
+- **Tiny** — ~1,200 lines of TypeScript, zero runtime dependencies
+- **Tested** — 329 tests covering all modules
 
 ## Testing
 
@@ -175,8 +188,10 @@ npm install
 npm test              # run all tests
 npm run test:watch    # watch mode
 npm run test:coverage # with coverage
+npm run build         # build dist/index.js + dist/index.d.ts
+npm run typecheck     # type-check without emitting
 ```
 
 ## License
 
-MIT
+LGPL-2.1
