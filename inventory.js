@@ -1,6 +1,8 @@
 // engine/inventory.js
 // Two-hand inventory system with backpack storage.
 
+import { engine } from './events.js';
+
 export function createInventory() {
     return {
         leftHand: null,
@@ -9,8 +11,8 @@ export function createInventory() {
         storage: [],
 
         addItem(item) {
-            if (this.leftHand === null) { this.leftHand = item; return true; }
-            if (this.rightHand === null) { this.rightHand = item; return true; }
+            if (this.leftHand === null) { this.leftHand = item; engine.emit('item-acquired', item); return true; }
+            if (this.rightHand === null) { this.rightHand = item; engine.emit('item-acquired', item); return true; }
             return false;
         },
 
@@ -18,11 +20,13 @@ export function createInventory() {
             if (this.leftHand && this.leftHand.type.id === itemId) {
                 const removed = this.leftHand;
                 this.leftHand = null;
+                engine.emit('item-removed', removed);
                 return removed;
             }
             if (this.rightHand && this.rightHand.type.id === itemId) {
                 const removed = this.rightHand;
                 this.rightHand = null;
+                engine.emit('item-removed', removed);
                 return removed;
             }
             return null;

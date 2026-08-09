@@ -3,6 +3,7 @@
 
 import { player, currentMap, setCurrentMap, setMap, transitionCooldown, setTransitionCooldown, canvas } from './state.js';
 import { camera } from './camera.js';
+import { engine } from './events.js';
 
 function lockPosition(facing, tileSize = 16) {
     player.positionLocked = true;
@@ -37,4 +38,5 @@ export function transitionTo({ mapName, maps, x, y, facing, tileSize = 16 }) {
     player.x = x;
     player.y = y;
     lockPosition(facing, tileSize);
+    engine.emit('map-changed', { mapName, map: maps[mapName] });
 }

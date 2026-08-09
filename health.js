@@ -2,6 +2,7 @@
 // Health system with damage/healing and game-over callback.
 
 import { player } from './state.js';
+import { engine } from './events.js';
 
 let onGameOverCallback = null;
 
@@ -11,7 +12,10 @@ export function damagePlayer(amount) {
     if (amount <= 0) return;
     const wasAlive = player.health > 0;
     player.health = Math.max(0, player.health - amount);
-    if (wasAlive && player.health <= 0 && onGameOverCallback) onGameOverCallback();
+    if (wasAlive && player.health <= 0) {
+        engine.emit('player-died', { health: player.health });
+        if (onGameOverCallback) onGameOverCallback();
+    }
 }
 
 export function healPlayer(amount) {

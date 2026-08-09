@@ -1,23 +1,30 @@
 // engine/input.js
 // Keyboard input handling — tracks held keys and one-shot key presses.
 
+import { DEFAULT_BINDINGS } from './bindings.js';
+import { engine } from './events.js';
+
 export const keys = {};
 export const keysPressed = {};
 
-export function initInput({ onPause, onInteract } = {}) {
+export function initInput({ onPause, onInteract, bindings = DEFAULT_BINDINGS } = {}) {
+    const pauseKeys = new Set(bindings.pause.map(k => k.toLowerCase()));
+    const interactKeys = new Set(bindings.interact.map(k => k.toLowerCase()));
+
     function onKeyDown(e) {
         const key = e.key.toLowerCase();
 
-        // Pause toggle
-        if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        if (pauseKeys.has(key)) {
+            engine.emit('pause-toggle');
             if (onPause) onPause();
             return;
         }
 
         if (!keysPressed[key]) {
             keysPressed[key] = true;
-            if (e.key === ' ') {
+            if (interactKeys.has(key)) {
                 e.preventDefault();
+                engine.emit('interact');
                 if (onInteract) onInteract();
             }
         }

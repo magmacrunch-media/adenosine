@@ -3,6 +3,7 @@
 
 import { keys } from './input.js';
 import { isSolid } from './collision.js';
+import { DEFAULT_BINDINGS } from './bindings.js';
 
 /**
  * Handle player movement based on current key state.
@@ -13,14 +14,22 @@ import { isSolid } from './collision.js';
  * @param {number} opts.speed - Movement speed in tiles per frame
  * @param {Function} opts.isBlocked - Additional blocking check (e.g. dialogue active)
  * @param {object} opts.collisionOpts - Options passed to isSolid (map, solidTiles, entities, props)
+ * @param {object} opts.bindings - Key bindings (defaults to DEFAULT_BINDINGS)
  * @returns {boolean} Whether the player moved
  */
-export function handleMovement(player, { speed = 0.4, isBlocked, collisionOpts = {} } = {}) {
+export function handleMovement(player, { speed = 0.4, isBlocked, collisionOpts = {}, bindings = DEFAULT_BINDINGS } = {}) {
     if (speed <= 0) return false;
 
-    const isMovementKey = keys['arrowup'] || keys['w'] || keys['arrowdown'] ||
-                          keys['s'] || keys['arrowleft'] || keys['a'] ||
-                          keys['arrowright'] || keys['d'];
+    const upKeys = bindings.moveUp.map(k => k.toLowerCase());
+    const downKeys = bindings.moveDown.map(k => k.toLowerCase());
+    const leftKeys = bindings.moveLeft.map(k => k.toLowerCase());
+    const rightKeys = bindings.moveRight.map(k => k.toLowerCase());
+
+    const isUp = upKeys.some(k => keys[k]);
+    const isDown = downKeys.some(k => keys[k]);
+    const isLeft = leftKeys.some(k => keys[k]);
+    const isRight = rightKeys.some(k => keys[k]);
+    const isMovementKey = isUp || isDown || isLeft || isRight;
 
     player.isWalking = isMovementKey;
 
@@ -33,10 +42,10 @@ export function handleMovement(player, { speed = 0.4, isBlocked, collisionOpts =
 
     // Determine direction
     let dx = 0, dy = 0;
-    if (keys['arrowleft'] || keys['a']) { dx = -1; player.facingX = -1; player.facingY = 0; player.direction = 'left'; }
-    else if (keys['arrowright'] || keys['d']) { dx = 1; player.facingX = 1; player.facingY = 0; player.direction = 'right'; }
-    if (keys['arrowup'] || keys['w']) { dy = -1; player.facingX = 0; player.facingY = -1; player.direction = 'up'; }
-    else if (keys['arrowdown'] || keys['s']) { dy = 1; player.facingX = 0; player.facingY = 1; player.direction = 'down'; }
+    if (isLeft) { dx = -1; player.facingX = -1; player.facingY = 0; player.direction = 'left'; }
+    else if (isRight) { dx = 1; player.facingX = 1; player.facingY = 0; player.direction = 'right'; }
+    if (isUp) { dy = -1; player.facingX = 0; player.facingY = -1; player.direction = 'up'; }
+    else if (isDown) { dy = 1; player.facingX = 0; player.facingY = 1; player.direction = 'down'; }
 
     // Diagonal normalization
     if (dx !== 0 && dy !== 0) {

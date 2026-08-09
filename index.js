@@ -13,3 +13,5 @@ export { createInventory } from './inventory.js';
 export { showNotification } from './notifications.js';
 export { damagePlayer, healPlayer, setOnGameOverCallback } from './health.js';
 export { transitionTo } from './transitions.js';
+export { DEFAULT_BINDINGS } from './bindings.js';
+export { createEventBus, engine } from './events.js';
