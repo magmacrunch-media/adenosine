@@ -20,3 +20,4 @@ export { getEntityInFront, isFacingProp, isNearProp } from './detection.js';
 export { generatePropCollisionTiles } from './props.js';
 export { createItemRegistry, createWorldItems } from './items.js';
 export { createEntityManager } from './entities.js';
+export { createDialogueSystem } from './dialogue.js';
