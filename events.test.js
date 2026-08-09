@@ -74,6 +74,34 @@ describe('createEventBus', () => {
         });
     });
 
+    describe('once', () => {
+        it('calls listener only once', () => {
+            const bus = createEventBus();
+            const fn = vi.fn();
+            bus.once('test', fn);
+            bus.emit('test');
+            bus.emit('test');
+            expect(fn).toHaveBeenCalledOnce();
+        });
+
+        it('passes data to listener', () => {
+            const bus = createEventBus();
+            const fn = vi.fn();
+            bus.once('test', fn);
+            bus.emit('test', { value: 42 });
+            expect(fn).toHaveBeenCalledWith({ value: 42 });
+        });
+
+        it('returns unsubscribe function', () => {
+            const bus = createEventBus();
+            const fn = vi.fn();
+            const unsub = bus.once('test', fn);
+            unsub();
+            bus.emit('test');
+            expect(fn).not.toHaveBeenCalled();
+        });
+    });
+
     describe('emit', () => {
         it('does nothing when no listeners', () => {
             const bus = createEventBus();

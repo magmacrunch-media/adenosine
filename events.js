@@ -12,6 +12,10 @@ export function createEventBus() {
             (listeners[event] ||= []).push(fn);
             return () => this.off(event, fn);
         },
+        once(event, fn) {
+            const wrapper = (data) => { fn(data); this.off(event, wrapper); };
+            return this.on(event, wrapper);
+        },
         off(event, fn) {
             const arr = listeners[event];
             if (arr) listeners[event] = arr.filter(f => f !== fn);

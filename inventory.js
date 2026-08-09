@@ -9,6 +9,7 @@ export function createInventory() {
         rightHand: null,
         backpack: null,
         storage: [],
+        _storageCapacity: 6,
 
         addItem(item) {
             if (this.leftHand === null) { this.leftHand = item; engine.emit('item-acquired', item); return true; }
@@ -32,6 +33,12 @@ export function createInventory() {
             return null;
         },
 
+        getItem(itemId) {
+            if (this.leftHand?.type.id === itemId) return this.leftHand;
+            if (this.rightHand?.type.id === itemId) return this.rightHand;
+            return null;
+        },
+
         hasItem(itemId) {
             return (this.leftHand?.type.id === itemId) || (this.rightHand?.type.id === itemId);
         },
@@ -49,17 +56,19 @@ export function createInventory() {
         equipBackpack(type) {
             this.backpack = type;
             this.storage = [];
+            this._storageCapacity = type?.storageCapacity || 6;
         },
 
         unequipBackpack() {
             const bp = this.backpack;
             this.backpack = null;
             this.storage = [];
+            this._storageCapacity = 6;
             return bp;
         },
 
         addToStorage(itemId) {
-            if (!this.backpack || this.storage.length >= 6) return false;
+            if (!this.backpack || this.storage.length >= this._storageCapacity) return false;
             this.storage.push(itemId);
             return true;
         },
@@ -76,6 +85,7 @@ export function createInventory() {
             this.rightHand = null;
             this.backpack = null;
             this.storage = [];
+            this._storageCapacity = 6;
         },
     };
 }

@@ -13,7 +13,7 @@
  * @param {Array} opts.props - Solid prop positions [{x, y}]
  * @returns {boolean}
  */
-export function isSolid(x, y, { map, solidTiles, entities = [], props = [] } = {}) {
+export function isSolid(x, y, { map, solidTiles = [], entities = [], props = [] } = {}) {
     if (!map || !map.length) return true;
     const checkX = Math.floor(x + 0.001);
     const checkY = Math.floor(y + 0.001);
@@ -26,6 +26,9 @@ export function isSolid(x, y, { map, solidTiles, entities = [], props = [] } = {
     if (checkX < 1 || checkX >= mapWidth - 1 || checkY < 1 || checkY >= bottomBoundary) {
         return true;
     }
+
+    // Guard against ragged map rows
+    if (!map[checkY] || checkX >= map[checkY].length) return true;
 
     // Entity collision (distance-based)
     for (const entity of entities) {

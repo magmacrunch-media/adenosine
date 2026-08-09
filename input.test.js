@@ -2,13 +2,14 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { keys, keysPressed, initInput } from './input.js';
+import { keys, keysPressed, initInput, _resetInputState } from './input.js';
 
 describe('initInput', () => {
     let onPause, onInteract;
     const addedListeners = [];
 
     beforeEach(() => {
+        _resetInputState();
         for (const key of Object.keys(keys)) delete keys[key];
         for (const key of Object.keys(keysPressed)) delete keysPressed[key];
         onPause = vi.fn();

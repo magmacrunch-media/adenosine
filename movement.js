@@ -49,8 +49,8 @@ export function handleMovement(player, { speed = 0.4, isBlocked, collisionOpts =
 
     // Diagonal normalization
     if (dx !== 0 && dy !== 0) {
-        dx *= 0.707;
-        dy *= 0.707;
+        dx *= 1 / Math.SQRT2;
+        dy *= 1 / Math.SQRT2;
     }
 
     // Check collision before moving

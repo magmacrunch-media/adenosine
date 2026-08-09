@@ -2,7 +2,7 @@
 // Magma Engine — main entry point.
 // Import everything from here, or import individual modules.
 
-export { player, canvas, ctx, initCanvas, currentMap, setCurrentMap, setMap, gameStarted, setGameStarted, gamePaused, setGamePaused, gameOver, setGameOver, transitionCooldown, setTransitionCooldown, animationFrame, frameCounter, waterAnimFrame, waterAnimCounter, campfireAnimFrame, campfireAnimCounter } from './state.js';
+export { player, map, canvas, ctx, initCanvas, currentMap, setCurrentMap, setMap, gameStarted, setGameStarted, gamePaused, setGamePaused, gameOver, setGameOver, transitionCooldown, setTransitionCooldown, animationFrame, frameCounter, waterAnimFrame, waterAnimCounter, campfireAnimFrame, campfireAnimCounter } from './state.js';
 export { createGameLoop } from './game-loop.js';
 export { keys, keysPressed, initInput } from './input.js';
 export { camera, updateCamera } from './camera.js';

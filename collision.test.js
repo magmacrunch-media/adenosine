@@ -108,6 +108,16 @@ describe('isSolid', () => {
             expect(isSolid(2, 2, { map: [], solidTiles: [] })).toBe(true);
         });
 
+        it('returns true when solidTiles is undefined', () => {
+            const map = createMap(5, 5);
+            expect(isSolid(2, 2, { map })).toBe(false);
+        });
+
+        it('returns true for ragged map row', () => {
+            const map = [[0, 0, 0, 0, 0], [0, 0], [0, 0, 0, 0, 0]];
+            expect(isSolid(4, 1, { map, solidTiles: [] })).toBe(true);
+        });
+
         it('returns false for tile immediately above a solid wall (exit trigger scenario)', () => {
             const map = createMap(10, 10);
             map[5][3] = 99;

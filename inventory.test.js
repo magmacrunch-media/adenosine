@@ -178,6 +178,58 @@ describe('createInventory', () => {
         });
     });
 
+    describe('getItem', () => {
+        it('returns item from left hand by id', () => {
+            const inv = createInventory();
+            const item = { type: { id: 'sword' } };
+            inv.addItem(item);
+            expect(inv.getItem('sword')).toBe(item);
+        });
+
+        it('returns item from right hand by id', () => {
+            const inv = createInventory();
+            const item = { type: { id: 'shield' } };
+            inv.addItem(item);
+            expect(inv.getItem('shield')).toBe(item);
+        });
+
+        it('returns null when item not found', () => {
+            const inv = createInventory();
+            expect(inv.getItem('nonexistent')).toBeNull();
+        });
+    });
+
+    describe('configurable storage capacity', () => {
+        it('uses default capacity of 6', () => {
+            const inv = createInventory();
+            inv.equipBackpack({ id: 'leather' });
+            for (let i = 0; i < 6; i++) {
+                expect(inv.addToStorage(`item${i}`)).toBe(true);
+            }
+            expect(inv.addToStorage('extra')).toBe(false);
+        });
+
+        it('respects custom storageCapacity from backpack type', () => {
+            const inv = createInventory();
+            inv.equipBackpack({ id: 'large', storageCapacity: 10 });
+            for (let i = 0; i < 10; i++) {
+                expect(inv.addToStorage(`item${i}`)).toBe(true);
+            }
+            expect(inv.addToStorage('extra')).toBe(false);
+        });
+
+        it('resets capacity when unequipping backpack', () => {
+            const inv = createInventory();
+            inv.equipBackpack({ id: 'large', storageCapacity: 10 });
+            inv.unequipBackpack();
+            inv.equipBackpack({ id: 'small' });
+            for (let i = 0; i < 6; i++) {
+                expect(inv.addToStorage(`item${i}`)).toBe(true);
+            }
+            expect(inv.addToStorage('extra')).toBe(false);
+        });
+    });
+
     describe('clear', () => {
         it('resets all inventory state', () => {
             const inv = createInventory();

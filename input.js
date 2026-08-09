@@ -7,7 +7,18 @@ import { engine } from './events.js';
 export const keys = {};
 export const keysPressed = {};
 
+let activeListeners = null;
+
+export function _resetInputState() {
+    if (activeListeners) {
+        activeListeners.destroy();
+    }
+    activeListeners = null;
+}
+
 export function initInput({ onPause, onInteract, bindings = DEFAULT_BINDINGS } = {}) {
+    if (activeListeners) return activeListeners;
+
     const pauseKeys = new Set(bindings.pause.map(k => k.toLowerCase()));
     const interactKeys = new Set(bindings.interact.map(k => k.toLowerCase()));
 
@@ -41,10 +52,13 @@ export function initInput({ onPause, onInteract, bindings = DEFAULT_BINDINGS } =
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
 
-    return {
+    activeListeners = {
         destroy() {
             window.removeEventListener('keydown', onKeyDown);
             window.removeEventListener('keyup', onKeyUp);
+            activeListeners = null;
         },
     };
+
+    return activeListeners;
 }

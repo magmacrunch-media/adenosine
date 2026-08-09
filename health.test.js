@@ -1,11 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { player } from './state.js';
 import { damagePlayer, healPlayer, setOnGameOverCallback } from './health.js';
+import { engine } from './events.js';
 
 beforeEach(() => {
     player.health = 100;
     player.maxHealth = 100;
     setOnGameOverCallback(null);
+    engine.off('health-changed', () => {});
+    engine.off('player-died', () => {});
 });
 
 describe('damagePlayer', () => {
@@ -89,5 +92,40 @@ describe('damagePlayer validation', () => {
         setOnGameOverCallback(cb);
         damagePlayer(10);
         expect(cb).not.toHaveBeenCalled();
+    });
+});
+
+describe('health events', () => {
+    it('emits health-changed on damage', () => {
+        const fn = vi.fn();
+        engine.on('health-changed', fn);
+        damagePlayer(30);
+        expect(fn).toHaveBeenCalledWith({ health: 70, maxHealth: 100 });
+        engine.off('health-changed', fn);
+    });
+
+    it('emits health-changed on heal', () => {
+        player.health = 50;
+        const fn = vi.fn();
+        engine.on('health-changed', fn);
+        healPlayer(20);
+        expect(fn).toHaveBeenCalledWith({ health: 70, maxHealth: 100 });
+        engine.off('health-changed', fn);
+    });
+
+    it('emits player-died on death', () => {
+        const fn = vi.fn();
+        engine.on('player-died', fn);
+        damagePlayer(100);
+        expect(fn).toHaveBeenCalledWith({ health: 0 });
+        engine.off('player-died', fn);
+    });
+
+    it('does not emit health-changed for negative amounts', () => {
+        const fn = vi.fn();
+        engine.on('health-changed', fn);
+        damagePlayer(-10);
+        expect(fn).not.toHaveBeenCalled();
+        engine.off('health-changed', fn);
     });
 });
