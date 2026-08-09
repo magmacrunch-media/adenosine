@@ -6,8 +6,8 @@ import type { Camera, UpdateCameraOpts } from './types.js';
 
 export const camera: Camera = { x: 0, y: 0 };
 
-export function updateCamera({ target, tileSize, mapWidth, mapHeight, smoothing = 0.3 }: UpdateCameraOpts = {} as UpdateCameraOpts): void {
-    if (!canvas) return;
+export function updateCamera({ target, tileSize, mapWidth, mapHeight, smoothing = 0.3 }: UpdateCameraOpts = {}): void {
+    if (!canvas || !target || tileSize === undefined || mapWidth === undefined || mapHeight === undefined) return;
 
     const targetX = target.x * tileSize - canvas.width / 2 + tileSize / 2;
     const targetY = target.y * tileSize - canvas.height / 2 + tileSize / 2;

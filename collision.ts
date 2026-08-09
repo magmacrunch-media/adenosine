@@ -4,7 +4,7 @@
 
 import type { Entity, PropCollisionTile, CollisionOptions } from './types.js';
 
-export function isSolid(x: number, y: number, { map, solidTiles = [], entities = [], props = [] }: CollisionOptions = {} as CollisionOptions): boolean {
+export function isSolid(x: number, y: number, { map, solidTiles = [], entities = [], props = [] }: CollisionOptions = {}): boolean {
     if (!map || !map.length) return true;
     const checkX = Math.floor(x + 0.001);
     const checkY = Math.floor(y + 0.001);

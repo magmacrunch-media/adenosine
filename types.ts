@@ -8,7 +8,7 @@ export interface Player {
     y: number;
     facingX: number;
     facingY: number;
-    direction: 'up' | 'down' | 'left' | 'right';
+    direction: Direction;
     isWalking: boolean;
     wasMoving: boolean;
     health: number;
@@ -24,7 +24,7 @@ export interface NPC {
     name: string;
     type: string;
     map: string;
-    direction: string;
+    direction: Direction;
     dialogue: string[];
     currentDialogue: number;
 }
@@ -167,6 +167,17 @@ export interface EventMap {
 
 export type EventName = keyof EventMap;
 
+// ── Constants ────────────────────────────────────────────────────
+
+export type Direction = 'up' | 'down' | 'left' | 'right';
+
+export const DIRECTION_VECTORS: Record<Direction, { x: number; y: number }> = {
+    up:    { x: 0, y: -1 },
+    down:  { x: 0, y: 1 },
+    left:  { x: -1, y: 0 },
+    right: { x: 1, y: 0 },
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventListener = (...args: any[]) => void;
 
@@ -206,17 +217,17 @@ export interface Camera {
 }
 
 export interface UpdateCameraOpts {
-    target: { x: number; y: number };
-    tileSize: number;
-    mapWidth: number;
-    mapHeight: number;
+    target?: { x: number; y: number };
+    tileSize?: number;
+    mapWidth?: number;
+    mapHeight?: number;
     smoothing?: number;
 }
 
 // ── Collision ────────────────────────────────────────────────────
 
 export interface CollisionOptions {
-    map: number[][];
+    map?: number[][];
     solidTiles?: number[];
     entities?: Entity[];
     props?: PropCollisionTile[];
@@ -285,7 +296,7 @@ export interface AddNPCData {
     name?: string;
     type?: string;
     map?: string;
-    direction?: string;
+    direction?: Direction;
     dialogue?: string[];
 }
 
@@ -361,7 +372,7 @@ export interface TransitionOpts {
     maps: Record<string, number[][]>;
     x: number;
     y: number;
-    facing?: 'up' | 'down' | 'left' | 'right';
+    facing?: Direction;
     tileSize?: number;
 }
 

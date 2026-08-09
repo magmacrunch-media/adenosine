@@ -23,11 +23,14 @@ export { createEntityManager } from './entities.js';
 export { createDialogueSystem } from './dialogue.js';
 export { createInteractionManager } from './interactions.js';
 
+export { DIRECTION_VECTORS } from './types.js';
+
 export type {
     Player,
     NPC,
     Enemy,
     Entity,
+    Direction,
     Prop,
     PropCollisionTile,
     ItemTypeDef,

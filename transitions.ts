@@ -4,16 +4,15 @@
 import { player, currentMap, setCurrentMap, setMap, transitionCooldown, setTransitionCooldown, canvas } from './state.js';
 import { camera } from './camera.js';
 import { engine } from './events.js';
-import type { TransitionOpts } from './types.js';
+import type { TransitionOpts, Direction } from './types.js';
+import { DIRECTION_VECTORS } from './types.js';
 
-function lockPosition(facing: string | undefined, tileSize: number = 16): void {
+function lockPosition(facing: Direction | undefined, tileSize: number = 16): void {
     player.positionLocked = true;
     if (facing) {
-        player.direction = facing as 'up' | 'down' | 'left' | 'right';
-        if (facing === 'up') { player.facingX = 0; player.facingY = -1; }
-        else if (facing === 'down') { player.facingX = 0; player.facingY = 1; }
-        else if (facing === 'left') { player.facingX = -1; player.facingY = 0; }
-        else if (facing === 'right') { player.facingX = 1; player.facingY = 0; }
+        player.direction = facing;
+        player.facingX = DIRECTION_VECTORS[facing].x;
+        player.facingY = DIRECTION_VECTORS[facing].y;
     }
     if (canvas) {
         camera.x = player.x * tileSize - canvas.width / 2;
@@ -25,10 +24,10 @@ function lockPosition(facing: string | undefined, tileSize: number = 16): void {
 export function transitionTo({ mapName, maps, x, y, facing, tileSize = 16 }: TransitionOpts): void {
     setTransitionCooldown(30);
     setCurrentMap(mapName);
-    const mapData = maps[mapName] ?? null;
+    const mapData = maps[mapName] ?? [];
     setMap(mapData);
     player.x = x;
     player.y = y;
     lockPosition(facing, tileSize);
-    engine.emit('map-changed', { mapName, map: mapData ?? [] });
+    engine.emit('map-changed', { mapName, map: mapData });
 }

@@ -12,10 +12,10 @@ export function setGamePaused(val: boolean): void { gamePaused = val; }
 export function setGameOver(val: boolean): void { gameOver = val; }
 
 export let currentMap: string = 'default';
-export let map: number[][] | null = null;
+export let map: number[][] = [];
 
 export function setCurrentMap(val: string): void { currentMap = val; }
-export function setMap(val: number[][] | null): void { map = val; }
+export function setMap(val: number[][]): void { map = val; }
 
 export const player: Player = {
     x: 0, y: 0,

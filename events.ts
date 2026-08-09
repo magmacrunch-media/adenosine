@@ -16,7 +16,7 @@ export function createEventBus(): EventBus {
             return () => bus.off(event, fn as (...args: unknown[]) => void);
         },
         once<K extends EventName>(event: K, fn: EventMap[K] extends void ? () => void : (data: EventMap[K]) => void): () => void {
-            const wrapper = (...args: unknown[]) => { (fn as Function)(...args); bus.off(event, wrapper); };
+            const wrapper = (...args: unknown[]) => { (fn as (...a: unknown[]) => void)(...args); bus.off(event, wrapper); };
             return bus.on(event, wrapper as EventMap[K] extends void ? () => void : (data: EventMap[K]) => void);
         },
         off(event: EventName, fn: (...args: unknown[]) => void): void {

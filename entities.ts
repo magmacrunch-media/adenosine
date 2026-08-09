@@ -13,8 +13,8 @@ export function createEntityManager(): EntityManager {
             const npc: NPC = {
                 x: data.x,
                 y: data.y,
-                width: data.width || 1,
-                height: data.height || 1,
+                width: data.width ?? 1,
+                height: data.height ?? 1,
                 name: data.name || '',
                 type: data.type || 'npc',
                 map: data.map || 'default',
@@ -30,17 +30,17 @@ export function createEntityManager(): EntityManager {
             const enemy: Enemy = {
                 x: data.x,
                 y: data.y,
-                width: data.width || 1,
-                height: data.height || 1,
+                width: data.width ?? 1,
+                height: data.height ?? 1,
                 map: data.map || 'default',
                 type: data.type || 'enemy',
-                direction: data.direction || 1,
+                direction: data.direction ?? 1,
                 moveCounter: 0,
-                moveSpeed: data.moveSpeed || 60,
-                patrolRange: data.patrolRange || 5,
+                moveSpeed: data.moveSpeed ?? 60,
+                patrolRange: data.patrolRange ?? 5,
                 startX: data.x,
                 startY: data.y,
-                damage: data.damage || 10,
+                damage: data.damage ?? 10,
             };
             enemies.push(enemy);
             return enemy;

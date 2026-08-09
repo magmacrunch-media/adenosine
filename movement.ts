@@ -14,7 +14,7 @@ interface HandleMovementOpts {
     bindings?: KeyBindings;
 }
 
-export function handleMovement(player: Player, { speed = 0.4, dt = 1, isBlocked, collisionOpts = {} as CollisionOptions, bindings = DEFAULT_BINDINGS }: HandleMovementOpts = {}): boolean {
+export function handleMovement(player: Player, { speed = 0.4, dt = 1, isBlocked, collisionOpts = {}, bindings = DEFAULT_BINDINGS }: HandleMovementOpts = {}): boolean {
     if (speed <= 0) return false;
 
     const upKeys = bindings.moveUp.map(k => k.toLowerCase());

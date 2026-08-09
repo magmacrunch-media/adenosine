@@ -50,7 +50,10 @@ export function createSpriteRegistry(): SpriteRegistry {
             if (registry[type]) registry[type](...args);
             else if (ctx) {
                 ctx.fillStyle = '#ff00ff';
-                ctx.fillRect(args[0] as number, args[1] as number, (args[2] as number) || 16, (args[3] as number) || 16);
+                const [x, y, w, h] = args;
+                if (typeof x === 'number' && typeof y === 'number') {
+                    ctx.fillRect(x, y, typeof w === 'number' ? w : 16, typeof h === 'number' ? h : 16);
+                }
             }
         },
     };
