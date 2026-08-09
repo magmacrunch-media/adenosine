@@ -23,7 +23,7 @@ describe('initInput', () => {
         }
     });
 
-    function registerCallbacks(opts) {
+    function registerCallbacks(opts?: { onPause?: () => void; onInteract?: () => void }) {
         const spy = vi.spyOn(window, 'addEventListener');
         initInput(opts);
         const calls = spy.mock.calls.filter(([type]) => type === 'keydown' || type === 'keyup');
@@ -105,16 +105,6 @@ describe('initInput', () => {
     });
 
     describe('destroy', () => {
-        it('returns object with destroy method', () => {
-            const spy = vi.spyOn(window, 'addEventListener');
-            initInput();
-            const calls = spy.mock.calls.filter(([type]) => type === 'keydown' || type === 'keyup');
-            for (const [type, fn] of calls) {
-                addedListeners.push({ type, fn });
-            }
-            spy.mockRestore();
-        });
-
         it('destroy removes event listeners', () => {
             const handle = initInput();
             window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z' }));

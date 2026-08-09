@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { isSolid } from './collision.js';
 
-function createMap(width, height, fill = 0) {
+function createMap(width: number, height: number, fill: number = 0): number[][] {
     return Array.from({ length: height }, () => Array(width).fill(fill));
 }
 

@@ -26,7 +26,6 @@ export interface NPC {
     map: string;
     direction: Direction;
     dialogue: string[];
-    currentDialogue: number;
 }
 
 export interface Enemy {
@@ -70,18 +69,15 @@ export interface ItemTypeDef {
     required?: boolean;
     canDrop?: boolean;
     canStore?: boolean;
-    [key: string]: unknown;
 }
 
 export interface Item {
     type: ItemTypeDef;
-    [key: string]: unknown;
 }
 
 export interface BackpackType {
     id: string;
     storageCapacity?: number;
-    [key: string]: unknown;
 }
 
 export interface WorldItem {
@@ -115,7 +111,6 @@ export interface Inventory {
 export interface DialogueChoice {
     label?: string;
     callback?: () => void;
-    [key: string]: unknown;
 }
 
 export interface DialogueState {
@@ -231,6 +226,16 @@ export interface CollisionOptions {
     solidTiles?: number[];
     entities?: Entity[];
     props?: PropCollisionTile[];
+}
+
+// ── Movement ─────────────────────────────────────────────────────
+
+export interface HandleMovementOpts {
+    speed?: number;
+    dt?: number;
+    isBlocked?: () => boolean;
+    collisionOpts?: CollisionOptions;
+    bindings?: KeyBindings;
 }
 
 // ── Renderer ─────────────────────────────────────────────────────

@@ -20,7 +20,6 @@ export function createEntityManager(): EntityManager {
                 map: data.map || 'default',
                 direction: data.direction || 'down',
                 dialogue: data.dialogue || [],
-                currentDialogue: 0,
             };
             npcs.push(npc);
             return npc;

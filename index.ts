@@ -69,4 +69,5 @@ export type {
     AnimationCounter,
     GameLoopOpts,
     GameLoop,
+    HandleMovementOpts,
 } from './types.js';

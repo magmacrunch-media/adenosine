@@ -1,7 +1,7 @@
 // engine/detection.ts
 // Entity and prop detection helpers for interaction systems.
 
-import type { Player, Entity } from './types.js';
+import type { Player } from './types.js';
 
 interface DetectableEntity {
     x: number;

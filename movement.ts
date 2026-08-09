@@ -4,15 +4,7 @@
 import { keys } from './input.js';
 import { isSolid } from './collision.js';
 import { DEFAULT_BINDINGS } from './bindings.js';
-import type { Player, CollisionOptions, KeyBindings } from './types.js';
-
-interface HandleMovementOpts {
-    speed?: number;
-    dt?: number;
-    isBlocked?: () => boolean;
-    collisionOpts?: CollisionOptions;
-    bindings?: KeyBindings;
-}
+import type { Player, CollisionOptions, KeyBindings, HandleMovementOpts } from './types.js';
 
 export function handleMovement(player: Player, { speed = 0.4, dt = 1, isBlocked, collisionOpts = {}, bindings = DEFAULT_BINDINGS }: HandleMovementOpts = {}): boolean {
     if (speed <= 0) return false;

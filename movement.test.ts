@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { keys } from './input.js';
 import { handleMovement } from './movement.js';
+import type { Player } from './types.js';
 
 vi.mock('./input.js', () => ({
     keys: {},
@@ -12,12 +13,14 @@ vi.mock('./collision.js', () => ({
 
 import { isSolid } from './collision.js';
 
-function createPlayer(x = 0, y = 0) {
+function createPlayer(x = 0, y = 0): Player {
     return {
         x, y,
         facingX: 0, facingY: 1,
         direction: 'down',
         isWalking: false, wasMoving: false,
+        health: 100, maxHealth: 100,
+        positionLocked: false,
     };
 }
 

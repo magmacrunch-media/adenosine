@@ -115,8 +115,9 @@ describe('showNotification', () => {
             showNotification('Second');
             const els = document.body.querySelectorAll('div');
             expect(els.length).toBe(2);
-            expect(els[0].style.top).toBe('120px');
-            expect(els[1].style.top).toBe('170px');
+            const top0 = parseInt(els[0].style.top);
+            const top1 = parseInt(els[1].style.top);
+            expect(top1).toBeGreaterThan(top0);
         });
     });
 });

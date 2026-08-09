@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createInventory } from './inventory.js';
+import { engine } from './events.js';
 
 describe('createInventory', () => {
     it('creates inventory with empty hands and no backpack', () => {
@@ -242,6 +243,37 @@ describe('createInventory', () => {
             expect(inv.rightHand).toBeNull();
             expect(inv.backpack).toBeNull();
             expect(inv.storage).toEqual([]);
+        });
+    });
+
+    describe('events', () => {
+        it('emits item-acquired when adding to left hand', () => {
+            const inv = createInventory();
+            const fn = vi.fn();
+            engine.on('item-acquired', fn);
+            inv.addItem({ type: { id: 'sword' } });
+            expect(fn).toHaveBeenCalledOnce();
+            engine.off('item-acquired', fn);
+        });
+
+        it('emits item-acquired when adding to right hand', () => {
+            const inv = createInventory();
+            const fn = vi.fn();
+            inv.addItem({ type: { id: 'sword' } });
+            engine.on('item-acquired', fn);
+            inv.addItem({ type: { id: 'shield' } });
+            expect(fn).toHaveBeenCalledOnce();
+            engine.off('item-acquired', fn);
+        });
+
+        it('emits item-removed when removing item', () => {
+            const inv = createInventory();
+            const fn = vi.fn();
+            inv.addItem({ type: { id: 'sword' } });
+            engine.on('item-removed', fn);
+            inv.removeItem('sword');
+            expect(fn).toHaveBeenCalledOnce();
+            engine.off('item-removed', fn);
         });
     });
 });
