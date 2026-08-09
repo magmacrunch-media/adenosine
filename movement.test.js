@@ -160,6 +160,24 @@ describe('handleMovement', () => {
         });
     });
 
+    describe('speed validation', () => {
+        it('returns false when speed is 0', () => {
+            const player = createPlayer(5, 5);
+            keys['w'] = true;
+            expect(handleMovement(player, { speed: 0 })).toBe(false);
+            expect(player.x).toBe(5);
+            expect(player.y).toBe(5);
+        });
+
+        it('returns false when speed is negative', () => {
+            const player = createPlayer(5, 5);
+            keys['w'] = true;
+            expect(handleMovement(player, { speed: -1 })).toBe(false);
+            expect(player.x).toBe(5);
+            expect(player.y).toBe(5);
+        });
+    });
+
     describe('door boundary movement', () => {
         it('player moves onto tile adjacent to solid wall below (exit trigger scenario)', () => {
             isSolid.mockImplementation((x, y) => y >= 6);

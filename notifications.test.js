@@ -2,10 +2,11 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { showNotification } from './notifications.js';
+import { showNotification, _resetNotificationCount } from './notifications.js';
 
 beforeEach(() => {
     document.body.innerHTML = '';
+    _resetNotificationCount();
     vi.useFakeTimers();
 });
 
@@ -85,5 +86,37 @@ describe('showNotification', () => {
         expect(el.style.position).toBe('absolute');
         expect(el.style.left).toBe('50%');
         expect(el.style.zIndex).toBe('1000');
+    });
+
+    describe('cancel handle', () => {
+        it('returns an object with cancel method', () => {
+            const handle = showNotification('Test');
+            expect(typeof handle.cancel).toBe('function');
+        });
+
+        it('cancel removes notification immediately', () => {
+            const handle = showNotification('Cancel me');
+            expect(document.body.querySelector('div')).not.toBeNull();
+            handle.cancel();
+            expect(document.body.querySelector('div')).toBeNull();
+        });
+
+        it('cancel prevents auto-removal', () => {
+            const handle = showNotification('No auto', { duration: 100 });
+            handle.cancel();
+            vi.advanceTimersByTime(200);
+            expect(document.body.querySelector('div')).toBeNull();
+        });
+    });
+
+    describe('stacking', () => {
+        it('stacks multiple notifications vertically', () => {
+            showNotification('First');
+            showNotification('Second');
+            const els = document.body.querySelectorAll('div');
+            expect(els.length).toBe(2);
+            expect(els[0].style.top).toBe('120px');
+            expect(els[1].style.top).toBe('170px');
+        });
     });
 });

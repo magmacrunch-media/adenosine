@@ -101,6 +101,17 @@ describe('renderWorld', () => {
         const map = [[1]];
         expect(() => renderWorld({ map, tileSize: 16, renderTile, layers: [] })).not.toThrow();
     });
+
+    it('does not mutate the input layers array', () => {
+        const renderTile = vi.fn();
+        const layer1 = { sortY: 10, render: vi.fn() };
+        const layer2 = { sortY: 5, render: vi.fn() };
+        const layers = [layer1, layer2];
+        const map = [[1]];
+        renderWorld({ map, tileSize: 16, renderTile, layers });
+        expect(layers[0]).toBe(layer1);
+        expect(layers[1]).toBe(layer2);
+    });
 });
 
 describe('createSpriteRegistry', () => {

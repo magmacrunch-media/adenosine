@@ -96,6 +96,18 @@ describe('isSolid', () => {
     });
 
     describe('door boundary scenarios', () => {
+        it('returns true when map is null', () => {
+            expect(isSolid(2, 2, { map: null, solidTiles: [] })).toBe(true);
+        });
+
+        it('returns true when map is undefined', () => {
+            expect(isSolid(2, 2, { map: undefined, solidTiles: [] })).toBe(true);
+        });
+
+        it('returns true when map is empty array', () => {
+            expect(isSolid(2, 2, { map: [], solidTiles: [] })).toBe(true);
+        });
+
         it('returns false for tile immediately above a solid wall (exit trigger scenario)', () => {
             const map = createMap(10, 10);
             map[5][3] = 99;

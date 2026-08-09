@@ -1,6 +1,10 @@
 // engine/notifications.js
 // SNES-style floating notification system.
 
+let activeCount = 0;
+
+export function _resetNotificationCount() { activeCount = 0; }
+
 /**
  * Show a floating notification.
  * @param {string} text
@@ -8,6 +12,7 @@
  * @param {number} [opts.duration=2000] - Milliseconds
  * @param {string} [opts.theme='default'] - 'default' | 'locked' | 'item'
  * @param {HTMLElement} [opts.container] - Parent element (defaults to document.body)
+ * @returns {{ cancel: () => void }} Handle to cancel the notification early
  */
 export function showNotification(text, { duration = 2000, theme = 'default', container } = {}) {
     const parent = container || document.body;
@@ -28,11 +33,13 @@ export function showNotification(text, { duration = 2000, theme = 'default', con
     };
 
     const t = themes[theme] || themes.default;
+    const offset = activeCount * 50;
+    activeCount++;
 
     const el = document.createElement('div');
     el.style.cssText = `
         position: absolute;
-        top: 120px;
+        top: ${120 + offset}px;
         left: 50%;
         transform: translateX(-50%);
         background: ${t.bg};
@@ -47,5 +54,16 @@ export function showNotification(text, { duration = 2000, theme = 'default', con
     el.textContent = text;
     parent.appendChild(el);
 
-    setTimeout(() => el.remove(), duration);
+    let timerId = setTimeout(() => {
+        el.remove();
+        activeCount--;
+    }, duration);
+
+    return {
+        cancel() {
+            clearTimeout(timerId);
+            el.remove();
+            activeCount--;
+        },
+    };
 }

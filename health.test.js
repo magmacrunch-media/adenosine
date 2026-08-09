@@ -56,4 +56,38 @@ describe('healPlayer', () => {
         healPlayer(10);
         expect(player.health).toBe(10);
     });
+
+    it('ignores negative amounts', () => {
+        player.health = 50;
+        healPlayer(-10);
+        expect(player.health).toBe(50);
+    });
+
+    it('ignores zero amount', () => {
+        player.health = 50;
+        healPlayer(0);
+        expect(player.health).toBe(50);
+    });
+});
+
+describe('damagePlayer validation', () => {
+    it('ignores negative amounts', () => {
+        player.health = 50;
+        damagePlayer(-10);
+        expect(player.health).toBe(50);
+    });
+
+    it('ignores zero amount', () => {
+        player.health = 50;
+        damagePlayer(0);
+        expect(player.health).toBe(50);
+    });
+
+    it('does not fire game-over callback when already at 0 health', () => {
+        player.health = 0;
+        const cb = vi.fn();
+        setOnGameOverCallback(cb);
+        damagePlayer(10);
+        expect(cb).not.toHaveBeenCalled();
+    });
 });

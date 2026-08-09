@@ -5,7 +5,9 @@ import { canvas } from './state.js';
 
 export const camera = { x: 0, y: 0 };
 
-export function updateCamera(target, tileSize, smoothing = 0.3) {
+export function updateCamera({ target, tileSize, smoothing = 0.3 } = {}) {
+    if (!canvas) return;
+
     const targetX = target.x * tileSize - canvas.width / 2 + tileSize / 2;
     const targetY = target.y * tileSize - canvas.height / 2 + tileSize / 2;
 

@@ -1,5 +1,5 @@
 // engine/index.js
-// Bandaniel Engine — main entry point.
+// Magma Engine — main entry point.
 // Import everything from here, or import individual modules.
 
 export { player, canvas, ctx, initCanvas, currentMap, setCurrentMap, setMap, gameStarted, setGameStarted, gamePaused, setGamePaused, gameOver, setGameOver, transitionCooldown, setTransitionCooldown, animationFrame, frameCounter, waterAnimFrame, waterAnimCounter, campfireAnimFrame, campfireAnimCounter } from './state.js';

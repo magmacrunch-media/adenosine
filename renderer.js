@@ -37,9 +37,9 @@ export function renderWorld({ map, tileSize, renderTile, layers = [], background
         }
     }
 
-    // Sort by Y and draw
-    layers.sort((a, b) => a.sortY - b.sortY);
-    for (const layer of layers) {
+    // Sort by Y and draw (copy to avoid mutating caller's array)
+    const sorted = [...layers].sort((a, b) => a.sortY - b.sortY);
+    for (const layer of sorted) {
         layer.render(ctx);
     }
 }

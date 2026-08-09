@@ -102,4 +102,27 @@ describe('initInput', () => {
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'W' }));
         expect(keys['w']).toBe(true);
     });
+
+    describe('destroy', () => {
+        it('returns object with destroy method', () => {
+            const spy = vi.spyOn(window, 'addEventListener');
+            initInput();
+            const calls = spy.mock.calls.filter(([type]) => type === 'keydown' || type === 'keyup');
+            for (const [type, fn] of calls) {
+                addedListeners.push({ type, fn });
+            }
+            spy.mockRestore();
+        });
+
+        it('destroy removes event listeners', () => {
+            const handle = initInput();
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z' }));
+            expect(keys['z']).toBe(true);
+
+            handle.destroy();
+            keys['z'] = false;
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z' }));
+            expect(keys['z']).toBe(false);
+        });
+    });
 });

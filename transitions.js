@@ -4,7 +4,7 @@
 import { player, currentMap, setCurrentMap, setMap, transitionCooldown, setTransitionCooldown, canvas } from './state.js';
 import { camera } from './camera.js';
 
-function lockPosition(facing) {
+function lockPosition(facing, tileSize = 16) {
     player.positionLocked = true;
     if (facing) {
         player.direction = facing;
@@ -13,8 +13,10 @@ function lockPosition(facing) {
         else if (facing === 'left') { player.facingX = -1; player.facingY = 0; }
         else if (facing === 'right') { player.facingX = 1; player.facingY = 0; }
     }
-    camera.x = player.x * 16 - canvas.width / 2;
-    camera.y = player.y * 16 - canvas.height / 2;
+    if (canvas) {
+        camera.x = player.x * tileSize - canvas.width / 2;
+        camera.y = player.y * tileSize - canvas.height / 2;
+    }
     setTimeout(() => { player.positionLocked = false; }, 1);
 }
 
@@ -26,12 +28,13 @@ function lockPosition(facing) {
  * @param {number} opts.x - Spawn X
  * @param {number} opts.y - Spawn Y
  * @param {string} [opts.facing] - Player facing direction
+ * @param {number} [opts.tileSize=16] - Tile size for camera snap
  */
-export function transitionTo({ mapName, maps, x, y, facing }) {
+export function transitionTo({ mapName, maps, x, y, facing, tileSize = 16 }) {
     setTransitionCooldown(30);
     setCurrentMap(mapName);
     setMap(maps[mapName]);
     player.x = x;
     player.y = y;
-    lockPosition(facing);
+    lockPosition(facing, tileSize);
 }

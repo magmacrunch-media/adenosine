@@ -1,6 +1,6 @@
-# Bandaniel Engine
+# Magma Engine
 
-A lightweight 2D tile-based game engine extracted from **The Ballad of Bandaniel**. Written as ES modules — import what you need.
+A lightweight 2D tile-based game engine. Written as ES modules — import what you need.
 
 ## Quick Start
 
@@ -37,7 +37,7 @@ function drawTile(ctx, x, y, tileId) {
 // Game loop
 const loop = createGameLoop({
   update: () => {
-    updateCamera(player, 16);
+    updateCamera({ target: player, tileSize: 16 });
     // ... your update logic
   },
   render: () => {

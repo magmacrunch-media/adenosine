@@ -11,9 +11,10 @@ export function createGameLoop({ update, render, fps = 30 } = {}) {
     const targetFrameTime = 1000 / fps;
     let lastFrameTime = 0;
     let accumulatedTime = 0;
+    let rafId = null;
 
     function gameLoop(currentTime = 0) {
-        requestAnimationFrame(gameLoop);
+        rafId = requestAnimationFrame(gameLoop);
 
         if (!lastFrameTime) lastFrameTime = currentTime;
         const deltaTime = currentTime - lastFrameTime;
@@ -22,13 +23,15 @@ export function createGameLoop({ update, render, fps = 30 } = {}) {
         if (accumulatedTime >= targetFrameTime) {
             accumulatedTime = accumulatedTime % targetFrameTime;
 
-            if (update) update();
+            if (!gamePaused && !gameOver && update) {
+                update();
+            }
 
             if (ctx && canvas) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
 
-            if (gameStarted && render) {
+            if (gameStarted && !gameOver && render) {
                 render();
             }
         }
@@ -37,7 +40,14 @@ export function createGameLoop({ update, render, fps = 30 } = {}) {
     }
 
     return {
-        start: () => requestAnimationFrame(gameLoop),
-        stop: () => { lastFrameTime = 0; },
+        start: () => { rafId = requestAnimationFrame(gameLoop); },
+        stop: () => {
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+            lastFrameTime = 0;
+            accumulatedTime = 0;
+        },
     };
 }

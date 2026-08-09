@@ -5,7 +5,7 @@ export const keys = {};
 export const keysPressed = {};
 
 export function initInput({ onPause, onInteract } = {}) {
-    window.addEventListener('keydown', (e) => {
+    function onKeyDown(e) {
         const key = e.key.toLowerCase();
 
         // Pause toggle
@@ -23,11 +23,21 @@ export function initInput({ onPause, onInteract } = {}) {
         }
 
         keys[key] = true;
-    });
+    }
 
-    window.addEventListener('keyup', (e) => {
+    function onKeyUp(e) {
         const key = e.key.toLowerCase();
         keys[key] = false;
         keysPressed[key] = false;
-    });
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    return {
+        destroy() {
+            window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('keyup', onKeyUp);
+        },
+    };
 }

@@ -11,10 +11,10 @@
  * @param {number[]} opts.solidTiles - Array of solid tile IDs
  * @param {Array} opts.entities - Entities to check (NPCs, enemies)
  * @param {Array} opts.props - Solid prop positions [{x, y}]
- * @param {string} opts.mapName - Current map name (for boundary logic)
  * @returns {boolean}
  */
-export function isSolid(x, y, { map, solidTiles, entities = [], props = [], mapName = '' } = {}) {
+export function isSolid(x, y, { map, solidTiles, entities = [], props = [] } = {}) {
+    if (!map || !map.length) return true;
     const checkX = Math.floor(x + 0.001);
     const checkY = Math.floor(y + 0.001);
 

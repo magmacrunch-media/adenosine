@@ -154,4 +154,20 @@ describe('transitionTo', () => {
             expect(mockState.player.y).toBe(5);
         });
     });
+
+    describe('custom tile size', () => {
+        it('uses default tile size of 16', () => {
+            const maps = { forest: {} };
+            transitionTo({ mapName: 'forest', maps, x: 10, y: 10 });
+            expect(camera.x).toBe(10 * 16 - 320 / 2);
+            expect(camera.y).toBe(10 * 16 - 240 / 2);
+        });
+
+        it('accepts custom tile size', () => {
+            const maps = { forest: {} };
+            transitionTo({ mapName: 'forest', maps, x: 10, y: 10, tileSize: 32 });
+            expect(camera.x).toBe(10 * 32 - 320 / 2);
+            expect(camera.y).toBe(10 * 32 - 240 / 2);
+        });
+    });
 });

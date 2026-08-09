@@ -16,6 +16,8 @@ import { isSolid } from './collision.js';
  * @returns {boolean} Whether the player moved
  */
 export function handleMovement(player, { speed = 0.4, isBlocked, collisionOpts = {} } = {}) {
+    if (speed <= 0) return false;
+
     const isMovementKey = keys['arrowup'] || keys['w'] || keys['arrowdown'] ||
                           keys['s'] || keys['arrowleft'] || keys['a'] ||
                           keys['arrowright'] || keys['d'];
