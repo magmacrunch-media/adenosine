@@ -1,0 +1,15 @@
+{
+  "name": "magma-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Lightweight 2D tile-based game engine",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1",
+    "vitest": "^3.2.1"
+  }
+}
