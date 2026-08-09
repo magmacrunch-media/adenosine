@@ -159,4 +159,52 @@ describe('handleMovement', () => {
             expect(player.isWalking).toBe(false);
         });
     });
+
+    describe('door boundary movement', () => {
+        it('player moves onto tile adjacent to solid wall below (exit trigger scenario)', () => {
+            isSolid.mockImplementation((x, y) => y >= 6);
+            const player = createPlayer(3, 5.2);
+            keys['s'] = true;
+            handleMovement(player, { speed: 0.4 });
+            expect(player.y).toBeGreaterThan(5.2);
+            expect(player.y).toBeLessThan(6);
+        });
+
+        it('per-axis collision allows X movement when Y is blocked by door wall', () => {
+            isSolid.mockImplementation((x, y) => y >= 6);
+            const player = createPlayer(3, 5.8);
+            keys['d'] = true;
+            keys['s'] = true;
+            handleMovement(player, { speed: 0.4 });
+            expect(player.x).toBeGreaterThan(3);
+            expect(player.y).toBe(5.8);
+        });
+
+        it('diagonal movement near solid tiles does not clip through', () => {
+            isSolid.mockImplementation((x, y) => y >= 6);
+            const player = createPlayer(3, 5.8);
+            keys['d'] = true;
+            keys['s'] = true;
+            handleMovement(player, { speed: 0.4 });
+            expect(player.y).toBe(5.8);
+            expect(player.x).toBeGreaterThan(3);
+        });
+
+        it('player slides along a wall (horizontal move when vertical blocked)', () => {
+            isSolid.mockImplementation((x, y) => x >= 6);
+            const player = createPlayer(5.8, 3);
+            keys['d'] = true;
+            handleMovement(player, { speed: 0.4 });
+            expect(player.x).toBe(5.8);
+            expect(player.y).toBe(3);
+        });
+
+        it('movement speed does not skip over adjacent solid tiles', () => {
+            isSolid.mockImplementation((x, y) => Math.floor(y) === 6);
+            const player = createPlayer(3, 5.9);
+            keys['s'] = true;
+            handleMovement(player, { speed: 0.4 });
+            expect(player.y).toBeLessThan(6);
+        });
+    });
 });

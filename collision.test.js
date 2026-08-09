@@ -94,4 +94,47 @@ describe('isSolid', () => {
             expect(isSolid(2.001, 2.001, { map, solidTiles: [5] })).toBe(true);
         });
     });
+
+    describe('door boundary scenarios', () => {
+        it('returns false for tile immediately above a solid wall (exit trigger scenario)', () => {
+            const map = createMap(10, 10);
+            map[5][3] = 99;
+            expect(isSolid(3, 4, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 5, { map, solidTiles: [99] })).toBe(true);
+        });
+
+        it('returns false at position adjacent to solid tile on the next row', () => {
+            const map = createMap(10, 10);
+            map[6][3] = 99;
+            expect(isSolid(3, 5, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 5.9, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 6, { map, solidTiles: [99] })).toBe(true);
+        });
+
+        it('epsilon does not false-positive on adjacent solid tiles', () => {
+            const map = createMap(10, 10);
+            map[5][3] = 99;
+            expect(isSolid(3, 4.5, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 4.9, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 5.0, { map, solidTiles: [99] })).toBe(true);
+        });
+
+        it('returns false for position surrounded by solid tiles but on a non-solid tile', () => {
+            const map = createMap(10, 10);
+            map[4][3] = 99;
+            map[6][3] = 99;
+            map[5][2] = 99;
+            map[5][4] = 99;
+            expect(isSolid(3, 5, { map, solidTiles: [99] })).toBe(false);
+        });
+
+        it('handles wall below door (exit trigger at y=4, solid door at y=5)', () => {
+            const map = createMap(10, 10);
+            map[5][3] = 99;
+            expect(isSolid(3, 4.0, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 4.5, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 4.9, { map, solidTiles: [99] })).toBe(false);
+            expect(isSolid(3, 5.0, { map, solidTiles: [99] })).toBe(true);
+        });
+    });
 });
