@@ -1,14 +1,9 @@
-// engine/animation.js
+// engine/animation.ts
 // Rate-limited animation frame counter.
 
-/**
- * Create an animation counter that cycles through frames at a given interval.
- * @param {object} opts
- * @param {number} opts.frames - Number of frames in the cycle
- * @param {number} opts.interval - Ticks between frame advances
- * @returns {{ update: Function, frame: number, reset: Function }}
- */
-export function createAnimationCounter({ frames, interval }) {
+import type { AnimationCounter, AnimationCounterOpts } from './types.js';
+
+export function createAnimationCounter({ frames, interval }: AnimationCounterOpts): AnimationCounter {
     let frame = 0;
     let counter = 0;
 

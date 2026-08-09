@@ -1,23 +1,16 @@
-// engine/notifications.js
+// engine/notifications.ts
 // SNES-style floating notification system.
 
-let activeCount = 0;
+import type { NotificationTheme, NotificationOpts, NotificationHandle } from './types.js';
 
-export function _resetNotificationCount() { activeCount = 0; }
+let activeCount: number = 0;
 
-/**
- * Show a floating notification.
- * @param {string} text
- * @param {object} opts
- * @param {number} [opts.duration=2000] - Milliseconds
- * @param {string} [opts.theme='default'] - 'default' | 'locked' | 'item'
- * @param {HTMLElement} [opts.container] - Parent element (defaults to document.body)
- * @returns {{ cancel: () => void }} Handle to cancel the notification early
- */
-export function showNotification(text, { duration = 2000, theme = 'default', container } = {}) {
+export function _resetNotificationCount(): void { activeCount = 0; }
+
+export function showNotification(text: string, { duration = 2000, theme = 'default', container }: NotificationOpts = {}): NotificationHandle {
     const parent = container || document.body;
 
-    const themes = {
+    const themes: Record<NotificationTheme, { bg: string; color: string; border: string }> = {
         default: {
             bg: '#3a4466', color: '#ffffff',
             border: '0 0 0 4px #6a7a9a, 0 0 0 8px #4a5a7a, 0 0 0 12px #2a3a5a',

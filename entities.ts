@@ -1,19 +1,16 @@
-// engine/entities.js
+// engine/entities.ts
 // NPC and enemy entity management with patrol AI.
 
 import { engine } from './events.js';
+import type { NPC, Enemy, AddNPCData, AddEnemyData, EntityManager, Player } from './types.js';
 
-/**
- * Create an entity manager for NPCs and enemies.
- * @returns {{ addNPC, addEnemy, getNPCs, getEnemies, updateEnemies, checkEnemyCollisions, getNPCInFront }}
- */
-export function createEntityManager() {
-    const npcs = [];
-    const enemies = [];
+export function createEntityManager(): EntityManager {
+    const npcs: NPC[] = [];
+    const enemies: Enemy[] = [];
 
     return {
-        addNPC(data) {
-            const npc = {
+        addNPC(data: AddNPCData): NPC {
+            const npc: NPC = {
                 x: data.x,
                 y: data.y,
                 width: data.width || 1,
@@ -29,8 +26,8 @@ export function createEntityManager() {
             return npc;
         },
 
-        addEnemy(data) {
-            const enemy = {
+        addEnemy(data: AddEnemyData): Enemy {
+            const enemy: Enemy = {
                 x: data.x,
                 y: data.y,
                 width: data.width || 1,
@@ -49,15 +46,15 @@ export function createEntityManager() {
             return enemy;
         },
 
-        getNPCs(mapName) {
+        getNPCs(mapName?: string): NPC[] {
             return mapName ? npcs.filter(n => n.map === mapName) : [...npcs];
         },
 
-        getEnemies(mapName) {
+        getEnemies(mapName?: string): Enemy[] {
             return mapName ? enemies.filter(e => e.map === mapName) : [...enemies];
         },
 
-        updateEnemies(mapName, isSolidFn, dt = 1) {
+        updateEnemies(mapName: string, isSolidFn: (x: number, y: number) => boolean, dt: number = 1): void {
             for (const enemy of enemies) {
                 if (enemy.map !== mapName) continue;
                 enemy.moveCounter += dt;
@@ -73,7 +70,7 @@ export function createEntityManager() {
             }
         },
 
-        checkEnemyCollisions(playerX, playerY, mapName, damageCallback) {
+        checkEnemyCollisions(playerX: number, playerY: number, mapName: string, damageCallback: (damage: number) => void): Enemy | null {
             for (const enemy of enemies) {
                 if (enemy.map !== mapName) continue;
                 const dx = Math.abs(playerX - enemy.x);
@@ -87,7 +84,7 @@ export function createEntityManager() {
             return null;
         },
 
-        getNPCInFront(player, mapName, threshold = 0.8) {
+        getNPCInFront(player: Player, mapName: string, threshold: number = 0.8): NPC | null {
             const targetX = player.x + player.facingX;
             const targetY = player.y + player.facingY;
             for (const npc of npcs) {

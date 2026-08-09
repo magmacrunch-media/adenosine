@@ -1,56 +1,49 @@
-// engine/items.js
+// engine/items.ts
 // Item type registry and world item management.
 
 import { engine } from './events.js';
+import type { ItemTypeDef, ItemRegistry, WorldItem, WorldItems, Inventory } from './types.js';
 
-/**
- * Create an item type registry.
- * @returns {{ register: Function, get: Function, isQuest: Function, canDrop: Function, canStore: Function, all: Function }}
- */
-export function createItemRegistry() {
-    const types = new Map();
+export function createItemRegistry(): ItemRegistry {
+    const types = new Map<string, ItemTypeDef>();
 
     return {
-        register(typeDef) {
+        register(typeDef: ItemTypeDef): void {
             types.set(typeDef.id, typeDef);
         },
-        get(id) {
+        get(id: string): ItemTypeDef | null {
             return types.get(id) || null;
         },
-        isQuest(id) {
+        isQuest(id: string): boolean {
             return types.get(id)?.required === true;
         },
-        canDrop(id) {
+        canDrop(id: string): boolean {
             return types.get(id)?.canDrop !== false;
         },
-        canStore(id) {
+        canStore(id: string): boolean {
             return types.get(id)?.canStore !== false;
         },
-        all() {
+        all(): ItemTypeDef[] {
             return [...types.values()];
         },
     };
 }
 
-/**
- * Create a world item manager for tracking items on the ground.
- * @returns {{ addItem: Function, getItems: Function, checkPickup: Function, pickup: Function, remove: Function, clear: Function }}
- */
-export function createWorldItems() {
-    const items = new Map();
+export function createWorldItems(): WorldItems {
+    const items = new Map<string, WorldItem[]>();
 
     return {
-        addItem(mapName, itemId, x, y) {
+        addItem(mapName: string, itemId: string, x: number, y: number): WorldItem {
             if (!items.has(mapName)) items.set(mapName, []);
-            const item = { itemId, x, y };
-            items.get(mapName).push(item);
+            const item: WorldItem = { itemId, x, y };
+            items.get(mapName)!.push(item);
             engine.emit('world-item-added', { mapName, item });
             return item;
         },
-        getItems(mapName) {
+        getItems(mapName: string): WorldItem[] {
             return items.get(mapName) || [];
         },
-        checkPickup(playerX, playerY, mapName, radius = 1.5) {
+        checkPickup(playerX: number, playerY: number, mapName: string, radius: number = 1.5): WorldItem | null {
             const mapItems = items.get(mapName) || [];
             for (const item of mapItems) {
                 const dx = Math.abs(playerX - item.x);
@@ -61,7 +54,7 @@ export function createWorldItems() {
             }
             return null;
         },
-        pickup(item, inventory) {
+        pickup(item: WorldItem, inventory: Inventory): boolean {
             const added = inventory.addItem({ type: { id: item.itemId } });
             if (added) {
                 this.remove(item);
@@ -70,7 +63,7 @@ export function createWorldItems() {
             }
             return false;
         },
-        remove(item) {
+        remove(item: WorldItem): boolean {
             for (const [mapName, mapItems] of items) {
                 const idx = mapItems.indexOf(item);
                 if (idx !== -1) {
@@ -81,8 +74,12 @@ export function createWorldItems() {
             }
             return false;
         },
-        clear(mapName) {
-            items.delete(mapName);
+        clear(mapName?: string): void {
+            if (mapName) {
+                items.delete(mapName);
+            } else {
+                items.clear();
+            }
         },
     };
 }

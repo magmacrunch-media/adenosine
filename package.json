@@ -3,13 +3,28 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Lightweight 2D tile-based game engine",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
   "scripts": {
+    "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build:js": "tsup",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "jsdom": "^30.0.1",
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2",
     "vitest": "^3.2.1"
   }
 }

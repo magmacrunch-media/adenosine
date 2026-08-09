@@ -1,24 +1,20 @@
-// engine/movement.js
+// engine/movement.ts
 // Tile-based player movement with diagonal normalization and collision checking.
 
 import { keys } from './input.js';
 import { isSolid } from './collision.js';
 import { DEFAULT_BINDINGS } from './bindings.js';
+import type { Player, CollisionOptions, KeyBindings } from './types.js';
 
-/**
- * Handle player movement based on current key state.
- * Mutates player.x, player.y, player.facingX/Y, player.direction, player.isWalking.
- *
- * @param {object} player
- * @param {object} opts
- * @param {number} opts.speed - Movement speed in tiles per frame
- * @param {number} opts.dt - Delta time factor (1.0 = normal, >1.0 = lag, <1.0 = fast frame)
- * @param {Function} opts.isBlocked - Additional blocking check (e.g. dialogue active)
- * @param {object} opts.collisionOpts - Options passed to isSolid (map, solidTiles, entities, props)
- * @param {object} opts.bindings - Key bindings (defaults to DEFAULT_BINDINGS)
- * @returns {boolean} Whether the player moved
- */
-export function handleMovement(player, { speed = 0.4, dt = 1, isBlocked, collisionOpts = {}, bindings = DEFAULT_BINDINGS } = {}) {
+interface HandleMovementOpts {
+    speed?: number;
+    dt?: number;
+    isBlocked?: () => boolean;
+    collisionOpts?: CollisionOptions;
+    bindings?: KeyBindings;
+}
+
+export function handleMovement(player: Player, { speed = 0.4, dt = 1, isBlocked, collisionOpts = {} as CollisionOptions, bindings = DEFAULT_BINDINGS }: HandleMovementOpts = {}): boolean {
     if (speed <= 0) return false;
 
     const upKeys = bindings.moveUp.map(k => k.toLowerCase());

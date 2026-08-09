@@ -1,14 +1,15 @@
-// engine/transitions.js
+// engine/transitions.ts
 // Map transition system — enter/exit interiors with position locking.
 
 import { player, currentMap, setCurrentMap, setMap, transitionCooldown, setTransitionCooldown, canvas } from './state.js';
 import { camera } from './camera.js';
 import { engine } from './events.js';
+import type { TransitionOpts } from './types.js';
 
-function lockPosition(facing, tileSize = 16) {
+function lockPosition(facing: string | undefined, tileSize: number = 16): void {
     player.positionLocked = true;
     if (facing) {
-        player.direction = facing;
+        player.direction = facing as 'up' | 'down' | 'left' | 'right';
         if (facing === 'up') { player.facingX = 0; player.facingY = -1; }
         else if (facing === 'down') { player.facingX = 0; player.facingY = 1; }
         else if (facing === 'left') { player.facingX = -1; player.facingY = 0; }
@@ -21,22 +22,13 @@ function lockPosition(facing, tileSize = 16) {
     setTimeout(() => { player.positionLocked = false; }, 1);
 }
 
-/**
- * Transition to a different map.
- * @param {object} opts
- * @param {string} opts.mapName - Map key
- * @param {object} opts.maps - Maps registry { mapName: mapData }
- * @param {number} opts.x - Spawn X
- * @param {number} opts.y - Spawn Y
- * @param {string} [opts.facing] - Player facing direction
- * @param {number} [opts.tileSize=16] - Tile size for camera snap
- */
-export function transitionTo({ mapName, maps, x, y, facing, tileSize = 16 }) {
+export function transitionTo({ mapName, maps, x, y, facing, tileSize = 16 }: TransitionOpts): void {
     setTransitionCooldown(30);
     setCurrentMap(mapName);
-    setMap(maps[mapName]);
+    const mapData = maps[mapName] ?? null;
+    setMap(mapData);
     player.x = x;
     player.y = y;
     lockPosition(facing, tileSize);
-    engine.emit('map-changed', { mapName, map: maps[mapName] });
+    engine.emit('map-changed', { mapName, map: mapData ?? [] });
 }

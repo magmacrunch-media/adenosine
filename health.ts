@@ -1,14 +1,15 @@
-// engine/health.js
+// engine/health.ts
 // Health system with damage/healing and game-over callback.
 
 import { player } from './state.js';
 import { engine } from './events.js';
+import type { DamageCooldown } from './types.js';
 
-let onGameOverCallback = null;
+let onGameOverCallback: (() => void) | null = null;
 
-export function setOnGameOverCallback(fn) { onGameOverCallback = fn; }
+export function setOnGameOverCallback(fn: () => void): void { onGameOverCallback = fn; }
 
-export function damagePlayer(amount) {
+export function damagePlayer(amount: number): void {
     if (amount <= 0) return;
     const wasAlive = player.health > 0;
     player.health = Math.max(0, player.health - amount);
@@ -19,18 +20,13 @@ export function damagePlayer(amount) {
     }
 }
 
-export function healPlayer(amount) {
+export function healPlayer(amount: number): void {
     if (amount <= 0) return;
     player.health = Math.min(player.maxHealth, player.health + amount);
     engine.emit('health-changed', { health: player.health, maxHealth: player.maxHealth });
 }
 
-/**
- * Create a damage cooldown timer for post-hit invincibility frames.
- * @param {number} frames - Duration of cooldown in frames
- * @returns {{ canDamage: Function, recordHit: Function, tick: Function }}
- */
-export function createDamageCooldown(frames = 60) {
+export function createDamageCooldown(frames: number = 60): DamageCooldown {
     let cooldown = 0;
     return {
         canDamage() { return cooldown === 0; },

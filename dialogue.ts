@@ -1,23 +1,20 @@
-// engine/dialogue.js
+// engine/dialogue.ts
 // Dialogue system with multi-line text, choices, and close callbacks.
 
 import { engine } from './events.js';
+import type { NPC, DialogueChoice, DialogueState, DialogueSystem } from './types.js';
 
-/**
- * Create a dialogue system for managing conversations.
- * @returns {{ show, advance, moveChoice, selectChoice, close, isActive, getState }}
- */
-export function createDialogueSystem() {
+export function createDialogueSystem(): DialogueSystem {
     let active = false;
-    let speaker = null;
-    let lines = [];
+    let speaker: NPC | null = null;
+    let lines: string[] = [];
     let lineIndex = 0;
-    let choices = [];
+    let choices: DialogueChoice[] = [];
     let choiceIndex = 0;
     let choicesMade = false;
-    let onClose = null;
+    let onClose: (() => void) | null = null;
 
-    function getState() {
+    function getState(): DialogueState {
         return {
             active,
             speaker,
@@ -33,7 +30,7 @@ export function createDialogueSystem() {
     }
 
     return {
-        show(speakerData, opts = {}) {
+        show(speakerData: NPC, opts: { choices?: DialogueChoice[]; onClose?: () => void } = {}): void {
             speaker = speakerData;
             lines = Array.isArray(speakerData.dialogue) ? speakerData.dialogue : [speakerData.dialogue || ''];
             lineIndex = 0;
@@ -42,10 +39,10 @@ export function createDialogueSystem() {
             choicesMade = false;
             onClose = opts.onClose || null;
             active = true;
-            engine.emit('dialogue-start', { speaker, line: lines[0] });
+            engine.emit('dialogue-start', { speaker, line: lines[0]! });
         },
 
-        advance() {
+        advance(): void {
             if (!active) return;
             if (choices.length > 0 && !choicesMade && lineIndex >= lines.length - 1) {
                 return;
@@ -58,16 +55,16 @@ export function createDialogueSystem() {
                     this.close();
                 }
             } else {
-                engine.emit('dialogue-line', { speaker, line: lines[lineIndex] });
+                engine.emit('dialogue-line', { speaker: speaker!, line: lines[lineIndex]! });
             }
         },
 
-        moveChoice(dir) {
+        moveChoice(dir: number): void {
             if (!active || choices.length === 0) return;
             choiceIndex = (choiceIndex + dir + choices.length) % choices.length;
         },
 
-        selectChoice() {
+        selectChoice(): void {
             if (!active || choices.length === 0 || choicesMade) return;
             choicesMade = true;
             const choice = choices[choiceIndex];
@@ -75,7 +72,7 @@ export function createDialogueSystem() {
             if (choice?.callback) choice.callback();
         },
 
-        close() {
+        close(): void {
             if (!active) return;
             active = false;
             const cb = onClose;
@@ -90,7 +87,7 @@ export function createDialogueSystem() {
             if (cb) cb();
         },
 
-        isActive() {
+        isActive(): boolean {
             return active;
         },
 

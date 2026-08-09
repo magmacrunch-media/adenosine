@@ -1,4 +1,4 @@
-// engine/index.js
+// engine/index.ts
 // Magma Engine — main entry point.
 // Import everything from here, or import individual modules.
 
@@ -22,3 +22,48 @@ export { createItemRegistry, createWorldItems } from './items.js';
 export { createEntityManager } from './entities.js';
 export { createDialogueSystem } from './dialogue.js';
 export { createInteractionManager } from './interactions.js';
+
+export type {
+    Player,
+    NPC,
+    Enemy,
+    Entity,
+    Prop,
+    PropCollisionTile,
+    ItemTypeDef,
+    Item,
+    BackpackType,
+    WorldItem,
+    Inventory,
+    DialogueChoice,
+    DialogueState,
+    DialogueSystem,
+    EventBus,
+    EventMap,
+    EventName,
+    KeyBindings,
+    InputListener,
+    Camera,
+    UpdateCameraOpts,
+    CollisionOptions,
+    RenderLayer,
+    RenderWorldOpts,
+    SpriteRegistry,
+    DetectionOpts,
+    InteractionSource,
+    InteractionManager,
+    AddNPCData,
+    AddEnemyData,
+    EntityManager,
+    ItemRegistry,
+    WorldItems,
+    DamageCooldown,
+    NotificationTheme,
+    NotificationOpts,
+    NotificationHandle,
+    TransitionOpts,
+    AnimationCounterOpts,
+    AnimationCounter,
+    GameLoopOpts,
+    GameLoop,
+} from './types.js';

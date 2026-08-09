@@ -1,20 +1,11 @@
-// engine/renderer.js
+// engine/renderer.ts
 // Y-sorted rendering pipeline. Game provides tile renderer and entity renderers.
 
 import { ctx, canvas } from './state.js';
 import { camera } from './camera.js';
+import type { RenderWorldOpts, SpriteRegistry } from './types.js';
 
-/**
- * Render the game world with Y-sorted depth ordering.
- *
- * @param {object} opts
- * @param {number[][]} opts.map - 2D tile array
- * @param {number} opts.tileSize - Tile size in pixels
- * @param {Function} opts.renderTile - (ctx, screenX, screenY, tileId, tileX, tileY) => void
- * @param {Array} opts.layers - Array of { sortY, render } objects to sort and draw
- * @param {Function} [opts.background] - (ctx) => void, drawn first (e.g. parallax forest)
- */
-export function renderWorld({ map, tileSize, renderTile, layers = [], background } = {}) {
+export function renderWorld({ map, tileSize, renderTile, layers = [], background }: RenderWorldOpts): void {
     if (!ctx || !canvas || !map) return;
 
     // Background (parallax, sky, etc.)
@@ -30,7 +21,7 @@ export function renderWorld({ map, tileSize, renderTile, layers = [], background
 
     for (let y = Math.max(0, sy); y < Math.min(mapHeight, ey); y++) {
         for (let x = Math.max(0, sx); x < Math.min(mapWidth, ex); x++) {
-            const tile = map[y][x];
+            const tile = map[y]![x]!;
             const screenX = Math.floor(x * tileSize - camera.x);
             const screenY = Math.floor(y * tileSize - camera.y);
             renderTile(ctx, screenX, screenY, tile, x, y);
@@ -44,29 +35,22 @@ export function renderWorld({ map, tileSize, renderTile, layers = [], background
     }
 }
 
-/**
- * Helper: convert tile coords to screen coords.
- */
-export function tileToScreen(tileX, tileY, tileSize) {
+export function tileToScreen(tileX: number, tileY: number, tileSize: number): { x: number; y: number } {
     return {
         x: Math.floor(tileX * tileSize - camera.x),
         y: Math.floor(tileY * tileSize - camera.y),
     };
 }
 
-/**
- * Helper: draw a sprite (stub — game provides actual drawing logic).
- * Sprite registry pattern: map type strings to draw functions.
- */
-export function createSpriteRegistry() {
-    const registry = {};
+export function createSpriteRegistry(): SpriteRegistry {
+    const registry: Record<string, (...args: unknown[]) => void> = {};
     return {
-        register: (type, drawFn) => { registry[type] = drawFn; },
-        draw: (type, ...args) => {
+        register: (type: string, drawFn: (...args: unknown[]) => void) => { registry[type] = drawFn; },
+        draw: (type: string, ...args: unknown[]) => {
             if (registry[type]) registry[type](...args);
-            else {
+            else if (ctx) {
                 ctx.fillStyle = '#ff00ff';
-                ctx.fillRect(args[0], args[1], args[2] || 16, args[3] || 16);
+                ctx.fillRect(args[0] as number, args[1] as number, (args[2] as number) || 16, (args[3] as number) || 16);
             }
         },
     };

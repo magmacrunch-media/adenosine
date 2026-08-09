@@ -1,19 +1,10 @@
-// engine/collision.js
+// engine/collision.ts
 // Tile-based + entity collision detection.
 // Game provides: solidTiles, getEntitiesForMap, getPropsForMap
 
-/**
- * Check if a tile position is solid.
- * @param {number} x - Tile X (can be fractional)
- * @param {number} y - Tile Y (can be fractional)
- * @param {object} opts
- * @param {number[][]} opts.map - 2D tile array
- * @param {number[]} opts.solidTiles - Array of solid tile IDs
- * @param {Array} opts.entities - Entities to check (NPCs, enemies)
- * @param {Array} opts.props - Solid prop positions [{x, y}]
- * @returns {boolean}
- */
-export function isSolid(x, y, { map, solidTiles = [], entities = [], props = [] } = {}) {
+import type { Entity, PropCollisionTile, CollisionOptions } from './types.js';
+
+export function isSolid(x: number, y: number, { map, solidTiles = [], entities = [], props = [] }: CollisionOptions = {} as CollisionOptions): boolean {
     if (!map || !map.length) return true;
     const checkX = Math.floor(x + 0.001);
     const checkY = Math.floor(y + 0.001);
@@ -55,5 +46,6 @@ export function isSolid(x, y, { map, solidTiles = [], entities = [], props = [] 
     }
 
     // Tile collision
-    return solidTiles.includes(map[checkY][checkX]);
+    const tileId = map[checkY]?.[checkX];
+    return tileId !== undefined && solidTiles.includes(tileId);
 }
