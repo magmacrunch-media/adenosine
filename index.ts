@@ -1,5 +1,5 @@
 // engine/index.ts
-// Magma Engine — main entry point.
+// Adenosine — main entry point.
 // Import everything from here, or import individual modules.
 
 export { player, map, canvas, ctx, initCanvas, currentMap, setCurrentMap, setMap, gameStarted, setGameStarted, gamePaused, setGamePaused, gameOver, setGameOver, transitionCooldown, setTransitionCooldown, animationFrame, frameCounter, waterAnimFrame, waterAnimCounter, campfireAnimFrame, campfireAnimCounter } from './state.js';

@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API reference for all Magma Engine modules.
+Complete API reference for all Adenosine modules.
 
 ## Table of Contents
 

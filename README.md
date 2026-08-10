@@ -1,4 +1,4 @@
-# Magma Engine
+# Adenosine
 
 A lightweight, zero runtime dependencies 2D tile-based game engine. Written in TypeScript — import what you need.
 

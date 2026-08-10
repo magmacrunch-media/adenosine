@@ -1,5 +1,5 @@
 // engine/types.ts
-// Central type definitions for the Magma Engine.
+// Central type definitions for Adenosine.
 
 // ── Core Data Types ──────────────────────────────────────────────
 
