@@ -11,7 +11,7 @@ A collection of lightweight web game engines by [MagmaCrunch](https://magmacrunc
 | `@adenosine/cards` | Card deck, pixel-art SVG rendering, and poker chip animations |
 | `@adenosine/score-client` | WebSocket high score client with localStorage fallback and offline queue |
 | `@adenosine/multiplayer` | Game-agnostic multiplayer WebSocket client with lobby, chat, and room management |
-| `@adenosine/chat` | *Coming soon* — real-time chat widget with SharedWorker |
+| `@adenosine/chat` | Floating real-time chat widget with SharedWorker WebSocket persistence |
 
 ## Quick Start
 
