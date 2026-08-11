@@ -6,3 +6,4 @@
 
 export { MSG, MP_PALETTE } from './protocol.js';
 export { MP } from './network.js';
+export { BoardGameTemplate } from './board-game-template.js';

@@ -63,3 +63,27 @@ export interface MP {
   sendChat(text: string): void;
   quit(): void;
 }
+
+export interface BoardGameConfig {
+  title?: string;
+  subtitle?: string;
+  footer?: string[];
+  buttons?: Array<{ id: string; label: string; cls?: string; icon?: string }>;
+  extraStart?: string;
+  gameHeader?: string;
+  gameBody?: string;
+  gameControls?: Array<{ id: string; label: string }>;
+  instructions?: string;
+  credits?: string;
+  gameOverTitle?: string;
+  gameOverMsg?: string;
+  mpServer?: string;
+  scripts?: string[];
+  extraHead?: string;
+}
+
+export interface BoardGameTemplate {
+  render(config: BoardGameConfig): string;
+}
+
+export declare const BoardGameTemplate: BoardGameTemplate;
