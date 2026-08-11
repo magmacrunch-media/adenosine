@@ -16,7 +16,7 @@
   "files": ["dist", "cards.css", "chip-animation.css"],
   "scripts": {
     "build": "tsup",
-    "test": "echo 'no tests yet'"
+    "test": "vitest run"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
