@@ -1,0 +1,26 @@
+{
+  "name": "@adenosine/cards",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Card deck, pixel-art rendering, and poker chip animations",
+  "main": "dist/index.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cards.css": "./cards.css",
+    "./chip-animation.css": "./chip-animation.css"
+  },
+  "files": ["dist", "cards.css", "chip-animation.css"],
+  "scripts": {
+    "build": "tsup",
+    "test": "echo 'no tests yet'"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2",
+    "vitest": "^3.2.1"
+  }
+}
