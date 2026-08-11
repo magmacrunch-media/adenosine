@@ -1,6 +1,6 @@
 {
   "name": "@adenosine/cards",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",
   "main": "dist/index.js",

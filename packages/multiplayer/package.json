@@ -1,6 +1,6 @@
 {
   "name": "@adenosine/multiplayer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Game-agnostic multiplayer WebSocket client for browser games",
   "main": "dist/index.js",

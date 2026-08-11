@@ -1,6 +1,6 @@
 {
   "name": "@adenosine/puzzle",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Sliding tile puzzle framework — grid engine, input, rendering, scoring",
   "main": "dist/index.js",
