@@ -7,7 +7,7 @@ A collection of lightweight web game engines by [MagmaCrunch](https://magmacrunc
 | Package | Description |
 |---------|-------------|
 | [`@adenosine/rpg`](packages/rpg/) | 2D tile-based RPG engine — game loop, movement, camera, dialogue, inventory, and more |
-| `@adenosine/puzzle` | *Coming soon* — sliding tile puzzle framework |
+| `@adenosine/puzzle` | Sliding tile puzzle framework — grid engine, input, rendering, scoring |
 | `@adenosine/cards` | *Coming soon* — card deck, rendering, and chip animations |
 | `@adenosine/score-client` | WebSocket high score client with localStorage fallback and offline queue |
 | `@adenosine/multiplayer` | *Coming soon* — game-agnostic multiplayer WebSocket client |
