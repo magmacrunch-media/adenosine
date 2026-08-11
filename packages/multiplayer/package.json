@@ -1,0 +1,22 @@
+{
+  "name": "@adenosine/multiplayer",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Game-agnostic multiplayer WebSocket client for browser games",
+  "main": "dist/index.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./lobby.css": "./lobby.css"
+  },
+  "files": ["dist", "lobby.css", "src/index.d.ts"],
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1"
+  }
+}

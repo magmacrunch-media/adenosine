@@ -10,7 +10,7 @@ A collection of lightweight web game engines by [MagmaCrunch](https://magmacrunc
 | `@adenosine/puzzle` | Sliding tile puzzle framework — grid engine, input, rendering, scoring |
 | `@adenosine/cards` | Card deck, pixel-art SVG rendering, and poker chip animations |
 | `@adenosine/score-client` | WebSocket high score client with localStorage fallback and offline queue |
-| `@adenosine/multiplayer` | *Coming soon* — game-agnostic multiplayer WebSocket client |
+| `@adenosine/multiplayer` | Game-agnostic multiplayer WebSocket client with lobby, chat, and room management |
 | `@adenosine/chat` | *Coming soon* — real-time chat widget with SharedWorker |
 
 ## Quick Start
