@@ -1,5 +1,5 @@
 {
-  "name": "@adenosine/cards",
+  "name": "@magmacrunch/adenosine-cards",
   "version": "0.2.0",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",

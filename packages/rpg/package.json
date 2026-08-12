@@ -1,5 +1,5 @@
 {
-  "name": "@adenosine/rpg",
+  "name": "@magmacrunch/adenosine-rpg",
   "version": "0.2.0",
   "type": "module",
   "description": "Lightweight 2D tile-based RPG engine",
