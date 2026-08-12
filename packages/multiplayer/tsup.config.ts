@@ -2,7 +2,8 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: ['src/index.js'],
-  format: ['esm'],
+  format: ['esm', 'iife'],
+  globalName: 'AdMP',
   dts: false,
   clean: true,
   sourcemap: true,

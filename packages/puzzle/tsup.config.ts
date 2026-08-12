@@ -2,7 +2,8 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  format: ['esm'],
+  format: ['esm', 'iife'],
+  globalName: 'AdPuzzle',
   dts: false,
   clean: true,
   sourcemap: true,
