@@ -6,19 +6,19 @@ A collection of lightweight web game engines by [MagmaCrunch](https://magmacrunc
 
 | Package | Description |
 |---------|-------------|
-| [`@adenosine/rpg`](packages/rpg/) | 2D tile-based RPG engine — game loop, movement, camera, dialogue, inventory, and more |
-| [`@adenosine/puzzle`](packages/puzzle/) | Sliding tile puzzle framework — grid engine, input, rendering, scoring |
-| [`@adenosine/cards`](packages/cards/) | Card deck, pixel-art SVG rendering, and poker chip animations |
-| [`@adenosine/score-client`](packages/score-client/) | WebSocket high score client with localStorage fallback and offline queue |
-| [`@adenosine/multiplayer`](packages/multiplayer/) | Game-agnostic multiplayer WebSocket client with lobby, chat, and room management |
-| [`@adenosine/chat`](packages/chat/) | Floating real-time chat widget with SharedWorker WebSocket persistence |
+| [`@magmacrunch/adenosine-rpg`](packages/rpg/) | 2D tile-based RPG engine — game loop, movement, camera, dialogue, inventory, and more |
+| [`@magmacrunch/adenosine-puzzle`](packages/puzzle/) | Sliding tile puzzle framework — grid engine, input, rendering, scoring |
+| [`@magmacrunch/adenosine-cards`](packages/cards/) | Card deck, pixel-art SVG rendering, and poker chip animations |
+| [`@magmacrunch/adenosine-score-client`](packages/score-client/) | WebSocket high score client with localStorage fallback and offline queue |
+| [`@magmacrunch/adenosine-multiplayer`](packages/multiplayer/) | Game-agnostic multiplayer WebSocket client with lobby, chat, and room management |
+| [`@magmacrunch/adenosine-chat`](packages/chat/) | Floating real-time chat widget with SharedWorker WebSocket persistence |
 
 ## Quick Start
 
 ### RPG Engine
 
 ```bash
-npm install @adenosine/rpg
+npm install @magmacrunch/adenosine-rpg
 ```
 
 ```js
@@ -26,7 +26,7 @@ import {
   initCanvas, player, createGameLoop, initInput, updateCamera,
   renderWorld, setCurrentMap, setMap, setGameStarted,
   handleMovement, isSolid
-} from '@adenosine/rpg';
+} from '@magmacrunch/adenosine-rpg';
 
 const canvas = document.getElementById('gameCanvas');
 initCanvas(canvas);
@@ -77,11 +77,11 @@ loop.start();
 ### Puzzle Framework
 
 ```bash
-npm install @adenosine/puzzle
+npm install @magmacrunch/adenosine-puzzle
 ```
 
 ```js
-import { PuzzleGrid, createGame, createInput, createRenderer, createScoring } from '@adenosine/puzzle';
+import { PuzzleGrid, createGame, createInput, createRenderer, createScoring } from '@magmacrunch/adenosine-puzzle';
 
 const board = document.getElementById('board');
 const renderer = createRenderer(board);
@@ -116,12 +116,12 @@ game.init();
 ### Cards
 
 ```bash
-npm install @adenosine/cards
+npm install @magmacrunch/adenosine-cards
 ```
 
 ```js
-import { Card, Deck } from '@adenosine/cards';
-import '@adenosine/cards/cards.css';
+import { Card, Deck } from '@magmacrunch/adenosine-cards';
+import '@magmacrunch/adenosine-cards/cards.css';
 
 const deck = new Deck();
 deck.shuffle();
@@ -134,11 +134,11 @@ document.getElementById('hand').appendChild(card.getHTML());
 ### Score Client
 
 ```bash
-npm install @adenosine/score-client
+npm install @magmacrunch/adenosine-score-client
 ```
 
 ```js
-import { ScoreClient } from '@adenosine/score-client';
+import { ScoreClient } from '@magmacrunch/adenosine-score-client';
 
 const client = new ScoreClient().auto();
 
@@ -153,11 +153,11 @@ console.log(`Rank: #${rank} (synced: ${synced})`);
 ### Multiplayer
 
 ```bash
-npm install @adenosine/multiplayer
+npm install @magmacrunch/adenosine-multiplayer
 ```
 
 ```js
-import { MP, MSG, BoardGameTemplate } from '@adenosine/multiplayer';
+import { MP, MSG, BoardGameTemplate } from '@magmacrunch/adenosine-multiplayer';
 
 // Generate board game HTML
 BoardGameTemplate.render({
@@ -178,13 +178,13 @@ MP.join('Player1', '#ff2d55');
 ### Chat Widget
 
 ```bash
-npm install @adenosine/chat
+npm install @magmacrunch/adenosine-chat
 ```
 
 ```html
-<link rel="stylesheet" href="@adenosine/chat/chat-widget.css">
+<link rel="stylesheet" href="@magmacrunch/adenosine-chat/chat-widget.css">
 <script type="module">
-  import { ChatWidget } from '@adenosine/chat';
+  import { ChatWidget } from '@magmacrunch/adenosine-chat';
   ChatWidget.connect();
 </script>
 ```
@@ -223,12 +223,12 @@ Each package builds an IIFE bundle alongside ESM for direct `<script>` tag usage
 
 | Package | Global | Description |
 |---------|--------|-------------|
-| `@adenosine/rpg` | `window.AdRPG` | Game loop, input, state, camera, collision, entities |
-| `@adenosine/score-client` | `window.AdScore` | WebSocket high score client |
-| `@adenosine/puzzle` | `window.AdPuzzle` | Sliding tile puzzle framework |
-| `@adenosine/cards` | `window.AdCards` | Card deck, pixel-art rendering, chips |
-| `@adenosine/chat` | `window.AdChat` | Floating real-time chat widget |
-| `@adenosine/multiplayer` | `window.AdMP` | Multiplayer WebSocket client |
+| `@magmacrunch/adenosine-rpg` | `window.AdRPG` | Game loop, input, state, camera, collision, entities |
+| `@magmacrunch/adenosine-score-client` | `window.AdScore` | WebSocket high score client |
+| `@magmacrunch/adenosine-puzzle` | `window.AdPuzzle` | Sliding tile puzzle framework |
+| `@magmacrunch/adenosine-cards` | `window.AdCards` | Card deck, pixel-art rendering, chips |
+| `@magmacrunch/adenosine-chat` | `window.AdChat` | Floating real-time chat widget |
+| `@magmacrunch/adenosine-multiplayer` | `window.AdMP` | Multiplayer WebSocket client |
 
 IIFE files are generated by tsup (`format: ['esm', 'iife']`) and live in `packages/*/dist/index.global.js`.
 
