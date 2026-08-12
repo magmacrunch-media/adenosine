@@ -3,6 +3,14 @@
   "version": "0.2.0",
   "type": "module",
   "description": "Game-agnostic multiplayer WebSocket client for browser games",
+  "license": "LGPL-2.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/magmacrunchmedia/adenosine",
+    "directory": "packages/multiplayer"
+  },
+  "author": "magmacrunch media",
+  "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
   "types": "src/index.d.ts",
   "exports": {

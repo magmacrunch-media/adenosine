@@ -3,6 +3,14 @@
   "version": "0.2.0",
   "type": "module",
   "description": "Lightweight 2D tile-based RPG engine",
+  "license": "LGPL-2.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/magmacrunchmedia/adenosine",
+    "directory": "packages/rpg"
+  },
+  "author": "magmacrunch media",
+  "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {

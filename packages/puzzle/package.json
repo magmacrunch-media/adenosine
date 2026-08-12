@@ -3,6 +3,14 @@
   "version": "0.2.0",
   "type": "module",
   "description": "Sliding tile puzzle framework — grid engine, input, rendering, scoring",
+  "license": "LGPL-2.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/magmacrunchmedia/adenosine",
+    "directory": "packages/puzzle"
+  },
+  "author": "magmacrunch media",
+  "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {

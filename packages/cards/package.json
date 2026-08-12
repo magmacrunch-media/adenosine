@@ -3,6 +3,14 @@
   "version": "0.2.0",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",
+  "license": "LGPL-2.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/magmacrunchmedia/adenosine",
+    "directory": "packages/cards"
+  },
+  "author": "magmacrunch media",
+  "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
   "types": "src/index.d.ts",
   "exports": {
