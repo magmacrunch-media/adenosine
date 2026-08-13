@@ -4,6 +4,9 @@
 // Number cards → number-cards.js (pip layout HTML)
 // Card back   → inline SVG pixel art (no image file needed)
 
+import { FACE_CARD_SVG } from './face-cards.js';
+import { getNumberCardHTML } from './number-cards.js';
+
 // ─────────────────────────────────────────────────────────────
 //  Vaporwave card back  (64×88 viewBox)
 //  Deep purple · pink & cyan grid · gold pixel sunburst badge
