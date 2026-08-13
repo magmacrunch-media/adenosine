@@ -8,6 +8,7 @@ import {
   setMusicMuted as _setMusicMuted,
   isMusicMuted as _isMusicMuted,
   isMusicPlaying as _isMusicPlaying,
+  toggleMusicMute as _toggleMusicMute,
   onVisibilityChange,
   destroyMusic,
 } from './music.js';
@@ -18,6 +19,7 @@ import {
   setSfxGlobalVolume as _setSfxGlobalVolume,
   setSfxMuted as _setSfxMuted,
   isSfxMuted as _isSfxMuted,
+  toggleSfxMute as _toggleSfxMute,
   destroySfx,
 } from './sfx.js';
 import { closeCtx } from './audio-context.js';
@@ -63,12 +65,14 @@ export {
   _setMusicMuted as setMusicMuted,
   _isMusicMuted as isMusicMuted,
   _isMusicPlaying as isMusicPlaying,
+  _toggleMusicMute as toggleMusicMute,
   _loadSfx as loadSfx,
   _playSfx as playSfx,
   _setSfxVolume as setSfxVolume,
   _setSfxGlobalVolume as setSfxGlobalVolume,
   _setSfxMuted as setSfxMuted,
   _isSfxMuted as isSfxMuted,
+  _toggleSfxMute as toggleSfxMute,
   onVisibilityChange as handleVisibility,
 };
 

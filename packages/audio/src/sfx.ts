@@ -68,6 +68,11 @@ export function isSfxMuted(): boolean {
   return sfxMuted;
 }
 
+export function toggleSfxMute(): boolean {
+  sfxMuted = !sfxMuted;
+  return sfxMuted;
+}
+
 export function destroySfx(): void {
   sfxMap.clear();
   sfxMuted = false;

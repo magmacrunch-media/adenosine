@@ -76,6 +76,11 @@ export function isMusicMuted(): boolean {
   return musicMuted;
 }
 
+export function toggleMusicMute(): boolean {
+  setMusicMuted(!musicMuted);
+  return musicMuted;
+}
+
 export function isMusicPlaying(): boolean {
   return musicStarted;
 }
