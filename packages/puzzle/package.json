@@ -21,6 +21,9 @@
     "./styles.css": "./styles.css"
   },
   "files": ["dist", "styles.css"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
     "typecheck": "tsc --noEmit",

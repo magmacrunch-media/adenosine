@@ -21,6 +21,9 @@
     "./lobby.css": "./lobby.css"
   },
   "files": ["dist", "lobby.css", "src/index.d.ts"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup"
   },

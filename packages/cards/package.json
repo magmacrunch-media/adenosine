@@ -22,6 +22,9 @@
     "./chip-animation.css": "./chip-animation.css"
   },
   "files": ["dist", "cards.css", "chip-animation.css"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run"
