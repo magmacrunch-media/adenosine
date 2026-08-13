@@ -67,8 +67,12 @@ export function setMusicMuted(muted: boolean, rampTime = 0.5): void {
   if (musicGain) {
     const ctx = getCtx();
     musicGain.gain.cancelScheduledValues(ctx.currentTime);
-    musicGain.gain.setValueAtTime(musicGain.gain.value, ctx.currentTime);
-    musicGain.gain.linearRampToValueAtTime(muted ? 0 : musicVolume, ctx.currentTime + rampTime);
+    if (rampTime <= 0) {
+      musicGain.gain.setValueAtTime(muted ? 0 : musicVolume, ctx.currentTime);
+    } else {
+      musicGain.gain.setValueAtTime(musicGain.gain.value, ctx.currentTime);
+      musicGain.gain.linearRampToValueAtTime(muted ? 0 : musicVolume, ctx.currentTime + rampTime);
+    }
   }
 }
 
