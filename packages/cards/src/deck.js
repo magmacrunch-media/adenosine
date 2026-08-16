@@ -6,6 +6,7 @@
 
 import { FACE_CARD_SVG } from './face-cards.js';
 import { getNumberCardHTML } from './number-cards.js';
+import { SUITS, RANKS, SUIT_COLORS, SUIT_SYMBOLS, RANK_VALUES } from './constants.js';
 
 // ─────────────────────────────────────────────────────────────
 //  Vaporwave card back  (64×88 viewBox)
