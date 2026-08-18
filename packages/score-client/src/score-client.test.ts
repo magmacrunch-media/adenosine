@@ -48,6 +48,27 @@ class MockWebSocket {
 
 vi.stubGlobal('WebSocket', MockWebSocket);
 
+// ── Scoped window stub ──────────────────────────────────────────
+// The default vitest environment is node, so `window` is absent. These tests
+// install one only for the duration of a call — using vi.unstubAllGlobals()
+// here would also tear down the localStorage and WebSocket stubs above.
+
+function withWindow(
+  location: { protocol?: string; hostname?: string },
+  fn: () => void,
+): void {
+  const g = globalThis as Record<string, unknown>;
+  const had = 'window' in g;
+  const prev = g.window;
+  g.window = { location };
+  try {
+    fn();
+  } finally {
+    if (had) g.window = prev;
+    else delete g.window;
+  }
+}
+
 // ── Tests ───────────────────────────────────────────────────────
 
 describe('ScoreClient', () => {
@@ -115,6 +136,67 @@ describe('ScoreClient', () => {
     it('returns this for chaining', () => {
       const result = client.auto();
       expect(result).toBe(client);
+    });
+
+    it('falls back to localhost when there is no window', () => {
+      client.auto();
+      expect(MockWebSocket.instances[0].url).toBe('ws://localhost:8781');
+    });
+
+    // Regression: a ws:// URL opened from an HTTPS page is blocked by the
+    // browser as mixed content, which silently killed every arcade score sync.
+    it('uses wss on an https page', () => {
+      withWindow({ protocol: 'https:', hostname: 'magmacrunch.com' }, () => {
+        client.auto();
+      });
+      expect(MockWebSocket.instances[0].url).toBe('wss://magmacrunch.com:8781');
+    });
+
+    it('uses ws on an http page', () => {
+      withWindow({ protocol: 'http:', hostname: 'magmacrunch.local' }, () => {
+        client.auto();
+      });
+      expect(MockWebSocket.instances[0].url).toBe('ws://magmacrunch.local:8781');
+    });
+
+    it('honours secure: true on an http page', () => {
+      withWindow({ protocol: 'http:', hostname: 'pi.local' }, () => {
+        client.auto({ secure: true });
+      });
+      expect(MockWebSocket.instances[0].url).toBe('wss://pi.local:8781');
+    });
+
+    it('honours secure: false on an https page', () => {
+      withWindow({ protocol: 'https:', hostname: 'pi.local' }, () => {
+        client.auto({ secure: false });
+      });
+      expect(MockWebSocket.instances[0].url).toBe('ws://pi.local:8781');
+    });
+
+    it('keeps the page scheme when only hostname is overridden', () => {
+      withWindow({ protocol: 'https:', hostname: 'magmacrunch.com' }, () => {
+        client.auto({ hostname: 'magmacrunch.duckdns.org' });
+      });
+      expect(MockWebSocket.instances[0].url).toBe('wss://magmacrunch.duckdns.org:8781');
+    });
+
+    it('omits the port when port is null', () => {
+      withWindow({ protocol: 'https:', hostname: 'magmacrunch.duckdns.org' }, () => {
+        client.auto({ port: null, path: '/scores' });
+      });
+      expect(MockWebSocket.instances[0].url).toBe('wss://magmacrunch.duckdns.org/scores');
+    });
+
+    it('adds a missing leading slash to path', () => {
+      client.auto({ hostname: 'pi.local', port: null, path: 'scores' });
+      expect(MockWebSocket.instances[0].url).toBe('ws://pi.local/scores');
+    });
+
+    it('url overrides every other option', () => {
+      withWindow({ protocol: 'https:', hostname: 'magmacrunch.com' }, () => {
+        client.auto({ url: 'ws://127.0.0.1:9999', hostname: 'ignored', port: 1 });
+      });
+      expect(MockWebSocket.instances[0].url).toBe('ws://127.0.0.1:9999');
     });
   });
 

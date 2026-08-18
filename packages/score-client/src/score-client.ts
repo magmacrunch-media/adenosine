@@ -11,6 +11,7 @@ import type { ScoreEntry, SaveResult, ScoreClientOptions } from './types.js';
 const LS_PREFIX = 'mc_scores_';
 const RECONNECT_DELAY = 3000;
 const REQUEST_TIMEOUT = 5000;
+const DEFAULT_PORT = 8781;
 
 export class ScoreClient {
   private ws: WebSocket | null = null;
@@ -185,13 +186,30 @@ export class ScoreClient {
   /**
    * Auto-detect the admin server from window.location.
    * Falls back to 'ws://localhost:8781'.
+   *
+   * The scheme follows the page protocol: an HTTPS page gets `wss:`, because
+   * browsers block a `ws:` connection from a secure page as mixed content
+   * before it reaches the network. Pass `secure` to override that, or `url`
+   * to bypass the whole construction.
    */
   auto(opts?: ScoreClientOptions): this {
-    const hostname = opts?.hostname
-      ?? (typeof window !== 'undefined' && window.location?.hostname)
-      ?? 'localhost';
-    const port = opts?.port ?? 8781;
-    this.connect(`ws://${hostname}:${port}`);
+    if (opts?.url) {
+      this.connect(opts.url);
+      return this;
+    }
+
+    const loc = typeof window !== 'undefined' ? window.location : undefined;
+    const hostname = opts?.hostname ?? (loc?.hostname || 'localhost');
+    // `undefined` means "unset, use the default"; an explicit `null` means
+    // "omit the port", which a proxy on 443 needs.
+    const port = opts?.port === undefined ? DEFAULT_PORT : opts.port;
+    const secure = opts?.secure ?? loc?.protocol === 'https:';
+    const scheme = secure ? 'wss' : 'ws';
+
+    let path = opts?.path ?? '';
+    if (path && !path.startsWith('/')) path = '/' + path;
+
+    this.connect(`${scheme}://${hostname}${port == null ? '' : ':' + port}${path}`);
     return this;
   }
 
