@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-chat",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "type": "module",
   "description": "Floating real-time chat widget with SharedWorker for browser games",
   "license": "LGPL-2.1",
@@ -18,7 +18,8 @@
       "types": "./src/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./chat-widget.css": "./chat-widget.css"
+    "./chat-widget.css": "./chat-widget.css",
+    "./chat-worker.js": "./dist/chat-worker.js"
   },
   "files": [
     "dist",
@@ -29,9 +30,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup && cp src/chat-worker.js dist/chat-worker.js",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "tsup": "^8.5.1"
+    "jsdom": "^30.0.1",
+    "tsup": "^8.5.1",
+    "vitest": "^3.2.1"
   }
 }

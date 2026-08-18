@@ -73,16 +73,32 @@ var ChatWidget = (function() {
         return 'ws://magmacrunch.duckdns.org:8768';
     })();
 
-    var CHAT_WORKER_URL = (function() {
-        var scripts = document.getElementsByTagName('script');
+    // Captured while this module is still evaluating: for a classic <script src>
+    // that is the tag which loaded us, whatever the bundle happens to be called.
+    //
+    // The previous implementation scanned for a tag named literally
+    // 'chat-widget.js'. That stopped matching once tsup renamed the output
+    // (index.global.js, deployed as adenosine-chat.js), and its
+    // /chat-widget\.js$/ anchor also failed against the ?v= cache-busters the
+    // arcade appends. Both misses fell through to a page-relative guess, so the
+    // SharedWorker silently never loaded and every page opened its own socket.
+    var OWN_SCRIPT_SRC = (typeof document !== 'undefined' &&
+        document.currentScript && document.currentScript.src) || null;
+
+    // Replacing /[^/]*$/ drops the filename *and* any query string with it.
+    function resolveWorkerUrl(explicit) {
+        if (explicit) return explicit;
+        if (OWN_SCRIPT_SRC) return OWN_SCRIPT_SRC.replace(/[^/]*$/, 'chat-worker.js');
+        var scripts = (typeof document !== 'undefined')
+            ? document.getElementsByTagName('script') : [];
         for (var i = scripts.length - 1; i >= 0; i--) {
-            if (scripts[i].src && scripts[i].src.indexOf('chat-widget.js') !== -1) {
-                return scripts[i].src.replace(/chat-widget\.js$/, 'chat-worker.js');
+            var src = scripts[i].src;
+            if (src && /(chat-widget|adenosine-chat|index\.global)\.js(\?|$)/.test(src)) {
+                return src.replace(/[^/]*$/, 'chat-worker.js');
             }
         }
-        var base = window.location.href.replace(/[^/]*$/, '');
-        return base + 'chat-worker.js';
-    })();
+        return window.location.href.replace(/[^/]*$/, 'chat-worker.js');
+    }
 
     // ── State ───────────────────────────────────────────────────────────
 
@@ -315,12 +331,12 @@ var ChatWidget = (function() {
 
     // ── Connection ──────────────────────────────────────────────────────
 
-    function connect() {
+    function connect(opts) {
         createWidget();
 
         if (typeof SharedWorker !== 'undefined' && !worker) {
             try {
-                worker = new SharedWorker(CHAT_WORKER_URL);
+                worker = new SharedWorker(resolveWorkerUrl(opts && opts.workerUrl));
                 usingWorker = true;
 
                 worker.port.onmessage = function(e) {
