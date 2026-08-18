@@ -232,6 +232,10 @@ export class ScoreClient {
 
   /**
    * Save a score for a game.
+   *
+   * The returned `rank` is the score's 1-based position among all locally
+   * known scores for the game, so it stays meaningful even when the score
+   * falls outside the top 100 that get persisted.
    */
   async save(
     game: string,
@@ -245,10 +249,11 @@ export class ScoreClient {
     if (extra) Object.assign(entry, extra);
     scores.push(entry);
     scores.sort((a, b) => (b.score || 0) - (a.score || 0));
-    const top = scores.slice(0, 100);
-    this.lsSave(game, top);
+    // Rank against the full sorted list, not the truncated one — indexing into
+    // `top` returns 0 for any score that misses the top 100.
+    const rank = scores.indexOf(entry) + 1;
 
-    const rank = top.findIndex((s) => s === entry) + 1;
+    this.lsSave(game, scores.slice(0, 100));
 
     if (this._connected) {
       try {

@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-puzzle",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Sliding tile puzzle framework — grid engine, input, rendering, scoring",
   "license": "LGPL-2.1",
@@ -18,9 +18,18 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./styles.css"
+    "./puzzle-base.css": "./puzzle-base.css",
+    "./puzzle-grid.css": "./puzzle-grid.css",
+    "./puzzle-modals.css": "./puzzle-modals.css",
+    "./puzzle-responsive.css": "./puzzle-responsive.css"
   },
-  "files": ["dist", "styles.css"],
+  "files": [
+    "dist",
+    "puzzle-base.css",
+    "puzzle-grid.css",
+    "puzzle-modals.css",
+    "puzzle-responsive.css"
+  ],
   "publishConfig": {
     "access": "public"
   },

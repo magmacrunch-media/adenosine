@@ -9,6 +9,7 @@ A collection of lightweight web game engines by [MagmaCrunch](https://magmacrunc
 | [`@magmacrunch/adenosine-rpg`](packages/rpg/) | 2D tile-based RPG engine — game loop, movement, camera, dialogue, inventory, and more |
 | [`@magmacrunch/adenosine-puzzle`](packages/puzzle/) | Sliding tile puzzle framework — grid engine, input, rendering, scoring |
 | [`@magmacrunch/adenosine-cards`](packages/cards/) | Card deck, pixel-art SVG rendering, and poker chip animations |
+| [`@magmacrunch/adenosine-audio`](packages/audio/) | Web Audio engine for looping music and pooled sound effects |
 | [`@magmacrunch/adenosine-score-client`](packages/score-client/) | WebSocket high score client with localStorage fallback and offline queue |
 | [`@magmacrunch/adenosine-multiplayer`](packages/multiplayer/) | Game-agnostic multiplayer WebSocket client with lobby, chat, and room management |
 | [`@magmacrunch/adenosine-chat`](packages/chat/) | Floating real-time chat widget with SharedWorker WebSocket persistence |
@@ -150,6 +151,34 @@ const { rank, synced } = await client.save('tetris', 'JAM', 12400, { level: 5 })
 console.log(`Rank: #${rank} (synced: ${synced})`);
 ```
 
+### Audio
+
+```bash
+npm install @magmacrunch/adenosine-audio
+```
+
+```js
+import * as AdAudio from '@magmacrunch/adenosine-audio';
+
+// Load a music track and a set of sound effects up front
+await AdAudio.init({
+  music: { url: 'audio/theme.ogg', volume: 0.4, fadeIn: 2.0 },
+  sfx: {
+    deal: { url: 'audio/deal.wav', volume: 0.8, pool: 4 },
+    win:  { url: 'audio/win.wav' },
+  },
+});
+
+// Browsers require a user gesture before audio can start
+playButton.addEventListener('click', () => AdAudio.playMusic());
+
+AdAudio.playSfx('deal');
+AdAudio.toggleMusicMute();
+
+// Pause music while the tab is hidden
+AdAudio.handleVisibility({ pauseMusic: true });
+```
+
 ### Multiplayer
 
 ```bash
@@ -227,6 +256,7 @@ Each package builds an IIFE bundle alongside ESM for direct `<script>` tag usage
 | `@magmacrunch/adenosine-score-client` | `window.AdScore` | WebSocket high score client |
 | `@magmacrunch/adenosine-puzzle` | `window.AdPuzzle` | Sliding tile puzzle framework |
 | `@magmacrunch/adenosine-cards` | `window.AdCards` | Card deck, pixel-art rendering, chips |
+| `@magmacrunch/adenosine-audio` | `window.AdAudio` | Web Audio music and sound effects |
 | `@magmacrunch/adenosine-chat` | `window.AdChat` | Floating real-time chat widget |
 | `@magmacrunch/adenosine-multiplayer` | `window.AdMP` | Multiplayer WebSocket client |
 

@@ -64,6 +64,9 @@ export interface MP {
   quit(): void;
 }
 
+/** The multiplayer client singleton. Assign the `on*` handlers, then connect. */
+export declare const MP: MP;
+
 export interface BoardGameConfig {
   title?: string;
   subtitle?: string;

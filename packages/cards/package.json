@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-cards",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",
   "license": "LGPL-2.1",
@@ -21,7 +21,12 @@
     "./cards.css": "./cards.css",
     "./chip-animation.css": "./chip-animation.css"
   },
-  "files": ["dist", "cards.css", "chip-animation.css"],
+  "files": [
+    "dist",
+    "src/index.d.ts",
+    "cards.css",
+    "chip-animation.css"
+  ],
   "publishConfig": {
     "access": "public"
   },
