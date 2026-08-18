@@ -12,10 +12,10 @@
   "author": "magmacrunch media",
   "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
-  "types": "src/index.d.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./chat-widget.css": "./chat-widget.css",
@@ -23,19 +23,20 @@
   },
   "files": [
     "dist",
-    "chat-widget.css",
-    "src/index.d.ts"
+    "chat-widget.css"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "tsup && cp src/chat-worker.js dist/chat-worker.js",
-    "test": "vitest run"
+    "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist && cp src/chat-worker.js dist/chat-worker.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "jsdom": "^30.0.1",
     "tsup": "^8.5.1",
+    "typescript": "^7.0.2",
     "vitest": "^3.2.1"
   }
 }
