@@ -97,10 +97,14 @@ var MP = {
     return String(addr).replace(/^wss?:\/\//, '').split('/')[0].split(':')[0];
   },
 
+  // RFC1918. Note 172 is only private from 172.16 to 172.31 — a bare /^172\./
+  // also swallows public addresses such as 172.217.14.5.
+  _PRIVATE: /^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)/,
+
   _isAllowed: function(addr) {
     var host = MP._hostOf(addr);
     // Private ranges stay open so LAN play and dev servers keep working.
-    if (/^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(host)) return true;
+    if (MP._PRIVATE.test(host)) return true;
     return MP._allowlist.indexOf(host) !== -1;
   },
 
@@ -108,7 +112,8 @@ var MP = {
   // scheme has to follow the page rather than the address. Loopback and LAN
   // addresses have no certificate and stay on plain ws:.
   _scheme: function(addr) {
-    if (/^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/.test(addr)) return 'ws://';
+    var host = MP._hostOf(addr);
+    if (host === 'localhost' || host === '127.0.0.1' || MP._PRIVATE.test(host)) return 'ws://';
     try {
       return window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     } catch(e) { return 'ws://'; }
