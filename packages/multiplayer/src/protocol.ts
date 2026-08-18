@@ -1,9 +1,9 @@
 /**
- * protocol.js — Shared message type constants for multiplayer games
+ * protocol.ts — Shared message type constants for multiplayer games
  * Import this file to avoid magic strings in network code.
  */
 
-var MSG = {
+export const MSG = {
   // ── Client → Server ──────────────────────────────────────────────────────
   JOIN:           'join',
   CREATE_ROOM:    'create_room',
@@ -26,13 +26,15 @@ var MSG = {
   CHAT_MSG:       'chat',
   SYSTEM_MSG:     'system',
   PLAYER_QUIT:    'player_quit',
-};
+} as const;
+
+/** A protocol message type. */
+export type MsgType = (typeof MSG)[keyof typeof MSG];
 
 // Color palette (matches server)
-var MP_PALETTE = [
+export const MP_PALETTE: readonly string[] = [
   '#ff2d55', '#ff7c1e', '#ffe135', '#39d353',
   '#6cd4f5', '#4059c8', '#9b30ff', '#ff69b4',
   '#fff5e1', '#00fa9a', '#ff4f6d', '#7b68ee',
 ];
 
-export { MSG, MP_PALETTE };

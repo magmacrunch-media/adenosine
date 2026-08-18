@@ -1,20 +1,50 @@
 /* ═══════════════════════════════════════════════
    magmacrunch arcade — board game HTML template
-   shared/board-game-template.js
+   shared/board-game-template.ts
    ═══════════════════════════════════════════════
    Generates common HTML structure for board games.
    Each game provides a config object and calls
    BoardGameTemplate.render(config).
 
    Usage in game's index.html:
-     <script src="../shared/board-game-template.js"></script>
+     <script src="../shared/adenosine-multiplayer.js"></script>
      <script>BoardGameTemplate.render({ title: 'CHESS', ... })</script>
+     ...then the game's own <script> tags, statically, after this block.
+
+   render() builds MARKUP ONLY. It used to emit the page's <script> tags too,
+   but it injects with insertAdjacentHTML, and the HTML spec says <script>
+   elements inserted that way never execute — so every script it "loaded" was
+   silently inert.
    ═══════════════════════════════════════════════ */
 
-var BoardGameTemplate = (function () {
+/** A labelled button in the start menu or the in-game control bar. */
+export interface BoardGameButton {
+  id: string;
+  label: string;
+  cls?: string;
+  icon?: string;
+}
+
+export interface BoardGameConfig {
+  title?: string;
+  subtitle?: string;
+  footer?: string[];
+  buttons?: BoardGameButton[];
+  extraStart?: string;
+  gameHeader?: string;
+  gameBody?: string;
+  gameControls?: BoardGameButton[];
+  instructions?: string;
+  credits?: string;
+  gameOverTitle?: string;
+  gameOverMsg?: string;
+  extraHead?: string;
+}
+
+export const BoardGameTemplate = (function () {
     'use strict';
 
-    function esc(s) {
+    function esc(s: string): string {
         var d = document.createElement('div');
         d.textContent = s;
         return d.innerHTML;
@@ -37,7 +67,7 @@ var BoardGameTemplate = (function () {
      *   gameOverMsg  — default "Congratulations!"
      *   extraHead   — extra CSS/JS links in <head>
      */
-    function render(cfg) {
+    function render(cfg: BoardGameConfig): string {
         var title = cfg.title || 'GAME';
         var subtitle = cfg.subtitle || '// NEON EDITION //';
         var footer = cfg.footer || ['CLASSIC BOARD GAME'];
@@ -53,23 +83,21 @@ var BoardGameTemplate = (function () {
 
         // ── Start buttons ──
         var btnsHtml = '';
-        for (var i = 0; i < buttons.length; i++) {
-            var b = buttons[i];
-            var cls = 'start-btn' + (b.cls ? ' ' + b.cls : '');
-            var icon = b.icon ? b.icon + '&nbsp;&nbsp;' : '';
+        for (const b of buttons) {
+            const cls = 'start-btn' + (b.cls ? ' ' + b.cls : '');
+            const icon = b.icon ? b.icon + '&nbsp;&nbsp;' : '';
             btnsHtml += '<button id="' + esc(b.id) + '" class="' + cls + '">' + icon + esc(b.label) + '</button>\n';
         }
 
         // ── Start footer ──
         var footerHtml = '';
-        for (var j = 0; j < footer.length; j++) {
-            footerHtml += '<p>' + esc(footer[j]) + '</p>\n';
+        for (const line of footer) {
+            footerHtml += '<p>' + esc(line) + '</p>\n';
         }
 
         // ── Game controls ──
         var controlsHtml = '';
-        for (var k = 0; k < gameControls.length; k++) {
-            var c = gameControls[k];
+        for (const c of gameControls) {
             controlsHtml += '<button id="' + esc(c.id) + '" class="control-btn">' + esc(c.label) + '</button>\n';
         }
 
@@ -190,4 +218,3 @@ var BoardGameTemplate = (function () {
     return { render: render };
 })();
 
-export { BoardGameTemplate };
