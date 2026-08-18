@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-multiplayer",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "type": "module",
   "description": "Game-agnostic multiplayer WebSocket client for browser games",
   "license": "LGPL-2.1",

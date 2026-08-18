@@ -35,8 +35,6 @@ var BoardGameTemplate = (function () {
      *   credits     — HTML string for credits modal body
      *   gameOverTitle — default "YOU WIN!"
      *   gameOverMsg  — default "Congratulations!"
-     *   mpServer    — WebSocket server URL
-     *   scripts     — array of script src paths (loaded after shared deps)
      *   extraHead   — extra CSS/JS links in <head>
      */
     function render(cfg) {
@@ -52,8 +50,6 @@ var BoardGameTemplate = (function () {
             { id: 'newGameBtn', label: 'NEW GAME' },
             { id: 'menuBtn', label: 'MENU' }
         ];
-        var mpServer = cfg.mpServer || '';
-        var scripts = cfg.scripts || [];
 
         // ── Start buttons ──
         var btnsHtml = '';
@@ -175,24 +171,16 @@ var BoardGameTemplate = (function () {
         html += '  </div>\n';
         html += '</div>\n\n';
 
-        // Scripts
-        if (mpServer) {
-            html += '<script>var MP_DEFAULT_SERVER = \'' + esc(mpServer) + '\';</script>\n';
-        }
-        html += '<script src="../shared/multiplayer/protocol.js"></script>\n';
-        html += '<script src="../shared/multiplayer/network.js"></script>\n';
-        for (var s = 0; s < scripts.length; s++) {
-            html += '<script src="' + esc(scripts[s]) + '"></script>\n';
-        }
-        html += '<link rel="stylesheet" href="../shared/chat-widget.css">\n';
-        html += '<script src="../shared/chat-widget.js"></script>\n';
-        html += '<script>ChatWidget.connect();</script>\n';
 
         // Inject into container
         var container = document.querySelector('.container');
         if (container) {
             // Preserve any existing content before game screen (like start screen markup)
             // and append our generated content
+            // Markup only. This used to emit the page's <script> tags too, but
+            // insertAdjacentHTML never executes inserted <script> elements — so
+            // every script it "loaded" was inert. Callers must place their own
+            // script tags in the document, after the render() call.
             container.insertAdjacentHTML('beforeend', html);
         }
 
