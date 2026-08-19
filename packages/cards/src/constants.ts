@@ -21,11 +21,27 @@ export const SUIT_SYMBOLS: Record<Suit, string> = {
   spades: '♠',
 };
 
+/** Ink colour per suit, as a hex value for canvas and SVG fills. */
 export const SUIT_COLORS: Record<Suit, string> = {
   hearts: '#cc0000',
   diamonds: '#cc0000',
   clubs: '#111111',
   spades: '#111111',
+};
+
+/** The two colours a standard suit can be. */
+export type CardColorName = 'red' | 'black';
+
+/**
+ * Ink colour per suit as the name the card stylesheet keys on
+ * (`.card.face-up.red` / `.card.face-up.black`). Use this for class names and
+ * colour comparisons; use {@link SUIT_COLORS} where an actual hex is needed.
+ */
+export const SUIT_COLOR_NAMES: Record<Suit, CardColorName> = {
+  hearts: 'red',
+  diamonds: 'red',
+  clubs: 'black',
+  spades: 'black',
 };
 
 export const RANK_VALUES: Record<Rank, number> = {

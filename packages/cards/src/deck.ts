@@ -6,7 +6,7 @@
 
 import { FACE_CARD_SVG } from './face-cards.js';
 import { getNumberCardHTML, getAceHTML } from './number-cards.js';
-import { SUITS, RANKS, SUIT_COLORS, SUIT_SYMBOLS, RANK_VALUES, type Suit, type Rank } from './constants.js';
+import { SUITS, RANKS, SUIT_COLORS, SUIT_COLOR_NAMES, SUIT_SYMBOLS, RANK_VALUES, type Suit, type Rank, type CardColorName } from './constants.js';
 
 // ─────────────────────────────────────────────────────────────
 //  Vaporwave card back  (64×88 viewBox)
@@ -108,7 +108,10 @@ class Card {
     suit: Suit;
     rank: Rank;
     faceUp: boolean;
+    /** Ink colour as a hex value, for canvas and SVG fills. */
     color: string;
+    /** Ink colour as the name the stylesheet keys on: 'red' or 'black'. */
+    colorName: CardColorName;
     value: number;
 
     constructor(suit: Suit, rank: Rank) {
@@ -116,6 +119,7 @@ class Card {
         this.rank = rank;
         this.faceUp = false;
         this.color = SUIT_COLORS[suit];
+        this.colorName = SUIT_COLOR_NAMES[suit];
         this.value = RANK_VALUES[rank];
     }
 
@@ -130,7 +134,7 @@ class Card {
         card.dataset.rank = this.rank;
 
         if (this.faceUp) {
-            card.classList.add('face-up', this.color);
+            card.classList.add('face-up', this.colorName);
 
             if (this.rank === 'J' || this.rank === 'Q' || this.rank === 'K') {
                 const key = `${this.rank.toLowerCase()}-${this.suit}`;

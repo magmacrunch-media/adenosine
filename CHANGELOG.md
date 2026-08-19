@@ -2,6 +2,42 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [0.5.0] — 2026-08-18
+
+Released: `cards` 0.5.0.
+
+### Bug fixes
+
+- **adenosine-cards**: `Card.getHTML()` added `this.color` — a *hex* value — as a
+  class, so every face-up card rendered as
+  `<div class="card face-up #cc0000">`. The stylesheet keys on a word
+  (`.card.face-up.red` / `.card.face-up.black`), so both rules had never matched
+  anything on any card in any game. Cards still looked right only because the
+  corner and pip markup carried `style="color:#cc0000"`, which is why this went
+  unnoticed. `Card` now carries a `colorName` of `'red'` or `'black'` and adds
+  that instead; a test renders all 52 cards and asserts each matches its
+  stylesheet selector and that no class token is a hex value.
+
+### Changes
+
+- **adenosine-cards**: new `SUIT_COLOR_NAMES: Record<Suit, 'red' | 'black'>` and
+  the `CardColorName` type, exported alongside `SUIT_COLORS`. `Card.color` still
+  holds the hex, so nothing that reads it needs to change — the two are now
+  documented as hex-for-fills versus name-for-classes.
+- **adenosine-cards**: number and ace cards no longer stamp
+  `style="color:…"` on their corners and pips; colour comes from
+  `.card.face-up.red` / `.card.face-up.black` and is inherited. This also settles
+  a mismatch that predates the class bug: face cards already drew themselves in
+  `var(--fc-red)`, while number cards hardcoded `#cc0000`, so on any theme where
+  the two differ (solitaire, cribbage and Sökö all set `--fc-red: #cc1111`) a
+  king and a seven of the same suit were subtly different reds.
+  `cornerHTML()`, `getSuitLayout()` and `pipColor()` keep their exported
+  signatures — the colour argument is now optional and simply omitted.
+- **adenosine-cards**: `cards.css` gains fallbacks (`var(--fc-red, #cc0000)`,
+  `var(--fc-black, #111111)`) so cards still render in colour where a consumer
+  has not defined the theme variables — which now matters, since the stylesheet
+  is the only thing colouring them.
+
 ## [0.4.0 / 0.3.1] — 2026-08-18
 
 Released together: `cards` 0.4.0, `chat` and `multiplayer` 0.3.1.
