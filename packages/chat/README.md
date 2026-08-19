@@ -39,11 +39,15 @@ credentials as soon as its socket opens, so an unrestricted `?server=` override
 would let a crafted link hand a visitor's identity to any host. Only the page's
 own origin, loopback, and hosts you list here are accepted.
 
-### Server
+### Server — you need one, and this package is not it
 
-This package is the client half. It speaks JSON frames over a WebSocket and
-expects a server that echoes messages to a room; the arcade's implementation
-lives in the magmacrunch.com repository rather than here.
+This is the **client half only**. The widget speaks JSON frames over a WebSocket
+and expects a server that echoes each message to everyone in a room. No such
+server ships here, so a fresh install renders the widget and shows it as
+disconnected until you provide one.
+
+[`PROTOCOL.md`](PROTOCOL.md) specifies the whole wire format — six frames out,
+nine in, with their fields — plus the five things a minimal server must do.
 
 ## Without a bundler
 
@@ -56,6 +60,10 @@ lives in the magmacrunch.com repository rather than here.
 The IIFE build is `dist/index.global.js` and exposes `window.AdChat`. The
 `SharedWorker` file is located relative to the tag that loaded the bundle, so
 `chat-worker.js` must sit beside it — cache-busting query strings are fine.
+
+## Full API
+
+[`API.md`](API.md) documents every export, with parameters and return shapes.
 
 ## License
 

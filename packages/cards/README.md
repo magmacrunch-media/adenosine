@@ -54,6 +54,10 @@ the constant tables rather than written out by hand.
 
 The IIFE build is `dist/index.global.js` and exposes `window.AdCards`.
 
+## Full API
+
+[`API.md`](API.md) documents every export, with parameters and return shapes.
+
 ## License
 
 [Apache-2.0](LICENSE) — Copyright 2026 Magma Crunch Media.

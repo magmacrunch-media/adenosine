@@ -56,10 +56,17 @@ pages. Private ranges (RFC1918) and loopback are always allowed so LAN and dev
 play keep working; anything else a `?server=` link names must be in `allowlist`,
 or it is ignored and logged.
 
-### Server
+### Server — you need one, and this package is not it
 
-This package is the client half — it expects a relay that broadcasts room
-messages. The arcade's game servers live in the magmacrunch.com repository.
+This is the **client half only**. Nothing here listens; `MP.connect()` expects a
+WebSocket server that keeps rooms and relays frames between the players in one.
+No such server ships with this package, so a fresh install has nothing to talk to
+until you provide one.
+
+[`PROTOCOL.md`](PROTOCOL.md) specifies the whole wire format — every frame in
+both directions with its fields, plus the six things a minimal server must do.
+It is short, and writing a server against it is a normal afternoon's work in any
+language with a WebSocket library.
 
 ## Without a bundler
 
@@ -73,6 +80,10 @@ messages. The arcade's game servers live in the magmacrunch.com repository.
 ```
 
 The IIFE build is `dist/index.global.js` and exposes `window.AdMP`.
+
+## Full API
+
+[`API.md`](API.md) documents every export, with parameters and return shapes.
 
 ## License
 

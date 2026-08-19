@@ -50,7 +50,7 @@ setGameStarted(true);
 loop.start();
 ```
 
-`API.md` in this package documents the full surface.
+[`API.md`](API.md) documents every export, with parameters and return shapes.
 
 ## Without a bundler
 

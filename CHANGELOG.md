@@ -2,6 +2,38 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [docs — make the packages adoptable] — 2026-08-19
+
+Patch bumps across all seven. No runtime change; this release is documentation
+that previously existed but never reached anyone who installed from npm.
+
+### API reference now ships
+
+All seven `API.md` files existed in the repo and **none of them published** — npm
+auto-includes README and LICENSE but nothing else, and no package listed `API.md`
+in `files[]`. So the detailed reference, including the note in cards that poker
+callers must restamp aces, only ever existed for people reading the repo. That
+note documents the contract whose absence caused two live scoring bugs.
+
+`scripts/check-packaging.mjs` now fails if any package omits it.
+
+### The wire protocols are written down
+
+`chat` and `multiplayer` are client halves — they expect a server that this
+project does not publish. Until now the only specification of what that server
+must do was the client source, so writing one meant reverse-engineering
+`MSG` and the message handler.
+
+Both packages now ship a `PROTOCOL.md` giving every frame in both directions with
+its fields, and what a minimal server has to do: 17 frames for multiplayer, 13
+for chat. Both READMEs now say plainly that a server is required and does not
+come with the package, instead of a passing mention that the arcade's servers
+live elsewhere.
+
+One subtlety documented for the first time: `MSG` has 19 constants but only 17
+distinct wire values, because `GAME_ACTION`/`GAME_ACTION_BC` and `CHAT`/`CHAT_MSG`
+are aliases. A server cannot tell direction from the type alone.
+
 ## [cards 0.7.0] — 2026-08-19
 
 ### Bug fixes

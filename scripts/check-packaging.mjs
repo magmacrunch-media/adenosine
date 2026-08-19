@@ -64,6 +64,15 @@ for (const name of names) {
     if (!shipped.has(legal)) problems.push(`tarball has no ${legal} — copy the root one into packages/${name}/`);
   }
 
+  // npm auto-includes README and LICENSE but nothing else, so a doc file that
+  // exists in the repo can sit there for months without ever reaching anyone who
+  // installs the package. All seven API.md files did exactly that — including the
+  // one documenting that poker callers must restamp aces, which is the contract
+  // whose absence caused two live scoring bugs.
+  if (!shipped.has('API.md')) {
+    problems.push(`tarball has no API.md — add it to files[] in packages/${name}/package.json`);
+  }
+
   for (const entry of pkg.files ?? []) {
     const bare = entry.replace(/^\.\//, '').replace(/\/$/, '');
     const covered = [...shipped].some((f) => f === bare || f.startsWith(bare + '/'));
