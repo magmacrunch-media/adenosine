@@ -101,7 +101,24 @@ Returns `HandResult`:
 | `description` | `string` | Human-readable description |
 | `partial` | `boolean` | `true` if fewer than 5 cards |
 
-**Note:** The caller sets `value` on each card. For ace-low games (cribbage, solitaire), pass `A=1`. For ace-high games (Texas Hold'Em), pass `A=14`.
+**Note:** `evaluate()` reads `value` off the cards it is handed and never rewrites
+it — that is how one evaluator serves both ace-low and ace-high games. `Card`
+stamps the ace-low `RANK_VALUES` (A=1), which is what cribbage and solitaire
+want, so **dealing straight from a `Deck` into a poker `evaluate()` is a bug**:
+aces sort below twos, a royal flush grades as an ordinary flush, and A-K-Q-J-10
+is not seen as a straight at all.
+
+Poker callers must restamp:
+
+```js
+import { POKER_RANK_VALUES } from '@magmacrunch/adenosine-cards';
+
+const card = deck.deal();
+card.value = POKER_RANK_VALUES[card.rank];   // A=14
+```
+
+Do this at the single point where cards enter play, not per hand — this bug has
+recurred twice by being remembered at some deal sites and not others.
 
 ### Cribbage: `new CribbageHandEval()`
 
@@ -152,7 +169,9 @@ Array of 5 chip denominations: 500 (purple), 100 (black), 25 (green), 5 (red), 1
 | `SUIT_SYMBOLS` | `Record<Suit, string>` | `♥`, `♦`, `♣`, `♠` |
 | `SUIT_COLORS` | `Record<Suit, string>` | Hex colours per suit |
 | `SUIT_COLOR_NAMES` | `Record<Suit, 'red' \| 'black'>` | Colour names for CSS classes |
-| `RANK_VALUES` | `Record<Rank, number>` | Numeric values (A=1, J=11, Q=12, K=13) |
+| `RANK_VALUES` | `Record<Rank, number>` | Ace-low values (A=1, J=11, Q=12, K=13). What `Card` stamps |
+| `POKER_RANK_VALUES` | `Record<Rank, number>` | Ace-high values (A=14). For poker — see the note under `.evaluate()` |
+| `pokerValue` | `(rank: Rank) => number` | The ace-high value of a single rank |
 
 ---
 

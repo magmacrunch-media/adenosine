@@ -1,11 +1,21 @@
 {
   "name": "@magmacrunch/adenosine-cards",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",
   "license": "Apache-2.0",
-  "keywords": ["cards", "card-game", "poker", "svg", "pixel-art", "deck", "game-engine"],
-  "engines": { "node": ">=20" },
+  "keywords": [
+    "cards",
+    "card-game",
+    "poker",
+    "svg",
+    "pixel-art",
+    "deck",
+    "game-engine"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
@@ -15,7 +25,9 @@
   "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "sideEffects": ["*.css"],
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

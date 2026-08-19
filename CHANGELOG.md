@@ -2,6 +2,44 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [cards 0.7.0] — 2026-08-19
+
+### Bug fixes
+
+- **adenosine-cards**: poker graded aces as the *lowest* card in the deck. A
+  royal flush scored as an ordinary flush, A-K-Q-J-10 was not recognised as a
+  straight at all, and a pair of aces lost to a pair of twos.
+
+  The cause was a mismatch between two halves of the package that had never
+  agreed: `HandEvaluator` was written for ace-high (the dead branch in
+  `_isStraight` testing `values[4] === 14` is the fossil), while `Card` stamps
+  the ace-low `RANK_VALUES` where an ace is 1. The wheel (A-2-3-4-5) worked by
+  accident, because with A=1 the run is consecutive.
+
+  Fixed without disturbing ace-low games: `Card.value` still stamps A=1, which
+  is what cribbage's fifteens and solitaire's foundations need. Poker callers
+  now have `POKER_RANK_VALUES` (A=14) and `pokerValue(rank)` to restamp with.
+
+### Breaking-ish — the evaluator's contract, stated
+
+`HandEvaluator.evaluate()` reads `value` off the cards it is handed and never
+rewrites it. That is deliberate — it is how one evaluator serves both ace-low
+and ace-high games — but it means **dealing straight from a `Deck` into a poker
+`evaluate()` is a bug**. Restamp at the single point where cards enter play:
+
+```js
+const card = deck.deal();
+card.value = POKER_RANK_VALUES[card.rank];
+```
+
+This has now recurred twice by being remembered at some deal sites and not
+others, so it is written down in `API.md` as well.
+
+### New exports
+
+- `POKER_RANK_VALUES` — ace-high rank values
+- `pokerValue(rank)` — the ace-high value of one rank
+
 ## [Unreleased — relicense and de-hardcode]
 
 Released: `chat` 0.4.0, `multiplayer` 0.4.0, and patch bumps to `rpg` 0.2.1,

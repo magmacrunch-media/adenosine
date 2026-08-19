@@ -44,6 +44,13 @@ export const SUIT_COLOR_NAMES: Record<Suit, CardColorName> = {
   spades: 'black',
 };
 
+/**
+ * Ace-low rank values — the default, and what `Card` stamps on every card
+ * it builds. Cribbage counts an ace as 1 for fifteens, and solitaire builds its
+ * foundations from the ace up, so this stays ace-low.
+ *
+ * Poker is the exception: use {@link POKER_RANK_VALUES} there instead.
+ */
 export const RANK_VALUES: Record<Rank, number> = {
   A: 1,
   '2': 2,
@@ -59,3 +66,22 @@ export const RANK_VALUES: Record<Rank, number> = {
   Q: 12,
   K: 13,
 };
+
+/**
+ * Ace-high rank values, for poker. Identical to {@link RANK_VALUES} except that
+ * an ace is 14, so it outranks a king rather than falling below a two.
+ *
+ * `HandEvaluator` reads `value` straight off the cards it is handed and never
+ * rewrites it, so a poker game dealing from `Deck` must restamp its cards
+ * from this table — otherwise aces score as the lowest card in the deck and a
+ * royal flush is graded as an ordinary flush.
+ */
+export const POKER_RANK_VALUES: Record<Rank, number> = {
+  ...RANK_VALUES,
+  A: 14,
+};
+
+/** The ace-high value of a rank. See {@link POKER_RANK_VALUES}. */
+export function pokerValue(rank: Rank): number {
+  return POKER_RANK_VALUES[rank];
+}
