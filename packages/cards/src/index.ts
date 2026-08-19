@@ -14,7 +14,7 @@ export { FACE_CARD_SVG, FC_PIP_ART, FC_CORNERS } from './face-cards.js';
 export { ChipAnim, DENOMS, drawChip, renderStack, breakIntoStacks } from './chip-animation.js';
 
 // Constants
-export { SUITS, RANKS, SUIT_SYMBOLS, SUIT_COLORS, RANK_VALUES } from './constants.js';
+export { SUITS, RANKS, SUIT_SYMBOLS, SUIT_COLORS, RANK_VALUES, POKER_RANK_VALUES, pokerValue } from './constants.js';
 
 // Hand evaluators
 export { HandEvaluator, HAND_RANKS, HAND_POINTS } from './hand-eval.js';

@@ -6,9 +6,14 @@
 
 
 /**
- * A card as the evaluator needs it. `value` is supplied by the caller, which is
- * how the same evaluator serves ace-low and ace-high games — Texas Hold'Em
- * passes A=14, klondike passes A=1.
+ * A card as the evaluator needs it. `value` is supplied by the caller and is
+ * never rewritten here, which is how the same evaluator serves ace-low and
+ * ace-high games.
+ *
+ * Poker is ace-high, so a poker caller must stamp `value` from
+ * `POKER_RANK_VALUES` (A=14). `Deck` stamps the ace-low `RANK_VALUES` (A=1) on
+ * the cards it builds, so dealing straight from a `Deck` into `evaluate()` is a
+ * bug: aces sort below twos, and a royal flush grades as an ordinary flush.
  */
 export interface EvalCard {
   suit: string;
@@ -213,6 +218,16 @@ class HandEvaluator {
     return sortedCards[0]!.value;
   }
 
+  /**
+   * The rank to label a straight with. Mirrors `_straightHighCard`: in the
+   * wheel (A-2-3-4-5) the ace plays low, so the hand is five high even though
+   * the ace sorts to the front.
+   */
+  _straightRankName(sortedCards: EvalCard[]): string {
+    const high = this._straightHighCard(sortedCards);
+    return sortedCards.find(c => c.value === high)?.rank ?? sortedCards[0]!.rank;
+  }
+
   _getValueCounts(cards: EvalCard[]): Record<number, number> {
     const counts: Record<string, number> = {};
     cards.forEach(c => {
@@ -268,7 +283,7 @@ class HandEvaluator {
       case 'Royal Flush':
         return `Royal Flush — ${top!.suit}`;
       case 'Straight Flush':
-        return `Straight Flush — ${top!.rank} high`;
+        return `Straight Flush — ${this._straightRankName(sortedCards)} high`;
       case 'Four of a Kind':
         return `Four ${top!.rank}s`;
       case 'Full House': {
@@ -284,7 +299,7 @@ class HandEvaluator {
       case 'Flush':
         return `Flush — ${top!.rank} high (${top!.suit})`;
       case 'Straight':
-        return `Straight — ${top!.rank} high`;
+        return `Straight — ${this._straightRankName(sortedCards)} high`;
       case 'Three of a Kind':
         return `Three ${top!.rank}s`;
       case 'Two Pair': {

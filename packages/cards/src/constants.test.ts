@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SUITS, RANKS, SUIT_SYMBOLS, SUIT_COLORS, RANK_VALUES } from './constants.js';
+import { SUITS, RANKS, SUIT_SYMBOLS, SUIT_COLORS, RANK_VALUES, POKER_RANK_VALUES, pokerValue } from './constants.js';
 
 describe('Card Constants', () => {
   describe('SUITS', () => {
@@ -58,6 +58,29 @@ describe('Card Constants', () => {
       expect(RANK_VALUES.J).toBe(11);
       expect(RANK_VALUES.Q).toBe(12);
       expect(RANK_VALUES.K).toBe(13);
+    });
+  });
+
+  describe('POKER_RANK_VALUES', () => {
+    it('Ace is 14', () => {
+      expect(POKER_RANK_VALUES.A).toBe(14);
+    });
+
+    it('matches RANK_VALUES for every rank except the ace', () => {
+      for (const rank of RANKS) {
+        if (rank === 'A') continue;
+        expect(POKER_RANK_VALUES[rank]).toBe(RANK_VALUES[rank]);
+      }
+    });
+
+    it('leaves RANK_VALUES ace-low — cribbage and solitaire depend on it', () => {
+      expect(RANK_VALUES.A).toBe(1);
+    });
+
+    it('pokerValue() reads from the ace-high table', () => {
+      expect(pokerValue('A')).toBe(14);
+      expect(pokerValue('K')).toBe(13);
+      expect(pokerValue('2')).toBe(2);
     });
   });
 });
