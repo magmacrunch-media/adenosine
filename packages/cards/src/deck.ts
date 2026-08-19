@@ -5,8 +5,8 @@
 // Card back   → inline SVG pixel art (no image file needed)
 
 import { FACE_CARD_SVG } from './face-cards.js';
-import { getNumberCardHTML } from './number-cards.js';
-import { SUITS, RANKS, SUIT_COLORS, SUIT_SYMBOLS, RANK_VALUES } from './constants.js';
+import { getNumberCardHTML, getAceHTML } from './number-cards.js';
+import { SUITS, RANKS, SUIT_COLORS, SUIT_SYMBOLS, RANK_VALUES, type Suit, type Rank } from './constants.js';
 
 // ─────────────────────────────────────────────────────────────
 //  Vaporwave card back  (64×88 viewBox)
@@ -105,7 +105,13 @@ function getCardBackSVG() {
 //  Card class
 // ─────────────────────────────────────────────────────────────
 class Card {
-    constructor(suit, rank) {
+    suit: Suit;
+    rank: Rank;
+    faceUp: boolean;
+    color: string;
+    value: number;
+
+    constructor(suit: Suit, rank: Rank) {
         this.suit = suit;
         this.rank = rank;
         this.faceUp = false;
@@ -128,7 +134,7 @@ class Card {
 
             if (this.rank === 'J' || this.rank === 'Q' || this.rank === 'K') {
                 const key = `${this.rank.toLowerCase()}-${this.suit}`;
-                const svgFn = FACE_CARD_SVG[key];
+                const svgFn = FACE_CARD_SVG[key as keyof typeof FACE_CARD_SVG];
                 if (svgFn) {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'face-card-svg-wrapper';
@@ -171,6 +177,8 @@ class Card {
 //  Deck class
 // ─────────────────────────────────────────────────────────────
 class Deck {
+    cards: Card[];
+
     constructor() {
         this.cards = [];
         this.createDeck();
@@ -188,7 +196,7 @@ class Deck {
     shuffle() {
         for (let i = this.cards.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+            [this.cards[i], this.cards[j]] = [this.cards[j]!, this.cards[i]!];
         }
     }
 

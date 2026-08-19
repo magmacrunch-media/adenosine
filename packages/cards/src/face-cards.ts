@@ -24,7 +24,7 @@ const FC_LARGE_PIP_Y    = 12;   // ← large pip vertical position (baseline)
 // These are purely decorative art within the card body — not the corner label.
 const FC_PIP_ART = {
     // ♠  spades — inverted heart head, flared base
-    spades: (c) => `
+    spades: (c: string) => `
               <rect x="17" y="3" width="2" height="1" fill="${c}"/>
               <rect x="16" y="4" width="4" height="1" fill="${c}"/>
               <rect x="15" y="5" width="6" height="1" fill="${c}"/>
@@ -34,7 +34,7 @@ const FC_PIP_ART = {
               <rect x="15" y="9" width="6" height="1" fill="${c}"/>
               <rect x="16" y="10" width="4" height="1" fill="${c}"/>`,
     // ♥  hearts — classic heart, two lobes + point
-    hearts: (c) => `
+    hearts: (c: string) => `
               <rect x="15" y="3" width="2" height="1" fill="${c}"/>
               <rect x="19" y="3" width="2" height="1" fill="${c}"/>
               <rect x="14" y="4" width="8" height="1" fill="${c}"/>
@@ -43,7 +43,7 @@ const FC_PIP_ART = {
               <rect x="16" y="7" width="4" height="1" fill="${c}"/>
               <rect x="17" y="8" width="2" height="1" fill="${c}"/>`,
     // ♦  diamonds — clean rhombus
-    diamonds: (c) => `
+    diamonds: (c: string) => `
               <rect x="17" y="3" width="2" height="1" fill="${c}"/>
               <rect x="16" y="4" width="4" height="1" fill="${c}"/>
               <rect x="15" y="5" width="6" height="1" fill="${c}"/>
@@ -52,7 +52,7 @@ const FC_PIP_ART = {
               <rect x="16" y="8" width="4" height="1" fill="${c}"/>
               <rect x="17" y="9" width="2" height="1" fill="${c}"/>`,
     // ♣  clubs — solid trefoil: top lobe, two side lobes fully filled, stem + base
-    clubs: (c) => `
+    clubs: (c: string) => `
               <rect x="17" y="3" width="2" height="1" fill="${c}"/>
               <rect x="16" y="4" width="4" height="1" fill="${c}"/>
               <rect x="15" y="5" width="6" height="1" fill="${c}"/>
@@ -67,7 +67,7 @@ const FC_PIP_ART = {
 // rank  : 'J' | 'Q' | 'K'
 // suit  : 'clubs' | 'diamonds' | 'hearts' | 'spades'
 // color : CSS var — 'var(--fc-black)' or 'var(--fc-red)'
-function FC_CORNERS(rank, suit, color) {
+function FC_CORNERS(rank: string, suit: string, color: string): string {
     const suitSymbol = { clubs:'♣', diamonds:'♦', hearts:'♥', spades:'♠' }[suit];
     return (
         // Small rank letter (top-left column)

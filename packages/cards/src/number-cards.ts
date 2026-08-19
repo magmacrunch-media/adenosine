@@ -2,15 +2,15 @@
 // Corner labels: pixel-art SVG pips (matches face card style)
 // Center body pips: smooth Unicode (clean, legible at larger sizes)
 
-const SUIT_CHAR = { hearts:'♥', diamonds:'♦', clubs:'♣', spades:'♠' };
+const SUIT_CHAR: Record<string, string> = { hearts:'♥', diamonds:'♦', clubs:'♣', spades:'♠' };
 
-function pipColor(suit) {
+function pipColor(suit: string): string {
     return (suit === 'hearts' || suit === 'diamonds') ? '#cc0000' : '#111111';
 }
 
 // ── Pixel-art pip SVG for corner labels ───────────────────────
 // Small, crisp, matches the face card corner pip style.
-function cornerPipSVG(suit, color) {
+function cornerPipSVG(suit: string, color: string): string {
     const shapes = {
         hearts: `<svg viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg" style="shape-rendering:crispEdges;display:block;">
             <rect x="1" y="0" width="2" height="1" fill="${color}"/>
@@ -52,11 +52,11 @@ function cornerPipSVG(suit, color) {
             <rect x="2" y="7" width="4" height="1" fill="${color}"/>
           </svg>`,
     };
-    return shapes[suit] || '';
+    return shapes[suit as keyof typeof shapes] ?? '';
 }
 
 // ── Corner label: pixel pip + rank ────────────────────────────
-function cornerHTML(rank, suit, color) {
+function cornerHTML(rank: string, suit: string, color: string): string {
     const s = SUIT_CHAR[suit];
     return `
         <div class="card-corner top-left">
@@ -70,7 +70,7 @@ function cornerHTML(rank, suit, color) {
 }
 
 // ── Ace ───────────────────────────────────────────────────────
-function getAceHTML(suit, rank) {
+function getAceHTML(suit: string, rank: string): string {
     const color = pipColor(suit);
     return `
         ${cornerHTML('A', suit, color)}
@@ -80,7 +80,7 @@ function getAceHTML(suit, rank) {
 }
 
 // ── Number cards ──────────────────────────────────────────────
-function getNumberCardHTML(suit, rank) {
+function getNumberCardHTML(suit: string, rank: string): string {
     const color = pipColor(suit);
     const layout = getSuitLayout(rank, suit, color);
     return `
@@ -91,14 +91,14 @@ function getNumberCardHTML(suit, rank) {
 }
 
 // ── Center pip: smooth Unicode span ──────────────────────────
-function pu(suit, color) {
+function pu(suit: string, color: string): string {
     return `<span class="pip" style="color:${color}">${SUIT_CHAR[suit]}</span>`;
 }
-function pr(suit, color) {
+function pr(suit: string, color: string): string {
     return `<span class="pip rotated" style="color:${color}">${SUIT_CHAR[suit]}</span>`;
 }
 
-function getSuitLayout(rank, suit, color) {
+function getSuitLayout(rank: string, suit: string, color: string): string {
     const layouts = {
         // 2: top center up, bottom center down
         '2': `
@@ -169,7 +169,7 @@ function getSuitLayout(rank, suit, color) {
                 <div class="suit-row">${pr(suit,color)}${pr(suit,color)}</div>
             </div>`,         
     };
-    return layouts[rank] || '';
+    return layouts[rank as keyof typeof layouts] ?? '';
 }
 
 export { pipColor, cornerPipSVG, cornerHTML, getAceHTML, getNumberCardHTML, getSuitLayout };

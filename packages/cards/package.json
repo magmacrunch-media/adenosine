@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-cards",
-  "version": "0.2.2",
+  "version": "0.4.0",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",
   "license": "LGPL-2.1",
@@ -12,10 +12,10 @@
   "author": "magmacrunch media",
   "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
-  "types": "src/index.d.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./cards.css": "./cards.css",
@@ -23,7 +23,6 @@
   },
   "files": [
     "dist",
-    "src/index.d.ts",
     "cards.css",
     "chip-animation.css"
   ],
@@ -31,8 +30,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup",
-    "test": "vitest run"
+    "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

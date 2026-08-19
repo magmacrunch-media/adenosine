@@ -2,7 +2,24 @@
 // Canvas-based edge-on chip stacks
 // Used by: solitaire_THLD, scandinavian-stud, future poker games
 
-const DENOMS = [
+/** A chip denomination and the colours it is drawn with. */
+export interface Denom {
+    value: number;
+    face: string;
+    edge: string;
+    mid: string;
+    dark: string;
+    label: string;
+    name: string;
+}
+
+/** One stack of like-valued chips. */
+export interface ChipStack {
+    denom: Denom;
+    count: number;
+}
+
+const DENOMS: Denom[] = [
     { value: 500, face: '#7744cc', edge: '#3d1a77', mid: '#ffffff', dark: '#1a0044', label: '500', name: 'Purple' },
     { value: 100, face: '#444444', edge: '#111111', mid: '#aaaaaa', dark: '#000000', label: '100', name: 'Black' },
     { value:  25, face: '#22aa44', edge: '#0d5520', mid: '#ffffff', dark: '#062b10', label: '25',  name: 'Green' },
@@ -20,7 +37,7 @@ const MAX_STACK = 12;
 let currentChips = 500;
 
 // ── Draw a single chip sprite onto a canvas context ─────────
-function drawChip(ctx, denom, cx, topY) {
+function drawChip(ctx: CanvasRenderingContext2D, denom: Denom, cx: number, topY: number) {
     const { face, edge, mid, dark } = denom;
     const rx = CW / 2 - 4;
     const faceY = topY + FACE_RY;
@@ -85,7 +102,7 @@ function drawChip(ctx, denom, cx, topY) {
 }
 
 // ── Render a full stack to a canvas element ────────────────
-function renderStack(canvas, denom, count) {
+function renderStack(canvas: HTMLCanvasElement, denom: Denom, count: number) {
     const drawn = Math.min(count, MAX_STACK);
     const totalH = CHIP_H + (drawn - 1) * OVERLAP + 6;
     canvas.width  = CW;
@@ -93,7 +110,7 @@ function renderStack(canvas, denom, count) {
     canvas.style.width  = CW + 'px';
     canvas.style.height = totalH + 'px';
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')!;
     ctx.clearRect(0, 0, CW, totalH);
 
     const cx = CW / 2;
@@ -104,7 +121,7 @@ function renderStack(canvas, denom, count) {
 }
 
 // ── Break amount into denomination stacks ───────────────────
-function breakIntoStacks(amount) {
+function breakIntoStacks(amount: number) {
     const stacks = [];
     let rem = amount;
     for (const d of DENOMS) {
@@ -118,7 +135,7 @@ function breakIntoStacks(amount) {
 }
 
 // ── Render chips to the display element ────────────────────
-function renderChips(chips, animClass) {
+function renderChips(chips: number, animClass?: string) {
     const display = document.getElementById(_displayId);
     if (!display) return;
     display.innerHTML = '';
@@ -153,18 +170,18 @@ let _displayId = 'chipDisplay';
 let _legendId = 'chipLegend';
 
 const ChipAnim = {
-    init: function(displayId, legendId) {
+    init: function(displayId: string, legendId?: string) {
         _displayId = displayId || 'chipDisplay';
         _legendId = legendId || 'chipLegend';
     },
 
-    setChips: function(amount) {
+    setChips: function(amount: number) {
         currentChips = Math.max(0, amount);
         renderChips(currentChips);
         renderLegend();
     },
 
-    addChips: function(delta) {
+    addChips: function(delta: number) {
         currentChips = Math.max(0, currentChips + delta);
         renderChips(currentChips);
     },
@@ -196,7 +213,7 @@ function renderLegend() {
         canvas.style.width = w + 'px';
         canvas.style.height = h + 'px';
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d')!;
         ctx.clearRect(0, 0, w, h);
         ctx.save();
         ctx.scale(scale, scale);
