@@ -40,9 +40,12 @@ Returns an HTML string for the card. Face-down shows the back design.
 |-------|------|---------|-------------|
 | `faceUp` | `boolean` | `true` | Show face or back |
 
-### `.getID()`
+### `.flip()`
 
-Returns a unique string like `'hearts-A'` or `'spades-K'`.
+Toggle `faceUp`.
+
+There is no ID accessor; a card identifies itself through its `suit` and `rank`,
+and the rendered element carries them as `data-suit` / `data-rank`.
 
 ---
 
@@ -56,17 +59,20 @@ Creates a standard 52-card deck.
 
 Fisher-Yates shuffle. Modifies the deck in place.
 
-### `.draw(count?)`
+### `.deal()`
 
-| Param | Type | Default | Description |
-|-------|------|---------|-------------|
-| `count` | `number` | `1` | Number of cards to draw |
+Take one card off the top. Returns a `Card`, or `undefined` once the deck is
+empty. Removes it from `.cards`.
 
-Returns `Card[]`. Removes drawn cards from the deck.
+```js
+const card = deck.deal();
+card.faceUp = true;
+```
 
-### `.reset()`
+### `.createDeck()`
 
-Restore the deck to a full 52 cards (unshuffled).
+Rebuild a full, unshuffled 52 cards in place. The constructor calls it, so this
+is only needed to reuse an existing `Deck` for a new hand.
 
 ### Properties
 
@@ -122,7 +128,7 @@ recurred twice by being remembered at some deal sites and not others.
 
 ### Cribbage: `new CribbageHandEval()`
 
-#### `.score(hand, start?)`
+#### `.scoreHand(hand, start?)`
 
 Score a cribbage hand.
 

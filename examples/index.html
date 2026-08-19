@@ -1,0 +1,30 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>adenosine examples</title>
+<link rel="stylesheet" href="_shared.css">
+<h1>adenosine examples</h1>
+<p class="lede">
+  One page per package, each loading that package's IIFE bundle straight from
+  <code>packages/*/dist/</code> and asserting what its README claims. Open a page
+  and the checks run — the tab title reports PASS or FAIL.
+</p>
+<p class="lede">
+  These exist so a regression has somewhere to surface other than a game. Run
+  <code>npm run build</code> first; the pages load the built bundles, not the source.
+</p>
+<div class="panel">
+  <ul>
+    <li><a href="cards.html">cards</a> — deck, rendering, poker and the ace-high contract</li>
+    <li><a href="puzzle.html">puzzle</a> — grid, tiles, the init() ordering</li>
+    <li><a href="rpg.html">rpg</a> — canvas, tile map, a running game loop</li>
+    <li><a href="audio.html">audio</a> — Web Audio surface (needs a click for sound)</li>
+    <li><a href="score-client.html">score-client</a> — the offline queue, with no server</li>
+    <li><a href="multiplayer.html">multiplayer</a> — configuration, allowlist, board template</li>
+    <li><a href="chat.html">chat</a> — the widget mounting with no server</li>
+  </ul>
+</div>
+<p class="lede">
+  <code>chat</code> and <code>multiplayer</code> are client halves: their pages
+  deliberately do not connect. See each package's <code>PROTOCOL.md</code> for
+  what a server must do.
+</p>

@@ -21,6 +21,8 @@ const board = document.getElementById('board');
 const renderer = createRenderer(board);
 const scoring = createScoring('fifteen-puzzle');
 
+// spawnTiles gates spawning after each MOVE, not at the start: init() always
+// calls addInitialTiles(), which calls your addRandomTile() twice.
 const game = createGame({ size: 4, gameName: 'fifteen-puzzle', spawnTiles: false });
 
 game.addRandomTile = () => {

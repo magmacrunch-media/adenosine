@@ -27,18 +27,35 @@ Create a puzzle game instance.
 Returns `PuzzleGame`.
 
 ```js
-const game = AdPuzzle.createGame({ size: 4, type: 'fifteen' });
+const game = AdPuzzle.createGame({ size: 4, gameName: 'fifteen-puzzle' });
+game.init();
 ```
 
 ### PuzzleGame methods
 
 | Method | Description |
 |--------|-------------|
-| `.shuffle()` | Randomize the board |
-| `.move(direction)` | Slide a tile (`'up'`, `'down'`, `'left'`, `'right'`) |
-| `.isSolved()` | Returns `boolean` |
-| `.getState()` | Returns the current grid state |
-| `.onStateChange(fn)` | Register a callback for state changes |
+| `.init()` | Build the grid and seed it. Call before anything else — `.grid` is `null` until it runs. |
+| `.handleMove(direction)` | Play a move (`'up'`, `'down'`, `'left'`, `'right'`). Returns `true` if the board changed. |
+| `.moveInDirection(direction)` | The slide itself, without the move bookkeeping. Override to implement your puzzle's rules. |
+| `.addRandomTile()` | Place one tile. Supply your own — the default does nothing. |
+| `.addInitialTiles()` | Called by `.init()`; calls `.addRandomTile()` twice. |
+| `.isActive()` | `false` once won or lost |
+| `.checkGameState()` / `.checkWin()` | Re-evaluate win/lose state |
+| `.getGrid()` / `.setGrid(grid)` | Read or replace the grid |
+| `.getElapsedTime()` | Milliseconds since `.init()` |
+| `.render()` | Invoke the `onRender` callback |
+| `.notifyStateChange()` | Invoke the `onStateChange` callback |
+| `.setOnRender(fn)` | Called after every render |
+| `.setOnStateChange(fn)` | Called with `{ score, moves, … }` when state changes |
+| `.setOnGameOver(fn)` / `.setOnWin(fn)` | Terminal-state callbacks |
+
+Readable properties: `grid`, `score`, `moves`, `size`, `gameName`, `difficulty`,
+`spawnTiles`, `gameOver`, `won`, `startTime`, `endTime`, `lastDirection`.
+
+**`spawnTiles` gates spawning after each *move*, not at the start.** `.init()`
+always calls `.addInitialTiles()`, which calls your `.addRandomTile()` twice, so
+a board begins with two tiles even when `spawnTiles: false`.
 
 ---
 
@@ -82,10 +99,15 @@ const scoring = AdPuzzle.createScoring(game, scoreClient);
 
 | Method | Description |
 |--------|-------------|
-| `.start()` | Begin tracking (call when game starts) |
-| `.getMoves()` | Returns current move count |
-| `.getTime()` | Returns elapsed time in seconds |
-| `.end()` | Stop tracking, return score entry |
+| `.addScore(entry)` | Record a finished game |
+| `.getTopScores(difficulty?)` | Leaderboard, best first |
+| `.getRank(score, difficulty?)` | Where a score would place |
+| `.isNewHighScore(score, difficulty?)` | Whether it makes the table |
+| `.getDifficulties()` | Difficulty keys that have scores |
+| `.clearScores(difficulty?)` | Wipe stored scores |
+
+Move counts and elapsed time come from the game, not the scorer —
+`game.moves` and `game.getElapsedTime()`.
 
 ---
 
@@ -128,11 +150,18 @@ Namespace with grid math utilities.
 | Function | Description |
 |----------|-------------|
 | `PuzzleGrid.create(size)` | Create an empty grid |
-| `PuzzleGrid.shuffle(grid)` | Shuffle tiles in-place |
 | `PuzzleGrid.isSolved(grid)` | Check if tiles are in order |
-| `PuzzleGrid.findEmpty(grid)` | Returns `{ row, col }` of the empty tile |
-| `PuzzleGrid.canMove(grid, direction)` | Check if a move is valid |
-| `PuzzleGrid.move(grid, direction)` | Execute a move, returns `boolean` |
+| `PuzzleGrid.getEmptyCells(grid)` | Every empty cell, as `{ row, col }[]` |
+| `PuzzleGrid.findCell(grid, value)` | Locate a value, or `null` |
+| `PuzzleGrid.swap(grid, a, b)` | Exchange two cells |
+| `PuzzleGrid.rotate(grid)` | Rotate the board |
+| `PuzzleGrid.isFull(grid)` / `.isSolved(grid)` | Terminal-state tests |
+| `PuzzleGrid.hasAdjacentMatches(grid)` | Whether any merge is still possible |
+| `PuzzleGrid.getValues(grid)` / `.getMaxValue(grid)` / `.countValue(grid, v)` | Value queries |
+| `PuzzleGrid.clone(grid)` / `.equals(a, b)` / `.gridToString(grid)` | Copy, compare, debug |
+
+Moves live on the game (`game.handleMove(dir)`), not on the grid — `PuzzleGrid`
+is pure board math.
 
 ---
 
@@ -142,8 +171,10 @@ Namespace with grid math utilities.
 
 ```ts
 interface PuzzleGameConfig {
-  size: number;       // grid dimension (e.g. 4 for 4×4)
-  type?: string;      // puzzle type identifier
+  size?: number;         // grid dimension, default 4
+  gameName?: string;     // used as the scoring key
+  difficulty?: string;
+  spawnTiles?: boolean;  // spawn after each move, default true
 }
 ```
 
@@ -157,11 +188,18 @@ type Direction = 'up' | 'down' | 'left' | 'right';
 
 ```ts
 interface PuzzleGame {
-  shuffle(): void;
-  move(dir: Direction): boolean;
-  isSolved(): boolean;
-  getState(): number[][];
-  onStateChange(fn: (info: StateChangeInfo) => void): void;
+  init(): void;
+  handleMove(dir: Direction): boolean;
+  moveInDirection(dir: Direction): void;
+  addRandomTile(): void;
+  isActive(): boolean;
+  getGrid(): PuzzleGridType;
+  setGrid(g: PuzzleGridType): void;
+  getElapsedTime(): number;
+  setOnRender(cb: (game: PuzzleGame) => void): void;
+  setOnStateChange(cb: (info: StateChangeInfo) => void): void;
+  setOnGameOver(cb: (game: PuzzleGame) => void): void;
+  setOnWin(cb: (game: PuzzleGame) => void): void;
 }
 ```
 

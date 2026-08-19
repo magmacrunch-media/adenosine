@@ -4,7 +4,9 @@
   "private": true,
   "description": "A collection of web game engines by MagmaCrunch",
   "license": "Apache-2.0",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "repository": "https://github.com/magmacrunchmedia/adenosine",
   "workspaces": [
     "packages/*"
@@ -13,6 +15,6 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "check": "node scripts/check-packaging.mjs && node scripts/check-no-hardcoded-hosts.mjs"
+    "check": "node scripts/check-packaging.mjs && node scripts/check-no-hardcoded-hosts.mjs && node scripts/check-api-docs.mjs"
   }
 }

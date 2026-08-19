@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-puzzle",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "module",
   "description": "Sliding tile puzzle framework \u2014 grid engine, input, rendering, scoring",
   "license": "Apache-2.0",

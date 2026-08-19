@@ -1,0 +1,18 @@
+/* Shared chrome for the example pages. Deliberately plain — the point is to see
+   each package working, not to demo CSS. */
+:root { color-scheme: light dark; }
+body {
+  font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  margin: 0; padding: 2rem; max-width: 60rem;
+  background: #14141b; color: #e8e6f0;
+}
+h1 { font-size: 1.2rem; margin: 0 0 .25rem; }
+h1 code { color: #ff6ec7; }
+p.lede { margin: 0 0 1.5rem; color: #9d99b5; }
+.panel { border: 1px solid #33304a; padding: 1rem; margin-bottom: 1rem; background: #1c1b26; }
+#log { white-space: pre-wrap; font-size: 13px; }
+.ok  { color: #6ee7a8; }
+.bad { color: #ff6b6b; }
+a { color: #7cc7ff; }
+nav { margin-bottom: 2rem; }
+nav a { margin-right: 1rem; }

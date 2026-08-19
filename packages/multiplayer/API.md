@@ -41,9 +41,13 @@ MP.connect();                    // uses configured defaultServer
 MP.connect('wss://other:8769');  // explicit URL
 ```
 
-### `MP.disconnect()`
+### `MP.quit()`
 
-Disconnect from the server.
+Leave the room and clear the local name and room code. Sends a `quit` frame; the
+server is expected to broadcast `player_quit` to the others.
+
+There is no separate disconnect method — closing without telling the server leaves a ghost in
+the lobby until the socket times out.
 
 ### `MP.sendAction(data)`
 

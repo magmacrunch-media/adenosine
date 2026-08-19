@@ -42,3 +42,10 @@ jobs:
       # what notices when someone does.
       - name: Check for hardcoded infrastructure
         run: node scripts/check-no-hardcoded-hosts.mjs
+
+      # The API references described methods that were never implemented —
+      # puzzle documented five PuzzleGame methods and none of them existed. A
+      # wrong reference is worse than none, so check the docs against the built
+      # bundle the way the tarball is checked against the manifest.
+      - name: Check API docs against the real exports
+        run: node scripts/check-api-docs.mjs

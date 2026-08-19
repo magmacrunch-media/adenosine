@@ -2,6 +2,34 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [docs correction] — 2026-08-19
+
+`puzzle`, `cards` and `multiplayer` patched. **The API references shipped
+yesterday documented methods that do not exist.**
+
+`puzzle/API.md` listed five `PuzzleGame` methods — `.shuffle()`, `.move()`,
+`.isSolved()`, `.getState()`, `.onStateChange()` — and none of them were real,
+while all eighteen actual methods went unmentioned. It also carried a
+hand-written `interface PuzzleGame` block declaring the same fiction, and
+documented `PuzzleGrid.findEmpty/canMove/move/shuffle` and a scoring API of
+`.start()/.getMoves()/.getTime()/.end()`, none of which exist either.
+
+`cards/API.md` named `Card.getID()`, `Deck.draw(count)`, `Deck.reset()` and
+`CribbageHandEval.score()`. The real surface is `Card.flip()`, `Deck.deal()`,
+`Deck.createDeck()` and `CribbageHandEval.scoreHand()`.
+
+`multiplayer/API.md` documented `MP.disconnect()`; the method is `MP.quit()`.
+
+All corrected against the built bundles. `scripts/check-api-docs.mjs` now
+resolves every name an API.md writes as a call — against module exports, class
+prototypes and the objects `create*()` factories return — and CI fails if one is
+missing. It confirms 146 documented names across the seven packages.
+
+Also new: `examples/`, one page per package that loads its IIFE bundle and
+asserts what its README claims, reporting PASS or FAIL in the tab title. It is
+what surfaced the puzzle errors, and it gives regressions somewhere to appear
+other than a live game.
+
 ## [docs — make the packages adoptable] — 2026-08-19
 
 Patch bumps across all seven. No runtime change; this release is documentation
