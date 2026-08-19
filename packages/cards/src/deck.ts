@@ -104,6 +104,16 @@ function getCardBackSVG() {
 // ─────────────────────────────────────────────────────────────
 //  Card class
 // ─────────────────────────────────────────────────────────────
+/**
+ * A single playing card with suit, rank, and pixel-art rendering.
+ *
+ * @example
+ * ```ts
+ * const ace = new Card('hearts', 'A');
+ * ace.flip();
+ * const el = ace.getHTML(); // returns a DOM element
+ * ```
+ */
 class Card {
     suit: Suit;
     rank: Rank;
@@ -180,6 +190,16 @@ class Card {
 // ─────────────────────────────────────────────────────────────
 //  Deck class
 // ─────────────────────────────────────────────────────────────
+/**
+ * A standard 52-card deck with shuffle and deal operations.
+ *
+ * @example
+ * ```ts
+ * const deck = new Deck();
+ * deck.shuffle();
+ * const hand = deck.draw(5);
+ * ```
+ */
 class Deck {
     cards: Card[];
 

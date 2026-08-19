@@ -41,6 +41,20 @@ function str(msg: MPMessage, key: string): string {
   return typeof v === 'string' ? v : '';
 }
 
+/**
+ * Game-agnostic multiplayer WebSocket client.
+ *
+ * Assign callbacks before calling {@link MP.connect}. Use
+ * {@link MP.configure} to set a non-default server.
+ *
+ * @example
+ * ```ts
+ * MP.onGameState = (state) => renderBoard(state);
+ * MP.onGameAction = (action) => applyAction(action);
+ * MP.connect('wss://games.example.com/chess');
+ * MP.sendAction({ type: 'move', from: [0,1], to: [2,3] });
+ * ```
+ */
 export const MP = {
 
   // ── Callbacks (assign before calling connect) ────────────────────────────

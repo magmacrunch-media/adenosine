@@ -52,6 +52,19 @@ export interface OnlineUser {
   rooms?: string[];
 }
 
+/**
+ * Floating real-time chat widget backed by a SharedWorker.
+ *
+ * Creates its own DOM, handles connection and state. The SharedWorker holds
+ * one WebSocket across page navigations, preventing duplicate users.
+ *
+ * @example
+ * ```ts
+ * ChatWidget.connect();
+ * ChatWidget.setName('Alice');
+ * ChatWidget.joinRoom('chess-abc');
+ * ```
+ */
 export const ChatWidget = (function() {
     'use strict';
 

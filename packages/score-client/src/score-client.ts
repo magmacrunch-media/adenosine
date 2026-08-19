@@ -13,6 +13,20 @@ const RECONNECT_DELAY = 3000;
 const REQUEST_TIMEOUT = 5000;
 const DEFAULT_PORT = 8781;
 
+/**
+ * WebSocket high-score client with localStorage fallback.
+ *
+ * Connects to a WebSocket server for high-score persistence.
+ * Falls back to localStorage when the server is unreachable.
+ * Auto-syncs queued saves when connection is restored.
+ *
+ * @example
+ * ```ts
+ * const client = new ScoreClient().auto();
+ * const scores = await client.load('tetris');
+ * await client.save('tetris', 'JAM', 12400, { level: 5 });
+ * ```
+ */
 export class ScoreClient {
   private ws: WebSocket | null = null;
   private _url = '';
