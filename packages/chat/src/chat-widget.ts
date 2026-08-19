@@ -76,12 +76,15 @@ export const ChatWidget = (function() {
     // The page's own origin is always allowed; anything else a deployment needs
     // it passes to connect({ allowlist }). Hardcoding one deployment's hosts
     // here would point every other install's chat traffic at a stranger.
-    function isAllowedServer(addr: string, extra?: readonly string[]): boolean {
+    function isAllowedServer(addr: string, extra?: readonly string[], configured?: string): boolean {
         var host = hostOf(addr);
         var allowed: string[] = ['localhost', '127.0.0.1'];
         try {
             if (window.location.hostname) allowed.push(window.location.hostname);
         } catch(e) {}
+        // The host we are already configured to talk to is trusted by
+        // definition — the deployment chose it.
+        if (configured) allowed.push(hostOf(configured));
         if (extra) allowed = allowed.concat(extra as string[]);
         for (var i = 0; i < allowed.length; i++) {
             if (host === allowed[i]) return true;
@@ -98,7 +101,7 @@ export const ChatWidget = (function() {
         };
         try {
             var param = new URLSearchParams(window.location.search).get('server');
-            if (param && isAllowedServer(param, opts && opts.allowlist)) {
+            if (param && isAllowedServer(param, opts && opts.allowlist, opts && opts.server)) {
                 return withScheme(param);
             }
             if (param) {

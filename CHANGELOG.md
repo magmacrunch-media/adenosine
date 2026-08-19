@@ -39,6 +39,15 @@ With nothing configured, both now target **the origin that served the page**.
 **Upgrading:** a deployment whose server is not the page's own origin must now
 say so. See each package's README.
 
+### 0.4.1 — trust the configured host
+
+A `?server=` override naming the host the deployment *already connects to* was
+being rejected, because the allowlist only ever covered the page's own origin.
+Any setup where the socket lives somewhere other than the web origin — a proxy,
+a separate game box — hit this. The configured default server's host is now
+implicitly allowed; it is trusted by definition, since the deployment chose it.
+It widens the allowlist by exactly that one host and nothing else.
+
 ### Changes
 
 - Every package has a README; six npm pages were blank.

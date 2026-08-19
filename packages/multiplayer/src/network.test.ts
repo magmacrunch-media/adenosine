@@ -47,6 +47,23 @@ describe('_isAllowed', () => {
     expect(MP._isAllowed('someone-elses-server.org')).toBe(false);
   });
 
+  it('trusts the host it is already configured to connect to', () => {
+    // A deployment whose game box is not the page's own origin — a proxy, a
+    // separate server — must still accept a ?server= naming that same box.
+    onPage('https://games.example.com/arcade/chess/');
+    MP.configure({ defaultServer: 'relay.example.net/chess' });
+    expect(MP._isAllowed('relay.example.net')).toBe(true);
+    // ...but only that one. It is not a licence to accept anything.
+    expect(MP._isAllowed('evil.example.org')).toBe(false);
+  });
+
+  it('trusts the host named by the MP_DEFAULT_SERVER global too', () => {
+    onPage('https://games.example.com/arcade/chess/');
+    globalThis.MP_DEFAULT_SERVER = 'relay.example.net/chess';
+    expect(MP._isAllowed('relay.example.net')).toBe(true);
+    expect(MP._isAllowed('evil.example.org')).toBe(false);
+  });
+
   it('accepts extra hosts once configure() names them', () => {
     onPage('https://games.example.com/arcade/chess/');
     MP.configure({ allowlist: ['relay.example.net'] });

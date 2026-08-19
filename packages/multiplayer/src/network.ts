@@ -144,6 +144,14 @@ export const MP = {
     try {
       if (window.location.hostname) own.push(window.location.hostname);
     } catch { /* no window */ }
+    // The host we are already configured to connect to is trusted by
+    // definition — the deployment chose it. Without this a page that sets a
+    // default server on a different host than it is served from (any setup
+    // where a proxy or a separate game box holds the socket) would reject a
+    // ?server= naming the very server it already uses.
+    const configured = MP._config.defaultServer
+      ?? (typeof MP_DEFAULT_SERVER !== 'undefined' ? MP_DEFAULT_SERVER : undefined);
+    if (configured) own.push(MP._hostOf(configured));
     return [...own, ...extra];
   },
 

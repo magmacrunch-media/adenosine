@@ -171,6 +171,22 @@ describe('chat server resolution', () => {
     })).toBe('wss://games.example.com');
   });
 
+  it('trusts a ?server= naming the host it is already configured to use', async () => {
+    expect(await serverFor({
+      scriptSrc: script,
+      pageUrl: 'https://games.example.com/a/?server=chat.example.net',
+      connectOpts: { server: 'chat.example.net' },
+    })).toBe('wss://chat.example.net');
+  });
+
+  it('does not let a configured server widen the allowlist to anything else', async () => {
+    expect(await serverFor({
+      scriptSrc: script,
+      pageUrl: 'https://games.example.com/a/?server=evil.example.org',
+      connectOpts: { server: 'chat.example.net' },
+    })).toBe('wss://chat.example.net');
+  });
+
   it('honours ?server= once the host is allowlisted', async () => {
     expect(await serverFor({
       scriptSrc: script,
