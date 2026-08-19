@@ -4,6 +4,8 @@
   "type": "module",
   "description": "Lightweight 2D tile-based RPG engine",
   "license": "Apache-2.0",
+  "keywords": ["rpg", "2d", "tile-based", "game-engine", "canvas", "2d-game"],
+  "engines": { "node": ">=20" },
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",

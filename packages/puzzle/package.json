@@ -4,6 +4,8 @@
   "type": "module",
   "description": "Sliding tile puzzle framework \u2014 grid engine, input, rendering, scoring",
   "license": "Apache-2.0",
+  "keywords": ["puzzle", "sliding-tile", "2048", "game", "framework", "grid"],
+  "engines": { "node": ">=20" },
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
@@ -13,6 +15,7 @@
   "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": ["*.css"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

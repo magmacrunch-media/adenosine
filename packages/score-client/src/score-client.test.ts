@@ -202,7 +202,7 @@ describe('ScoreClient', () => {
 
   describe('load()', () => {
     it('loads from localStorage when offline', async () => {
-      localStorageStore['mc_scores_tetris'] = JSON.stringify([
+      localStorageStore['adenosine_scores_tetris'] = JSON.stringify([
         { initials: 'JAM', score: 1000 },
       ]);
       const scores = await client.load('tetris');
@@ -242,7 +242,7 @@ describe('ScoreClient', () => {
 
       await loadPromise;
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'mc_scores_tetris',
+        'adenosine_scores_tetris',
         expect.any(String),
       );
     });
@@ -252,7 +252,7 @@ describe('ScoreClient', () => {
     it('saves to localStorage immediately', async () => {
       await client.save('tetris', 'JAM', 12400);
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'mc_scores_tetris',
+        'adenosine_scores_tetris',
         expect.stringContaining('JAM'),
       );
     });
@@ -260,7 +260,7 @@ describe('ScoreClient', () => {
     it('uppercases initials and truncates to 3 chars', async () => {
       await client.save('tetris', 'jake', 100);
       const call = mockLocalStorage.setItem.mock.calls.find(
-        (c: unknown[]) => (c as string[])[0] === 'mc_scores_tetris',
+        (c: unknown[]) => (c as string[])[0] === 'adenosine_scores_tetris',
       );
       expect(call).toBeDefined();
       const scores = JSON.parse((call as unknown[])[1] as string);
@@ -281,7 +281,7 @@ describe('ScoreClient', () => {
     it('queues save for later sync when offline', async () => {
       await client.save('tetris', 'JAM', 100);
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'mc_scores__pending',
+        'adenosine_scores__pending',
         expect.stringContaining('tetris'),
       );
     });
@@ -289,7 +289,7 @@ describe('ScoreClient', () => {
     it('includes extra fields in entry', async () => {
       await client.save('tetris', 'JAM', 100, { level: 5 });
       const call = mockLocalStorage.setItem.mock.calls.find(
-        (c: unknown[]) => (c as string[])[0] === 'mc_scores_tetris',
+        (c: unknown[]) => (c as string[])[0] === 'adenosine_scores_tetris',
       );
       expect(call).toBeDefined();
       const scores = JSON.parse((call as unknown[])[1] as string);
@@ -316,7 +316,7 @@ describe('ScoreClient', () => {
     it('clears localStorage for game', async () => {
       await client.reset('tetris');
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        'mc_scores_tetris',
+        'adenosine_scores_tetris',
         '[]',
       );
     });

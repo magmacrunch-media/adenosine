@@ -4,6 +4,8 @@
   "type": "module",
   "description": "Game-agnostic multiplayer WebSocket client for browser games",
   "license": "Apache-2.0",
+  "keywords": ["multiplayer", "websocket", "game", "lobby", "board-game", "real-time"],
+  "engines": { "node": ">=20" },
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
@@ -13,6 +15,7 @@
   "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": ["*.css"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

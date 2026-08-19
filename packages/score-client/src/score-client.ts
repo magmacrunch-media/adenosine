@@ -8,7 +8,7 @@
 
 import type { ScoreEntry, SaveResult, ScoreClientOptions } from './types.js';
 
-const LS_PREFIX = 'mc_scores_';
+const LS_PREFIX = 'adenosine_scores_';
 const RECONNECT_DELAY = 3000;
 const REQUEST_TIMEOUT = 5000;
 const DEFAULT_PORT = 8781;

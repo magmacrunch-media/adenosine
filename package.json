@@ -4,6 +4,7 @@
   "private": true,
   "description": "A collection of web game engines by MagmaCrunch",
   "license": "Apache-2.0",
+  "engines": { "node": ">=20" },
   "repository": "https://github.com/magmacrunchmedia/adenosine",
   "workspaces": [
     "packages/*"

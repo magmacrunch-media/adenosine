@@ -4,6 +4,8 @@
   "type": "module",
   "description": "Web Audio API engine for game music and sound effects",
   "license": "Apache-2.0",
+  "keywords": ["web-audio", "game-audio", "music", "sound-effects", "sfx", "game-engine"],
+  "engines": { "node": ">=20" },
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",

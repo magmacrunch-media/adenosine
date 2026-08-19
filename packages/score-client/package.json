@@ -4,6 +4,8 @@
   "type": "module",
   "description": "WebSocket high score client with localStorage fallback",
   "license": "Apache-2.0",
+  "keywords": ["high-scores", "leaderboard", "websocket", "game-scores", "localStorage"],
+  "engines": { "node": ">=20" },
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
