@@ -1,9 +1,9 @@
 {
   "name": "@magmacrunch/adenosine-audio",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "description": "Web Audio API engine for game music and sound effects",
-  "license": "LGPL-2.1",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
@@ -19,7 +19,10 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "NOTICE"
+  ],
   "publishConfig": {
     "access": "public"
   },

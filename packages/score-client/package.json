@@ -1,9 +1,9 @@
 {
   "name": "@magmacrunch/adenosine-score-client",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "type": "module",
   "description": "WebSocket high score client with localStorage fallback",
-  "license": "LGPL-2.1",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
@@ -20,7 +20,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE"
   ],
   "publishConfig": {
     "access": "public"

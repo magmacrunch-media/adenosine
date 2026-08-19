@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",
-  "license": "LGPL-2.1",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
@@ -24,7 +24,8 @@
   "files": [
     "dist",
     "cards.css",
-    "chip-animation.css"
+    "chip-animation.css",
+    "NOTICE"
   ],
   "publishConfig": {
     "access": "public"

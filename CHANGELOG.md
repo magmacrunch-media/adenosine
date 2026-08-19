@@ -2,6 +2,54 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [Unreleased — relicense and de-hardcode] — 2026-08-18
+
+Released: `chat` 0.4.0, `multiplayer` 0.4.0, and patch bumps to `rpg` 0.2.1,
+`puzzle` 0.2.2, `audio` 0.2.2, `score-client` 0.2.3.
+
+### Licence
+
+- **Relicensed from LGPL-2.1 to Apache-2.0.** LGPL's relinking requirement is
+  written for C shared libraries and maps poorly onto bundled browser JS, it
+  does not actually compel credit, and it narrowed who could adopt these
+  packages. Apache-2.0 is permissive, grants patent rights explicitly, and its
+  `NOTICE` file is the standard way for credit to travel downstream. Every
+  package now ships its own `LICENSE` and `NOTICE` — npm does not inherit the
+  monorepo root's, so previously no tarball carried a licence at all.
+
+### Breaking — `chat` and `multiplayer` no longer connect to magmacrunch
+
+Both packages hardcoded `magmacrunch.duckdns.org`, `magmacrunch.com` and
+`192.168.1.16` as their connection fallbacks *and* their `?server=` allowlists.
+Anyone who installed `adenosine-chat` and called `ChatWidget.connect()` — the
+example in our own README — opened a socket to a Raspberry Pi they had never
+heard of, and the widget replayed their users' saved chat credentials to it.
+
+With nothing configured, both now target **the origin that served the page**.
+
+- `MP.configure({ defaultServer, allowlist })` — new. `MP_DEFAULT_SERVER` still
+  works.
+- `ChatWidget.connect({ server, allowlist })` — `connect()` previously took only
+  `workerUrl`.
+- The `?server=` allowlist now defaults to the page's own origin, loopback and
+  the private ranges. Other hosts must be declared.
+- `BoardGameTemplate.render()` no longer defaults its credits block to a
+  specific studio; with no `credits` it emits just the title.
+
+**Upgrading:** a deployment whose server is not the page's own origin must now
+say so. See each package's README.
+
+### Changes
+
+- Every package has a README; six npm pages were blank.
+- New `scripts/check-no-hardcoded-hosts.mjs`, wired into CI, fails if any
+  package names a deployment hostname or LAN address again. Ports are
+  deliberately not banned: a default port resolves against the page's own
+  hostname and so cannot reach anyone else's machine.
+- `check-packaging.mjs` now also asserts `LICENSE` and `NOTICE` ship.
+- Documentation fixes: `AdAudio.handleVisibility` takes a boolean, not
+  `{ pauseMusic }`; `HandEvaluator` is a class, so `new HandEvaluator().evaluate()`.
+
 ## [0.4.0 / 0.3.1] — 2026-08-18
 
 Released together: `cards` 0.4.0, `chat` and `multiplayer` 0.3.1.

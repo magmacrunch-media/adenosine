@@ -3,7 +3,7 @@
  */
 
 export { MSG, MP_PALETTE, type MsgType } from './protocol.js';
-export { MP, type MPMessage } from './network.js';
+export { MP, type MPMessage, type MPConfig } from './network.js';
 export {
   BoardGameTemplate,
   type BoardGameConfig,

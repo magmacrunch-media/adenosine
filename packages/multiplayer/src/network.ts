@@ -1,12 +1,18 @@
 /**
  * network.ts — Shared multiplayer client layer
- * Game-agnostic WebSocket client for magmacrunch arcade games.
+ * Game-agnostic WebSocket client for browser games.
  *
  * Usage:
  *   MP.connect('wss://myserver.com');
  *   MP.onConnected = () => { ... };
  *   MP.onGameState = (state) => { ... };
  *   MP.sendAction({ type: 'play_card', card: {...} });
+ *
+ * With no argument, connect() targets the page's own origin. A deployment whose
+ * game server lives on a different host declares that once, up front:
+ *
+ *   MP.configure({ defaultServer: 'games.example.com/chess',
+ *                  allowlist: ['games.example.com'] });
  */
 
 /** Any message from the server. `type` selects the shape of the rest. */
@@ -15,8 +21,19 @@ export interface MPMessage {
   [key: string]: unknown;
 }
 
-/** Set by the consuming page before the client connects. */
+/** Set by the consuming page before the client connects. Predates configure()
+ *  and is still honoured, since pages in the wild set it. */
 declare const MP_DEFAULT_SERVER: string | undefined;
+
+/** Deployment-specific wiring, supplied by the host app via MP.configure(). */
+export interface MPConfig {
+  /** Where connect() goes when called with no argument. Bare "host[:port][/path]"
+   *  is preferred — the scheme is chosen from the page protocol. */
+  defaultServer?: string;
+  /** Extra hosts a ?server= override may name, on top of the page's own origin
+   *  and the private ranges. */
+  allowlist?: readonly string[];
+}
 
 /** Read an optional string field off a loosely-typed server message. */
 function str(msg: MPMessage, key: string): string {
@@ -99,16 +116,36 @@ export const MP = {
     });
   },
 
+  // Deployment wiring from configure(). Empty by default: an install that
+  // configures nothing talks to its own origin and nowhere else.
+  _config: {} as MPConfig,
+
+  /**
+   * Declare where this deployment's game server lives.
+   *
+   * Call before connect(). Both fields are optional and merge over whatever a
+   * previous call set, so a page can name its server without restating the
+   * allowlist.
+   */
+  configure(cfg: MPConfig): void {
+    MP._config = { ...MP._config, ...cfg };
+  },
+
   // Hosts the ?server= override is allowed to name. Without this a crafted link
   // can point a visitor's game socket, and the name they play under, at any
   // host the attacker chooses.
-  _allowlist: [
-    'magmacrunch.duckdns.org',
-    'magmacrunch.com',
-    'localhost',
-    '127.0.0.1',
-    '192.168.1.16',
-  ] as readonly string[],
+  //
+  // The page's own origin is always allowed; anything else a deployment needs
+  // it declares through configure({ allowlist }). Hardcoding one deployment's
+  // hosts here would hand every other install a socket pointed at a stranger.
+  _allowlist(): readonly string[] {
+    const extra = MP._config.allowlist ?? [];
+    const own: string[] = ['localhost', '127.0.0.1'];
+    try {
+      if (window.location.hostname) own.push(window.location.hostname);
+    } catch { /* no window */ }
+    return [...own, ...extra];
+  },
 
   // RFC1918. Note 172 is only private from 172.16 to 172.31 — a bare /^172\./
   // also swallows public addresses such as 172.217.14.5.
@@ -122,7 +159,7 @@ export const MP = {
     const host = MP._hostOf(addr);
     // Private ranges stay open so LAN play and dev servers keep working.
     if (MP._PRIVATE.test(host)) return true;
-    return MP._allowlist.indexOf(host) !== -1;
+    return MP._allowlist().indexOf(host) !== -1;
   },
 
   // A ws: socket opened from an https: page is blocked as mixed content, so the
@@ -144,10 +181,14 @@ export const MP = {
         console.warn('[MP] ignoring ?server= override for non-allowlisted host: ' + MP._hostOf(param));
       }
     } catch { /* no window, or an unparsable query */ }
+    if (MP._config.defaultServer) return MP._config.defaultServer;
     if (typeof MP_DEFAULT_SERVER !== 'undefined') return MP_DEFAULT_SERVER;
-    const h = window.location.hostname;
-    if (h === 'localhost' || h === '127.0.0.1') return '192.168.1.16:8765';
-    return 'magmacrunch.duckdns.org:8765';
+    // Nothing configured: talk to the origin that served the page. Naming a
+    // specific deployment's host here would mean every unconfigured install
+    // silently opened a socket to someone else's server.
+    try {
+      return window.location.host;
+    } catch { return 'localhost'; }
   },
 
   // ── Senders ──────────────────────────────────────────────────────────────

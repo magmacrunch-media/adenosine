@@ -1,9 +1,9 @@
 {
   "name": "@magmacrunch/adenosine-chat",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "type": "module",
   "description": "Floating real-time chat widget with SharedWorker for browser games",
-  "license": "LGPL-2.1",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/magmacrunchmedia/adenosine",
@@ -23,7 +23,8 @@
   },
   "files": [
     "dist",
-    "chat-widget.css"
+    "chat-widget.css",
+    "NOTICE"
   ],
   "publishConfig": {
     "access": "public"

@@ -55,6 +55,15 @@ for (const name of names) {
   for (const p of referencedPaths(pkg)) {
     if (!shipped.has(p)) problems.push(`manifest points at "${p}" but the tarball has no such file`);
   }
+  // Apache-2.0 section 4(a) requires recipients get a copy of the License, and
+  // 4(d) requires the NOTICE travel with it — that is the mechanism by which
+  // credit for adenosine reaches anyone downstream. npm auto-includes a LICENSE
+  // sitting in the package directory but does NOT inherit the monorepo root's,
+  // so each package needs its own copy of both.
+  for (const legal of ['LICENSE', 'NOTICE']) {
+    if (!shipped.has(legal)) problems.push(`tarball has no ${legal} — copy the root one into packages/${name}/`);
+  }
+
   for (const entry of pkg.files ?? []) {
     const bare = entry.replace(/^\.\//, '').replace(/\/$/, '');
     const covered = [...shipped].some((f) => f === bare || f.startsWith(bare + '/'));

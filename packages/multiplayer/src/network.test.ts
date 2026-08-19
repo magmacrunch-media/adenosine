@@ -20,6 +20,7 @@ function onPage(url) {
 afterEach(() => {
   delete globalThis.window;
   delete globalThis.MP_DEFAULT_SERVER;
+  MP._config = {};
 });
 
 describe('_hostOf', () => {
@@ -32,10 +33,25 @@ describe('_hostOf', () => {
 });
 
 describe('_isAllowed', () => {
-  it('accepts the known hosts', () => {
-    for (const h of ['magmacrunch.duckdns.org', 'magmacrunch.com', 'localhost', '127.0.0.1']) {
+  it('accepts loopback and the origin that served the page', () => {
+    onPage('https://games.example.com/arcade/chess/');
+    for (const h of ['localhost', '127.0.0.1', 'games.example.com']) {
       expect(MP._isAllowed(h), h).toBe(true);
     }
+  });
+
+  it('rejects a host this deployment has not declared', () => {
+    // The package used to ship one deployment's hosts in the allowlist, which
+    // meant every other install accepted a ?server= pointed at them.
+    onPage('https://games.example.com/arcade/chess/');
+    expect(MP._isAllowed('someone-elses-server.org')).toBe(false);
+  });
+
+  it('accepts extra hosts once configure() names them', () => {
+    onPage('https://games.example.com/arcade/chess/');
+    MP.configure({ allowlist: ['relay.example.net'] });
+    expect(MP._isAllowed('relay.example.net')).toBe(true);
+    expect(MP._isAllowed('still-not-this-one.org')).toBe(false);
   });
 
   it('accepts RFC1918 ranges so LAN and dev play keep working', () => {
@@ -103,13 +119,28 @@ describe('_resolveServer', () => {
     expect(MP._resolveServer()).toBe('magmacrunch.duckdns.org/cribbage');
   });
 
-  it('points local dev at the Pi rather than the page host', () => {
-    onPage('http://localhost:8000/arcade/chess/');
-    expect(MP._resolveServer()).toBe('192.168.1.16:8765');
+  it('prefers configure({ defaultServer }) over the same-origin fallback', () => {
+    onPage('https://games.example.com/arcade/chess/');
+    MP.configure({ defaultServer: 'games.example.com/chess' });
+    expect(MP._resolveServer()).toBe('games.example.com/chess');
   });
 
-  it('falls back to the public host elsewhere', () => {
-    onPage('https://magmacrunch.com/arcade/chess/');
-    expect(MP._resolveServer()).toBe('magmacrunch.duckdns.org:8765');
+  it('falls back to the origin that served the page, not a baked-in host', () => {
+    // The whole point of the de-hardcoding: an install that configures nothing
+    // must talk to itself. It used to return magmacrunch.duckdns.org:8765 here,
+    // so any third-party page opened a socket to someone else's server.
+    onPage('https://games.example.com/arcade/chess/');
+    expect(MP._resolveServer()).toBe('games.example.com');
+
+    onPage('http://localhost:8000/arcade/chess/');
+    expect(MP._resolveServer()).toBe('localhost:8000');
+  });
+
+  it('never resolves to a magmacrunch host without being told to', () => {
+    for (const url of ['https://games.example.com/x/', 'http://localhost:8000/x/',
+                       'https://example.org/?server=magmacrunch.duckdns.org']) {
+      onPage(url);
+      expect(MP._resolveServer()).not.toContain('magmacrunch');
+    }
   });
 });

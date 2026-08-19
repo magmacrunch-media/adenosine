@@ -34,3 +34,11 @@ jobs:
       # repo so far was of exactly that shape, so assert it explicitly.
       - name: Check packaging
         run: node scripts/check-packaging.mjs
+
+      # chat and multiplayer once shipped one deployment's hostnames as both
+      # their fallbacks and their ?server= allowlists, so any third-party
+      # install sent its users' traffic to a stranger's machine. The fast fix
+      # for a connection bug is always to inline the host that works; this is
+      # what notices when someone does.
+      - name: Check for hardcoded infrastructure
+        run: node scripts/check-no-hardcoded-hosts.mjs

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   magmacrunch arcade — board game HTML template
+   board game HTML template
    shared/board-game-template.ts
    ═══════════════════════════════════════════════
    Generates common HTML structure for board games.
@@ -111,7 +111,10 @@ export const BoardGameTemplate = (function () {
         var instructions = cfg.instructions || '<h3>Rules</h3><p>Game instructions go here.</p>';
 
         // ── Credits ──
-        var credits = cfg.credits || '<h3>' + esc(title) + '</h3><h4>Game Design & Development</h4><p>Jake A. McCoy</p><h4>Publisher</h4><p><strong>magmacrunch media</strong></p>';
+        // Just the title when the caller says nothing. The previous default
+        // named one specific studio, which every other deployment then had to
+        // notice and override.
+        var credits = cfg.credits || '<h3>' + esc(title) + '</h3>';
 
         // ── Build HTML ──
         var html = '';

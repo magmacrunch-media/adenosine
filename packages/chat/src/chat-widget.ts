@@ -7,6 +7,11 @@
  *   <script src="shared/chat-widget.js"></script>
  *   <script>ChatWidget.connect();</script>
  *
+ * connect() targets the origin that served the page. A deployment whose chat
+ * server lives elsewhere names it:
+ *
+ *   ChatWidget.connect({ server: 'chat.example.com', allowlist: ['chat.example.com'] });
+ *
  * Public API:
  *   ChatWidget.connect()
  *   ChatWidget.disconnect()
@@ -23,6 +28,12 @@
 export interface ConnectOptions {
   /** Override the SharedWorker URL. Resolved from the loading script otherwise. */
   workerUrl?: string;
+  /** Where the chat server lives. Accepts "host[:port][/path]" — the scheme is
+   *  taken from the page protocol — or a full ws:// / wss:// URL. Defaults to
+   *  the origin that served the page. */
+  server?: string;
+  /** Extra hosts a ?server= override may name, on top of the page's own origin. */
+  allowlist?: readonly string[];
 }
 
 /** A message from the chat server. `type` selects the rest of the shape. */
@@ -54,47 +65,55 @@ export const ChatWidget = (function() {
         } catch(e) { return 'ws://'; }
     })();
 
-    // Hosts the ?server= override is allowed to name. The widget replays saved
-    // credentials as soon as the socket opens, so an unrestricted override lets
-    // a crafted link hand those to any host the visitor can reach.
-    var SERVER_ALLOWLIST = [
-        'magmacrunch.duckdns.org',
-        'magmacrunch.com',
-        'localhost',
-        '127.0.0.1',
-        '192.168.1.16'
-    ];
-
     function hostOf(addr: string): string {
         return String(addr).replace(/^wss?:\/\//, '').split('/')[0]!.split(':')[0]!;
     }
 
-    function isAllowedServer(addr: string): boolean {
+    // Hosts the ?server= override is allowed to name. The widget replays saved
+    // credentials as soon as the socket opens, so an unrestricted override lets
+    // a crafted link hand those to any host the visitor can reach.
+    //
+    // The page's own origin is always allowed; anything else a deployment needs
+    // it passes to connect({ allowlist }). Hardcoding one deployment's hosts
+    // here would point every other install's chat traffic at a stranger.
+    function isAllowedServer(addr: string, extra?: readonly string[]): boolean {
         var host = hostOf(addr);
-        for (var i = 0; i < SERVER_ALLOWLIST.length; i++) {
-            if (host === SERVER_ALLOWLIST[i]) return true;
+        var allowed: string[] = ['localhost', '127.0.0.1'];
+        try {
+            if (window.location.hostname) allowed.push(window.location.hostname);
+        } catch(e) {}
+        if (extra) allowed = allowed.concat(extra as string[]);
+        for (var i = 0; i < allowed.length; i++) {
+            if (host === allowed[i]) return true;
         }
         return false;
     }
 
-    var CHAT_SERVER = (function() {
+    // Resolved at connect() rather than at module load, so options can reach it.
+    var chatServer: string | null = null;
+
+    function resolveChatServer(opts?: ConnectOptions): string {
+        var withScheme = function(addr: string): string {
+            return /^wss?:\/\//.test(addr) ? addr : WS_SCHEME + addr;
+        };
         try {
             var param = new URLSearchParams(window.location.search).get('server');
-            if (param && isAllowedServer(param)) {
-                return /^wss?:\/\//.test(param) ? param : WS_SCHEME + param;
+            if (param && isAllowedServer(param, opts && opts.allowlist)) {
+                return withScheme(param);
             }
             if (param) {
                 console.warn('[ChatWidget] ignoring ?server= override for non-allowlisted host: ' + hostOf(param));
             }
         } catch(e) {}
-        var h = window.location.hostname;
-        if (h === 'localhost' || h === '127.0.0.1') return 'ws://192.168.1.16:8768';
-        // Port 8768 carries no TLS of its own. From an https: page the socket has
-        // to go through nginx on the Pi, which terminates TLS on 443 and proxies
-        // / → 127.0.0.1:8768.
-        if (WS_SCHEME === 'wss://') return 'wss://magmacrunch.duckdns.org';
-        return 'ws://magmacrunch.duckdns.org:8768';
-    })();
+        if (opts && opts.server) return withScheme(opts.server);
+        // Nothing configured: talk to the origin that served the page. Naming a
+        // specific deployment's host here would mean every unconfigured install
+        // silently sent its users' chat, and their saved credentials, to
+        // someone else's server.
+        try {
+            return WS_SCHEME + window.location.host;
+        } catch(e) { return 'ws://localhost'; }
+    }
 
     // Captured while this module is still evaluating: for a classic <script src>
     // that is the tag which loaded us, whatever the bundle happens to be called.
@@ -360,6 +379,9 @@ export const ChatWidget = (function() {
     // ── Connection ──────────────────────────────────────────────────────
 
     function connect(opts?: ConnectOptions): void {
+        // Resolved once per connect and cached, because connectDirect() is also
+        // the reconnect path and has no access to opts.
+        chatServer = resolveChatServer(opts);
         createWidget();
 
         if (typeof SharedWorker !== 'undefined' && !worker) {
@@ -372,7 +394,7 @@ export const ChatWidget = (function() {
                 };
                 worker!.port.start();
 
-                worker!.port.postMessage(JSON.stringify({ _worker: 'connect', url: CHAT_SERVER }));
+                worker!.port.postMessage(JSON.stringify({ _worker: 'connect', url: chatServer }));
 
                 window.addEventListener('pagehide', function() {
                     try { worker!.port.postMessage(JSON.stringify({ _worker: 'disconnect' })); } catch(e) {}
@@ -390,7 +412,7 @@ export const ChatWidget = (function() {
 
     function connectDirect() {
         if (sock) return;
-        sock = new WebSocket(CHAT_SERVER);
+        sock = new WebSocket(chatServer || resolveChatServer());
 
         sock.onopen = function() {
             widgetEl!.classList.remove('disconnected');
