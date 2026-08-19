@@ -4,8 +4,17 @@
 
 const SUIT_CHAR: Record<string, string> = { hearts:'♥', diamonds:'♦', clubs:'♣', spades:'♠' };
 
+// Hex ink colour for a suit. Nothing below uses it — card text inherits its
+// colour from `.card.face-up.red` / `.card.face-up.black` instead — but it is
+// public API for consumers that need an actual colour value (canvas, SVG fill).
 function pipColor(suit: string): string {
     return (suit === 'hearts' || suit === 'diamonds') ? '#cc0000' : '#111111';
+}
+
+// Inline colour, only when a caller asks for one. Left off, the element inherits
+// from the card's colour class — which is what keeps that stylesheet rule live.
+function colorAttr(color?: string): string {
+    return color ? ` style="color:${color}"` : '';
 }
 
 // ── Pixel-art pip SVG for corner labels ───────────────────────
@@ -56,49 +65,48 @@ function cornerPipSVG(suit: string, color: string): string {
 }
 
 // ── Corner label: pixel pip + rank ────────────────────────────
-function cornerHTML(rank: string, suit: string, color: string): string {
+function cornerHTML(rank: string, suit: string, color?: string): string {
     const s = SUIT_CHAR[suit];
+    const c = colorAttr(color);
     return `
         <div class="card-corner top-left">
-            <div class="corner-rank" style="color:${color}">${rank}</div>
-            <div class="corner-suit" style="color:${color}">${s}</div>
+            <div class="corner-rank"${c}>${rank}</div>
+            <div class="corner-suit"${c}>${s}</div>
         </div>
         <div class="card-corner bottom-right">
-            <div class="corner-rank" style="color:${color}">${rank}</div>
-            <div class="corner-suit" style="color:${color}">${s}</div>
+            <div class="corner-rank"${c}>${rank}</div>
+            <div class="corner-suit"${c}>${s}</div>
         </div>`;
 }
 
 // ── Ace ───────────────────────────────────────────────────────
 function getAceHTML(suit: string, rank: string): string {
-    const color = pipColor(suit);
     return `
-        ${cornerHTML('A', suit, color)}
+        ${cornerHTML('A', suit)}
         <div class="card-suit-center single">
-            <div class="pip-ace" style="color:${color}">${SUIT_CHAR[suit]}</div>
+            <div class="pip-ace">${SUIT_CHAR[suit]}</div>
         </div>`;
 }
 
 // ── Number cards ──────────────────────────────────────────────
 function getNumberCardHTML(suit: string, rank: string): string {
-    const color = pipColor(suit);
-    const layout = getSuitLayout(rank, suit, color);
+    const layout = getSuitLayout(rank, suit);
     return `
-        ${cornerHTML(rank, suit, color)}
+        ${cornerHTML(rank, suit)}
         <div class="card-suit-center" data-rank="${rank}">
             ${layout}
         </div>`;
 }
 
 // ── Center pip: smooth Unicode span ──────────────────────────
-function pu(suit: string, color: string): string {
-    return `<span class="pip" style="color:${color}">${SUIT_CHAR[suit]}</span>`;
+function pu(suit: string, color?: string): string {
+    return `<span class="pip"${colorAttr(color)}>${SUIT_CHAR[suit]}</span>`;
 }
-function pr(suit: string, color: string): string {
-    return `<span class="pip rotated" style="color:${color}">${SUIT_CHAR[suit]}</span>`;
+function pr(suit: string, color?: string): string {
+    return `<span class="pip rotated"${colorAttr(color)}>${SUIT_CHAR[suit]}</span>`;
 }
 
-function getSuitLayout(rank: string, suit: string, color: string): string {
+function getSuitLayout(rank: string, suit: string, color?: string): string {
     const layouts = {
         // 2: top center up, bottom center down
         '2': `

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SUITS, RANKS, SUIT_SYMBOLS, SUIT_COLORS, RANK_VALUES } from './constants.js';
+import { SUITS, RANKS, SUIT_SYMBOLS, SUIT_COLORS, SUIT_COLOR_NAMES, RANK_VALUES } from './constants.js';
 
 describe('Card Constants', () => {
   describe('SUITS', () => {
@@ -41,6 +41,23 @@ describe('Card Constants', () => {
     it('clubs and spades are black', () => {
       expect(SUIT_COLORS.clubs).toBe('#111111');
       expect(SUIT_COLORS.spades).toBe('#111111');
+    });
+  });
+
+  describe('SUIT_COLOR_NAMES', () => {
+    it('names the colour rather than giving a hex value', () => {
+      expect(SUIT_COLOR_NAMES.hearts).toBe('red');
+      expect(SUIT_COLOR_NAMES.diamonds).toBe('red');
+      expect(SUIT_COLOR_NAMES.clubs).toBe('black');
+      expect(SUIT_COLOR_NAMES.spades).toBe('black');
+    });
+
+    it('agrees with SUIT_COLORS on which suits share a colour', () => {
+      for (const a of SUITS) {
+        for (const b of SUITS) {
+          expect(SUIT_COLOR_NAMES[a] === SUIT_COLOR_NAMES[b]).toBe(SUIT_COLORS[a] === SUIT_COLORS[b]);
+        }
+      }
     });
   });
 

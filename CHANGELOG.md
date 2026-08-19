@@ -2,7 +2,7 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
-## [Unreleased — relicense and de-hardcode] — 2026-08-18
+## [Unreleased — relicense and de-hardcode]
 
 Released: `chat` 0.4.0, `multiplayer` 0.4.0, and patch bumps to `rpg` 0.2.1,
 `puzzle` 0.2.2, `audio` 0.2.2, `score-client` 0.2.3.
@@ -59,36 +59,45 @@ It widens the allowlist by exactly that one host and nothing else.
 - Documentation fixes: `AdAudio.handleVisibility` takes a boolean, not
   `{ pauseMusic }`; `HandEvaluator` is a class, so `new HandEvaluator().evaluate()`.
 
-## [0.4.0 / 0.3.1] — 2026-08-18
+## [0.5.0] — 2026-08-18
 
-Released together: `cards` 0.4.0, `chat` and `multiplayer` 0.3.1.
+Released: `cards` 0.5.0.
 
 ### Bug fixes
 
-- **adenosine-cards**: `deck.js` called `getAceHTML()` without importing it, so
-  `Card.getHTML()` threw for every face-up ace. Number and face cards were
-  unaffected, which is why it went unnoticed — solitaire, cribbage, Sökö and
-  Texas Hold'Em Lava Dome all failed to draw an ace. This is the third bug of
-  this exact shape in that one file (see 0.2.2 and 0.2.1); the TypeScript port
-  below is what surfaced it, and prevents a fourth.
+- **adenosine-cards**: `Card.getHTML()` added `this.color` — a *hex* value — as a
+  class, so every face-up card rendered as
+  `<div class="card face-up #cc0000">`. The stylesheet keys on a word
+  (`.card.face-up.red` / `.card.face-up.black`), so both rules had never matched
+  anything on any card in any game. Cards still looked right only because the
+  corner and pip markup carried `style="color:#cc0000"`, which is why this went
+  unnoticed. `Card` now carries a `colorName` of `'red'` or `'black'` and adds
+  that instead; a test renders all 52 cards and asserts each matches its
+  stylesheet selector and that no class token is a hex value.
 
 ### Changes
 
-- **adenosine-cards**, **adenosine-chat**, **adenosine-multiplayer** ported from
-  JavaScript to TypeScript. Each previously shipped a hand-written
-  `src/index.d.ts` describing its intended surface; that contract is now derived
-  from the implementation and checked by `tsc`. Card `Suit`, `Rank`, `HandName`
-  and the cribbage/poker result shapes are exported types rather than prose.
-- **adenosine-chat**, **adenosine-multiplayer**: `types` now points at the
-  generated `dist/index.d.ts`. The 0.3.0 tarballs were built before the port and
-  shipped the stale hand-written declarations, so consumers on 0.3.0 typecheck
-  against a contract that is no longer maintained. 0.3.1 carries no runtime
-  change beyond the rebuild — upgrading is only worthwhile for the types.
-- **adenosine-multiplayer**, **adenosine-audio**: first tests for the two
-  packages that had none. `multiplayer` had no `test` script at all, so the root
-  `npm test` was silently skipping it.
+- **adenosine-cards**: new `SUIT_COLOR_NAMES: Record<Suit, 'red' | 'black'>` and
+  the `CardColorName` type, exported alongside `SUIT_COLORS`. `Card.color` still
+  holds the hex, so nothing that reads it needs to change — the two are now
+  documented as hex-for-fills versus name-for-classes.
+- **adenosine-cards**: number and ace cards no longer stamp
+  `style="color:…"` on their corners and pips; colour comes from
+  `.card.face-up.red` / `.card.face-up.black` and is inherited. This also settles
+  a mismatch that predates the class bug: face cards already drew themselves in
+  `var(--fc-red)`, while number cards hardcoded `#cc0000`, so on any theme where
+  the two differ (solitaire, cribbage and Sökö all set `--fc-red: #cc1111`) a
+  king and a seven of the same suit were subtly different reds.
+  `cornerHTML()`, `getSuitLayout()` and `pipColor()` keep their exported
+  signatures — the colour argument is now optional and simply omitted.
+- **adenosine-cards**: `cards.css` gains fallbacks (`var(--fc-red, #cc0000)`,
+  `var(--fc-black, #111111)`) so cards still render in colour where a consumer
+  has not defined the theme variables — which now matters, since the stylesheet
+  is the only thing colouring them.
 
-## [0.3.0] — 2026-08-17
+## [0.4.0 / 0.3.1] — 2026-08-18
+
+Released: `cards` 0.4.0, `chat` 0.3.1, `multiplayer` 0.3.1.
 
 ### New packages
 
