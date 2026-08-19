@@ -49,3 +49,10 @@ jobs:
       # bundle the way the tarball is checked against the manifest.
       - name: Check API docs against the real exports
         run: node scripts/check-api-docs.mjs
+
+      # cards.css and face-cards.ts referenced custom properties they never
+      # defined, so cards rendered transparent and kings painted solid black for
+      # anyone outside the arcade — where the values happen to exist per-game.
+      # A shipped file has to stand on its own.
+      - name: Check CSS custom properties have fallbacks
+        run: node scripts/check-css-fallbacks.mjs

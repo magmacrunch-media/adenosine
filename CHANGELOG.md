@@ -2,6 +2,32 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [cards 0.7.3] — 2026-08-19
+
+### Bug fixes
+
+- **adenosine-cards**: the shipped stylesheet and the face-card art referenced
+  CSS custom properties they never defined, so for anyone outside the arcade
+  **cards rendered fully transparent and kings, queens and jacks painted solid
+  black**. The pips and rank drew onto no card at all.
+
+  `cards.css` used eight properties with fallbacks on two. `face-cards.ts` emits
+  its pixel art as inline SVG whose fills are properties — 602 of them, none with
+  a fallback. The values are defined per-game inside the arcade
+  (`arcade/solitaire/css/base.css` and friends), so the omission was invisible
+  from in here.
+
+  It also had no consumer to catch it: the arcade links its own byte-identical
+  copy of `cards.css`, and `sync-adenosine.mjs` syncs only `.js`, so the
+  published stylesheet had never been loaded by anything.
+
+  Every property now carries a fallback matching the arcade's value. The default
+  look is unchanged; the difference is that it now survives being installed.
+
+- `scripts/check-css-fallbacks.mjs` fails on a custom property without a
+  fallback, in shipped stylesheets **and** in the built bundle — the CSS-only
+  form of this check missed all 602 of the SVG fills. Wired into CI.
+
 ## [docs correction] — 2026-08-19
 
 `puzzle`, `cards` and `multiplayer` patched. **The API references shipped
