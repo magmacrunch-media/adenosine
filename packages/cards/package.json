@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-cards",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "description": "Card deck, pixel-art rendering, and poker chip animations",
   "license": "Apache-2.0",
