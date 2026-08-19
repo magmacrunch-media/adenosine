@@ -40,16 +40,25 @@ new ScoreClient().connect('wss://scores.example.com/scores');  // bypass entirel
 
 ## Without a bundler
 
+Straight from a CDN — no npm, no build step:
+
 ```html
-<script src="adenosine-score-client.js"></script>
-<script>const client = new AdScore.ScoreClient().auto();</script>
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-score-client@0.2/dist/index.global.js"></script>
 ```
 
-The IIFE build is `dist/index.global.js` and exposes `window.AdScore`.
+The IIFE build exposes `window.AdScore`. The version is pinned to a minor here on purpose:
+an unpinned URL follows `latest` and will cross a major without warning.
+
+Installed from npm instead, the same file is `dist/index.global.js`.
 
 ## Full API
 
 [`API.md`](API.md) documents every export, with parameters and return shapes.
+
+## Module format
+
+ESM only. The `exports` map declares no `require` condition, so this cannot be
+`require()`d from CommonJS — use `import`, or the IIFE build above.
 
 ## License
 

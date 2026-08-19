@@ -45,16 +45,54 @@ game.init();
 
 ## Without a bundler
 
+Straight from a CDN — no npm, no build step:
+
 ```html
-<script src="adenosine-puzzle.js"></script>
-<script>const game = AdPuzzle.createGame({ size: 4, gameName: 'threes' });</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-puzzle@0.2/puzzle-base.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-puzzle@0.2/puzzle-grid.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-puzzle@0.2/puzzle-modals.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-puzzle@0.2/puzzle-responsive.css">
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-puzzle@0.2/dist/index.global.js"></script>
 ```
 
-The IIFE build is `dist/index.global.js` and exposes `window.AdPuzzle`.
+The IIFE build exposes `window.AdPuzzle`. The version is pinned to a minor here on purpose:
+an unpinned URL follows `latest` and will cross a major without warning.
+
+Installed from npm instead, the same file is `dist/index.global.js`.
 
 ## Full API
 
 [`API.md`](API.md) documents every export, with parameters and return shapes.
+
+## Theming
+
+| Property | Default | What it colours |
+|---|---|---|
+| `--apz-accent` | `#00f5ff` | Borders, headings, focus |
+| `--apz-accent-bright` | `#33ffff` | Hover / emphasis |
+| `--apz-accent-alt` | `#ff2d78` | Secondary accent, buttons |
+| `--apz-accent-alt-hover` / `-dim` / `-dark` | `#ff5a99` / `#cc2266` / `#aa1155` | Its states |
+| `--apz-bg` | `#0a0612` | Page |
+| `--apz-bg-panel` | `#1a0a2a` | Board and modals |
+| `--apz-border` | `#2a1a3a` | Dividers |
+| `--apz-text` / `--apz-text-dim` | `#f0ead8` / `#8a7fa8` | Body / secondary |
+
+Glows derive from the two accents via `color-mix`, so one override carries.
+
+**Tile colours are deliberately not variables.** The value gradient is per-tile
+and there are seventeen of them, so they stay literal — restyle them directly:
+
+```css
+.tile[data-value="2048"] { background: #ff00aa; color: #fff; }
+```
+
+Derived colours use `color-mix()`, which needs Chrome 111, Safari 16.2 or
+Firefox 113 — all shipped in 2023.
+
+## Module format
+
+ESM only. The `exports` map declares no `require` condition, so this cannot be
+`require()`d from CommonJS — use `import`, or the IIFE build above.
 
 ## License
 

@@ -54,21 +54,27 @@ loop.start();
 
 ## Without a bundler
 
+Straight from a CDN — no npm, no build step:
+
 ```html
-<script src="adenosine-rpg.js"></script>
-<script>
-  const loop = AdRPG.createGameLoop({ update, render, fps: 30 });
-  loop.start();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2/dist/index.global.js"></script>
 ```
 
-The IIFE build is `dist/index.global.js` and exposes `window.AdRPG`.
+The IIFE build exposes `window.AdRPG`. The version is pinned to a minor here on purpose:
+an unpinned URL follows `latest` and will cross a major without warning.
+
+Installed from npm instead, the same file is `dist/index.global.js`.
 
 ## Note
 
 State lives in module-level singletons, so one page runs one RPG. That suits the
 game it was extracted from; a second concurrent instance would need the state
 module reworked.
+
+## Module format
+
+ESM only. The `exports` map declares no `require` condition, so this cannot be
+`require()`d from CommonJS — use `import`, or the IIFE build above.
 
 ## License
 

@@ -1,0 +1,99 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>adenosine quickstart</title>
+<!--
+  Save this file anywhere and open it. No npm, no build step, no server —
+  everything loads from a CDN. This is the whole thing; view source is the
+  tutorial.
+
+  Note for anyone editing: the script tag below is deliberately a CLASSIC script,
+  not type="module". Module scripts are CORS-checked even for same-document
+  loads, so a module version of this file fails when opened straight from disk
+  over file:// — which is exactly the case this page exists to serve. Keep it
+  classic, and keep using the IIFE build rather than the ESM one.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.7/cards.css">
+<style>
+  body {
+    font: 15px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #14141b; color: #e8e6f0;
+    margin: 0; padding: 2rem; max-width: 54rem;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 .3rem; }
+  h1 code { color: #ff6ec7; }
+  p { color: #9d99b5; margin: 0 0 1.4rem; }
+  .hand { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  button {
+    font: inherit; background: #2a2a3a; color: #e8e6f0;
+    border: 1px solid #44415f; padding: .5rem 1rem; cursor: pointer;
+  }
+  button:hover { background: #35334a; }
+  #verdict { margin-top: 1.4rem; color: #6ee7a8; }
+  /* Theming is one line: override a property and everything follows. */
+  .midnight {
+    --card-face-bg: #1b1b2e;
+    --fc-card-bg:   #1b1b2e;
+    --fc-art-bg:    #1b1b2e;
+    --card-back-bg: #7a1f3d;
+    --fc-red:       #ff5c8a;
+    --fc-black:     #9fb8ff;
+  }
+</style>
+
+<h1><code>@magmacrunch/adenosine-cards</code> — quickstart</h1>
+<p>A shuffled deck, dealt and rendered. Nothing installed.</p>
+
+<div class="hand" id="hand"></div>
+<button id="deal">deal five more</button>
+
+<p style="margin-top:2rem">The same five cards, with six CSS properties overridden:</p>
+<div class="hand midnight" id="themed"></div>
+
+<div id="verdict"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.7/dist/index.global.js"></script>
+<script>
+  var deck = new AdCards.Deck();
+  deck.shuffle();
+
+  function deal(into, n) {
+    var host = document.getElementById(into);
+    host.innerHTML = '';
+    for (var i = 0; i < n; i++) {
+      if (!deck.cards.length) { deck = new AdCards.Deck(); deck.shuffle(); }
+      var card = deck.deal();
+      card.faceUp = true;
+      host.appendChild(card.getHTML());
+    }
+  }
+
+  // One of every interesting rank, so the pips, the face art and the ace all show.
+  function showcase(into) {
+    var host = document.getElementById(into);
+    host.innerHTML = '';
+    [['hearts', 'A'], ['spades', '7'], ['hearts', 'K'], ['clubs', 'Q'], ['diamonds', 'J']]
+      .forEach(function (pair) {
+        var c = new AdCards.Card(pair[0], pair[1]);
+        c.faceUp = true;
+        host.appendChild(c.getHTML());
+      });
+    var back = new AdCards.Card('clubs', '2');
+    back.faceUp = false;
+    host.appendChild(back.getHTML());
+  }
+
+  showcase('hand');
+  showcase('themed');
+  document.getElementById('deal').addEventListener('click', function () { deal('hand', 5); });
+
+  // Poker is ace-high and the caller sets the value — see API.md.
+  var hand = [['hearts','A'],['hearts','K'],['hearts','Q'],['hearts','J'],['hearts','10']]
+    .map(function (p) {
+      var c = new AdCards.Card(p[0], p[1]);
+      c.value = AdCards.POKER_RANK_VALUES[p[1]];
+      return c;
+    });
+  var best = new AdCards.HandEvaluator().evaluate(hand);
+  document.getElementById('verdict').textContent =
+    'A♥ K♥ Q♥ J♥ 10♥ evaluates as: ' + best.name + ' (rank ' + best.rank + ')';
+</script>

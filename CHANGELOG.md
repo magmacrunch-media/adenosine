@@ -2,6 +2,50 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [adoptable: CDN, theming] — 2026-08-19
+
+Patch bumps across all seven. No behaviour change.
+
+### A path from npm to something on screen
+
+Every README's script tag was `<script src="adenosine-cards.js">` — a relative
+path to a file the reader does not have. Each now carries a working jsDelivr URL
+pinned to a minor, and `examples/quickstart.html` is a single self-contained file
+that deals a hand with no npm, build step or server.
+
+**`adenosine-chat` cannot use its SharedWorker from a CDN**, and now says so.
+A SharedWorker may only be constructed from a same-origin URL; a cross-origin one
+is refused whatever CORS headers the host sends. The widget resolves its worker
+as a sibling of the script that loaded it, so a CDN load always lands
+cross-origin, and the failure is caught — leaving a per-tab socket instead of the
+shared connection the package exists for, with nothing to indicate it. Serve
+`chat-worker.js` yourself and pass `connect({ workerUrl })`.
+
+### Theming
+
+`chat` and `puzzle` had no custom properties at all — 56 and 81 hardcoded colour
+literals. Both now expose a named set with fallbacks equal to today's values, so
+nothing changes visually and one override retints the widget.
+
+Colours derived from an accent — glows, hover tints — go through `color-mix`
+against the same property, in all four CSS-shipping packages. Previously
+`lobby.css` left its glows hardcoded, so rethemeing `--accent` produced a cyan
+halo around a recoloured panel. Verified equivalent: `color-mix(in srgb, X N%,
+transparent)` renders pixel-identical to `rgba(X, N/100)` across all twelve
+conversions.
+
+`color-mix()` needs Chrome 111 / Safari 16.2 / Firefox 113, all 2023.
+
+Puzzle's per-tile value gradient stays literal — seventeen one-use colours are
+not theme roles. Restyle them with `.tile[data-value="…"]` instead.
+
+### Also
+
+- A **Theming** section per CSS-shipping README, including the eight properties
+  the card art reads that the stylesheet never mentions.
+- `sideEffects: false` on `rpg`, `audio` and `score-client`.
+- Every README states the packages are ESM-only.
+
 ## [cards 0.7.3] — 2026-08-19
 
 ### Bug fixes

@@ -43,20 +43,61 @@ the constant tables rather than written out by hand.
 
 ## Without a bundler
 
+Straight from a CDN — no npm, no build step:
+
 ```html
-<link rel="stylesheet" href="cards.css">
-<script src="adenosine-cards.js"></script>
-<script>
-  const deck = new AdCards.Deck();
-  deck.shuffle();
-</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.7/cards.css">
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.7/dist/index.global.js"></script>
 ```
 
-The IIFE build is `dist/index.global.js` and exposes `window.AdCards`.
+The IIFE build exposes `window.AdCards`. The version is pinned to a minor here on purpose:
+an unpinned URL follows `latest` and will cross a major without warning.
+
+Installed from npm instead, the same file is `dist/index.global.js`.
 
 ## Full API
 
 [`API.md`](API.md) documents every export, with parameters and return shapes.
+
+## Theming
+
+Every colour is a custom property with a fallback. Override any of them on a
+containing element — nothing needs to be set for the deck to look right.
+
+| Property | Default | What it colours |
+|---|---|---|
+| `--card-face-bg` | `#fffef5` | Face-up card background |
+| `--card-back-bg` | `#1a3a8a` | Card back |
+| `--fc-red` | `#cc0000` | Hearts and diamonds |
+| `--fc-black` | `#111111` | Spades and clubs |
+| `--retro-gold` | `#ffd700` | `.selected` outline |
+| `--cyan` / `--cyan-dim` / `--cyan-glow` | `#00e5ff` / `#0099bb` / 30% cyan | Stock-reset control |
+
+The face-card pixel art is inline SVG and reads its own set, which is **not**
+discoverable from the stylesheet:
+
+| Property | Default | |
+|---|---|---|
+| `--fc-art-bg` / `--fc-card-bg` | `#fffef5` | Art panel and card ground |
+| `--fc-skin` | `#f5cba7` | Faces and hands |
+| `--fc-blue` | `#1a3a8a` | Robes |
+| `--fc-gold` | `#d4a017` | Crowns, trim |
+| `--fc-steel` | `#8899aa` | Swords, armour |
+
+```css
+.midnight-deck {
+  --card-face-bg: #1b1b2e;
+  --fc-card-bg:   #1b1b2e;
+  --fc-art-bg:    #1b1b2e;
+  --fc-red:       #ff5c8a;
+  --fc-black:     #9fb8ff;
+}
+```
+
+## Module format
+
+ESM only. The `exports` map declares no `require` condition, so this cannot be
+`require()`d from CommonJS — use `import`, or the IIFE build above.
 
 ## License
 

@@ -70,20 +70,46 @@ language with a WebSocket library.
 
 ## Without a bundler
 
+Straight from a CDN — no npm, no build step:
+
 ```html
-<link rel="stylesheet" href="lobby.css">
-<script src="adenosine-multiplayer.js"></script>
-<script>
-  AdMP.MP.configure({ defaultServer: 'games.example.com/chess' });
-  AdMP.MP.connect();
-</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-multiplayer@0.4/lobby.css">
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-multiplayer@0.4/dist/index.global.js"></script>
 ```
 
-The IIFE build is `dist/index.global.js` and exposes `window.AdMP`.
+The IIFE build exposes `window.AdMP`. The version is pinned to a minor here on purpose:
+an unpinned URL follows `latest` and will cross a major without warning.
+
+Installed from npm instead, the same file is `dist/index.global.js`.
 
 ## Full API
 
 [`API.md`](API.md) documents every export, with parameters and return shapes.
+
+## Theming
+
+| Property | Default | What it colours |
+|---|---|---|
+| `--accent` | `#00f5ff` | Borders, titles, focus |
+| `--gold` | `#ffe03a` | Host badge, primary button |
+| `--bg-dark` | `#060e1a` | Overlay backdrop |
+| `--bg-mid` | `#1a2a44` | Panel |
+| `--border` | `#1a2a44` | Dividers |
+| `--cream` | `#f0ead8` | Body text |
+| `--slate` | `#4a6a7a` | Muted text |
+| `--font-pixel` / `--font-mono` | Press Start 2P / VT323 | Headings / body |
+
+Glows and translucent fills derive from `--accent` and `--bg-dark` through
+`color-mix`, so overriding the accent recolours them too rather than leaving a
+cyan halo behind.
+
+Derived colours use `color-mix()`, which needs Chrome 111, Safari 16.2 or
+Firefox 113 — all shipped in 2023.
+
+## Module format
+
+ESM only. The `exports` map declares no `require` condition, so this cannot be
+`require()`d from CommonJS — use `import`, or the IIFE build above.
 
 ## License
 
