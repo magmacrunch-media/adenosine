@@ -3,7 +3,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font: 14px/1.5 'Courier Prime', ui-monospace, SFMono-Regular, Menlo, monospace;
   background: #14141b; color: #e8e6f0;
   display: flex; flex-direction: column;
   height: 100vh; overflow: hidden;
@@ -20,7 +20,9 @@ header {
 }
 
 header h1 {
-  font-size: 1rem; font-weight: 600; white-space: nowrap;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px; font-weight: 400; white-space: nowrap;
+  letter-spacing: 0.05em;
 }
 header h1 code { color: #ff6ec7; }
 
@@ -29,14 +31,38 @@ header h1 code { color: #ff6ec7; }
   flex-wrap: wrap;
 }
 
-.controls select,
-.controls button {
-  font: inherit; font-size: 13px;
-  background: #282a36; color: #e8e6f0;
-  border: 1px solid #33304a; border-radius: 4px;
-  padding: .25rem .5rem; cursor: pointer;
+/* ── Selects ──────────────────────────────────────────── */
+
+.controls select {
+  font: 12px/1 'Courier Prime', monospace;
+  color: #e8e6f0;
+  background: #282a36;
+  border: 1px solid #33304a; border-radius: 6px;
+  padding: .35rem 1.8rem .35rem .6rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239d99b5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .6rem center;
 }
-.controls select:hover,
+.controls select:hover {
+  border-color: #7cc7ff;
+}
+.controls select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+
+.controls button {
+  font: 12px/1 'Courier Prime', monospace;
+  background: #282a36; color: #e8e6f0;
+  border: 1px solid #33304a; border-radius: 6px;
+  padding: .35rem .6rem; cursor: pointer;
+}
 .controls button:hover {
   border-color: #7cc7ff;
 }
@@ -47,16 +73,19 @@ header h1 code { color: #ff6ec7; }
   background: #2563eb;
 }
 
+/* ── Source toggle ─────────────────────────────────────── */
+
 .source-toggle {
   display: flex; gap: 0;
 }
 .source-toggle label {
-  font-size: 12px; padding: .25rem .5rem;
+  font: 11px/1 'Courier Prime', monospace;
+  padding: .35rem .6rem;
   background: #282a36; color: #9d99b5;
   border: 1px solid #33304a; cursor: pointer;
 }
-.source-toggle label:first-child { border-radius: 4px 0 0 4px; }
-.source-toggle label:last-child  { border-radius: 0 4px 4px 0; }
+.source-toggle label:first-child { border-radius: 6px 0 0 6px; }
+.source-toggle label:last-child  { border-radius: 0 6px 6px 0; }
 .source-toggle input { display: none; }
 .source-toggle input:checked + span { color: #e8e6f0; }
 .source-toggle label:has(input:checked) {
@@ -96,7 +125,7 @@ main {
   overflow: auto;
 }
 #editor-panel .cm-editor .cm-content {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'Courier Prime', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 14px;
 }
 
@@ -115,7 +144,7 @@ main {
   border-top: 1px solid #33304a;
   padding: .5rem 1rem;
   max-height: 30vh; overflow: auto;
-  font-size: 13px;
+  font-size: 12px;
   background: #1c1b26;
 }
 
@@ -132,7 +161,7 @@ main {
 
 .empty-state {
   display: flex; align-items: center; justify-content: center;
-  flex: 1; color: #9d99b5; font-size: 13px;
+  flex: 1; color: #9d99b5; font-size: 12px;
 }
 
 /* ── Status bar ───────────────────────────────────────── */
@@ -142,7 +171,7 @@ footer {
   padding: .25rem 1rem;
   border-top: 1px solid #33304a;
   background: #1c1b26;
-  font-size: 12px; color: #9d99b5;
+  font-size: 11px; color: #9d99b5;
   flex-shrink: 0;
 }
 
