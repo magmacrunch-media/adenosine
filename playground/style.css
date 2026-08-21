@@ -78,6 +78,21 @@ header h1 code { color: #ff6ec7; }
 .source-toggle {
   display: flex; gap: 0;
 }
+
+/* ── Links nav ────────────────────────────────────────── */
+
+.links {
+  display: flex; gap: .4rem; margin-left: .25rem;
+}
+.links a {
+  font: 11px/1 'Courier Prime', monospace;
+  color: #9d99b5; text-decoration: none;
+  padding: .3rem .5rem;
+  border: 1px solid #33304a; border-radius: 6px;
+}
+.links a:hover {
+  color: #7cc7ff; border-color: #7cc7ff;
+}
 .source-toggle label {
   font: 11px/1 'Courier Prime', monospace;
   padding: .35rem .6rem;
