@@ -249,6 +249,20 @@ npm test
 npm run build
 ```
 
+## Tools
+
+Interactive browser tools in `tools/`. Serve locally to try them:
+
+```bash
+npx serve tools
+# then open http://localhost:3000
+```
+
+| Tool | Description |
+|------|-------------|
+| [Playground](tools/playground.html) | Code editor with pre-loaded examples for every package |
+| [Tile Map Editor](tools/tiles.html) | Draw tile maps for the RPG engine, export JSON, preview with AdRPG |
+
 ## Script Tag (no bundler)
 
 Each package builds an IIFE bundle alongside ESM for direct `<script>` tag usage:
