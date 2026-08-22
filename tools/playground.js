@@ -232,6 +232,11 @@ document.querySelectorAll('input[name="source"]').forEach(r => {
   });
 });
 
+// Hide Local toggle on magmacrunch.com (no packages/ directory there)
+if (location.hostname === "magmacrunch.com") {
+  document.querySelector(".source-toggle").style.display = "none";
+}
+
 /* ── Split pane drag ─────────────────────────────────── */
 
 {
