@@ -77,10 +77,6 @@ Join an existing room.
 
 Tell the server to start the game (host only).
 
-### `MP.quit()`
-
-Leave the current room/game.
-
 ### Getters
 
 | Method | Returns | Description |

@@ -2,6 +2,15 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+## [Unreleased]
+
+### Added
+
+- **Tile map editor** (`tools/tiles.html`) — browser-based pixel art editor for RPG maps with paint/fill/pick tools, export/import JSON, and live RPG preview
+- **CSS theme customizer** (`tools/theme.html`) — live color picker for cards (13 vars), puzzle (3 vars), chat (12 vars), and multiplayer (7 vars) with CSS export
+- **16 example files** in `tools/examples/` covering all 7 packages
+- Restructured `playground/` to `tools/` with a hub page linking all tools
+
 ## [adoptable: CDN, theming] — 2026-08-19
 
 Patch bumps across all seven. No behaviour change.
