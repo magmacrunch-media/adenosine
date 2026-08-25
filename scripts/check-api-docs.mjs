@@ -19,7 +19,7 @@
  * is where most instance methods live in this codebase.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join, dirname, resolve } from 'node:path';
 import { JSDOM } from 'jsdom';
 
@@ -74,13 +74,17 @@ function surfaceOf(mod) {
 }
 
 let failed = 0;
+let skipped = 0;
 for (const name of readdirSync(PKG_DIR)) {
   const docPath = join(PKG_DIR, name, 'API.md');
   try { if (!statSync(docPath).isFile()) continue; } catch { continue; }
 
   let mod;
-  try { mod = await import(join(PKG_DIR, name, 'dist', 'index.js')); }
-  catch (e) { console.error(`SKIP ${name} — could not import bundle: ${e.message}`); continue; }
+  // pathToFileURL, not the bare path: Windows absolute paths ("C:\...") are read
+  // as a URL with protocol "c:" by the ESM loader, so every package skipped and
+  // the run still reported success.
+  try { mod = await import(pathToFileURL(join(PKG_DIR, name, 'dist', 'index.js')).href); }
+  catch (e) { console.error(`SKIP ${name} — could not import bundle: ${e.message}`); skipped++; continue; }
 
   const surface = surfaceOf(mod);
   // Fenced blocks hold example code and ASCII diagrams — a diagram reading
@@ -112,6 +116,13 @@ for (const name of readdirSync(PKG_DIR)) {
 if (failed) {
   console.error(`\n${failed} package(s) document an API that is not there.`);
   console.error('A wrong reference is worse than none — it sends people to write code that throws.');
+  process.exit(1);
+}
+// A skip checks nothing, so it must not read as a pass. On Windows this ran
+// green with every package skipped, which is exactly when it mattered least.
+if (skipped) {
+  console.error(`
+${skipped} package(s) could not be loaded, so nothing was checked for them.`);
   process.exit(1);
 }
 console.log('\nEvery documented name exists.');

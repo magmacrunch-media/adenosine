@@ -12,7 +12,7 @@
  * manifest references is present. Expectations are derived from package.json
  * rather than hardcoded, so a new export subpath is covered automatically.
  */
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join, dirname, resolve } from 'node:path';
@@ -39,6 +39,11 @@ function referencedPaths(pkg) {
   return [...out];
 }
 
+// execSync, not execFileSync: on Windows `npm` is npm.cmd, which execFileSync
+// neither finds by PATHEXT nor may spawn directly since Node 20 -- ENOENT for a
+// bare 'npm', EINVAL for 'npm.cmd'. The package names come from the workspace's
+// own manifests, so a shell command line is safe here.
+
 let failed = 0;
 const names = readdirSync(PKG_DIR, { withFileTypes: true })
   .filter((e) => e.isDirectory())
@@ -46,7 +51,7 @@ const names = readdirSync(PKG_DIR, { withFileTypes: true })
 
 for (const name of names) {
   const pkg = JSON.parse(readFileSync(join(PKG_DIR, name, 'package.json'), 'utf8'));
-  const raw = execFileSync('npm', ['pack', '--dry-run', '--json', '-w', pkg.name], {
+  const raw = execSync(`npm pack --dry-run --json -w ${pkg.name}`, {
     cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
   });
   const shipped = new Set(JSON.parse(raw)[0].files.map((f) => f.path));
