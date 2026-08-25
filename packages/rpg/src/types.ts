@@ -265,6 +265,52 @@ export interface SpriteRegistry {
     draw(type: string, ...args: unknown[]): void;
 }
 
+// ── Sprite sheets ────────────────────────────────────────────────
+
+export interface SpriteSheetOpts {
+    frameWidth: number;
+    frameHeight: number;
+    /** Anchor within a frame. draw() lands this pixel on the given (x, y). */
+    originX?: number;
+    originY?: number;
+}
+
+export interface DrawSpriteOpts {
+    scaleX?: number;
+    scaleY?: number;
+    /** Mirrors the frame about the origin, so a facing flip stays put. */
+    flipX?: boolean;
+    flipY?: boolean;
+    alpha?: number;
+}
+
+export interface SpriteSheet {
+    readonly image: CanvasImageSource;
+    readonly frameWidth: number;
+    readonly frameHeight: number;
+    readonly cols: number;
+    readonly rows: number;
+    readonly frameCount: number;
+    originX: number;
+    originY: number;
+    /** Frame index, counted left-to-right then top-to-bottom. */
+    draw(
+        ctx: CanvasRenderingContext2D,
+        frame: number,
+        x: number,
+        y: number,
+        opts?: DrawSpriteOpts,
+    ): void;
+    drawCell(
+        ctx: CanvasRenderingContext2D,
+        col: number,
+        row: number,
+        x: number,
+        y: number,
+        opts?: DrawSpriteOpts,
+    ): void;
+}
+
 // ── Detection ────────────────────────────────────────────────────
 
 export interface DetectionOpts {

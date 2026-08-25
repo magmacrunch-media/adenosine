@@ -6,6 +6,33 @@ All notable changes to the adenosine monorepo are documented here.
 
 Every package's metadata changed; no package's code did.
 
+### Added — `rpg` can load sprite sheets
+
+`packages/rpg` had no way to get an image onto the screen. `renderWorld` takes a
+`renderTile` callback and `createSpriteRegistry` takes draw functions; both hand
+the drawing back to the caller, and `createAnimationCounter` returns a frame
+index it never indexes anything with. Every adenosine game therefore drew itself
+out of `fillRect` calls, and it was the one engine here that could not consume a
+sprite sheet — magnolia and texastoast both read one.
+
+`loadSpriteSheet(src, opts)` resolves to a `SpriteSheet` over a uniform grid:
+`frameWidth × frameHeight` cells counted left-to-right then top-to-bottom, so a
+single-row sheet has frame *i* at column *i*. That is the same grid texastoast
+slices and the same file magnolia embeds, so one exported sheet now feeds all
+three. `createSpriteSheet(image, opts)` wraps an image the game already has, and
+`loadSpriteSheets(entries)` loads a named batch.
+
+The origin is stored on the sheet rather than re-derived at each call site, so
+`draw` lands it on the coordinate passed in. A sprite anchored at its feet keeps
+its footing when it scales, and `flipX` mirrors about the origin so turning
+around does not shift a character sideways. `frameCount` feeds
+`createAnimationCounter` directly, which is what that counter was always for.
+
+An out-of-range frame draws a magenta rectangle rather than throwing or drawing
+nothing — the tell `createSpriteRegistry` already uses for an unregistered type.
+A render loop should surface the bug without stopping, and a silent no-op is
+indistinguishable from a sheet that failed to load.
+
 ### Added — a sprite editor in `tools/`
 
 `tools/sprites.html` draws pixel-art sprite frames and exports them as a

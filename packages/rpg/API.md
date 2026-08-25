@@ -236,6 +236,85 @@ Y-sorted rendering pipeline with sprite registry.
 
 ---
 
+## sprites.ts
+
+Uniform-grid sprite sheet loading. The grid is the one magnolia and texastoast
+read, so a sheet exported from
+[SPRITE//FORGE](https://magmacrunch.com/ware/sprite-forge/) feeds all three
+engines: frames are `frameWidth × frameHeight` cells counted left-to-right then
+top-to-bottom, so a single-row sheet has frame *i* at column *i*.
+
+The origin travels with the sheet instead of being re-derived at each call site,
+the same arrangement magnolia's sprite loader uses when it takes an origin at
+load time. `draw` lands that pixel on the `(x, y)` you pass, so a sprite
+anchored at its feet stays planted when it scales or turns around.
+
+### `loadSpriteSheet(src, opts)`
+
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| `src` | `string` | (required) | Image URL |
+| `opts.frameWidth` | `number` | (required) | Frame width in pixels |
+| `opts.frameHeight` | `number` | (required) | Frame height in pixels |
+| `opts.originX` | `number` | `0` | Anchor x within a frame |
+| `opts.originY` | `number` | `0` | Anchor y within a frame |
+
+**Returns:** `Promise<SpriteSheet>` — rejects naming the file if it fails to load
+
+### `createSpriteSheet(image, opts)`
+
+Wraps an already-loaded `CanvasImageSource`. Same `opts` as above. Throws if the
+frame size is not positive.
+
+**Returns:** `SpriteSheet`
+
+### `loadSpriteSheets(entries)`
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `entries` | `Record<string, [src, opts]>` | Named sheets to load together |
+
+**Returns:** `Promise<Record<string, SpriteSheet>>` — rejects if any sheet fails
+
+### `SpriteSheet`
+
+| Member | Type | Description |
+|--------|------|-------------|
+| `image` | `CanvasImageSource` | The underlying image |
+| `frameWidth` | `number` | Frame width in pixels |
+| `frameHeight` | `number` | Frame height in pixels |
+| `cols` | `number` | Frames per row |
+| `rows` | `number` | Row count |
+| `frameCount` | `number` | `cols * rows` |
+| `originX` | `number` | Anchor x; writable after load |
+| `originY` | `number` | Anchor y; writable after load |
+| `draw` | `(ctx, frame, x, y, opts?) => void` | Draw by frame index |
+| `drawCell` | `(ctx, col, row, x, y, opts?) => void` | Draw by grid cell |
+
+Both draw methods take the same options, and both draw a magenta rectangle for
+an out-of-range frame rather than throwing — the same tell `createSpriteRegistry`
+uses for an unregistered type.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `scaleX` | `number` | `1` | Horizontal scale; the origin offset scales with it |
+| `scaleY` | `number` | `1` | Vertical scale |
+| `flipX` | `boolean` | `false` | Mirror horizontally about the origin |
+| `flipY` | `boolean` | `false` | Mirror vertically about the origin |
+| `alpha` | `number` | `1` | Multiplied into the context's `globalAlpha` |
+
+```js
+const hero = await loadSpriteSheet('hero_32x32.png', {
+    frameWidth: 32, frameHeight: 32, originX: 16, originY: 31,
+});
+const walk = createAnimationCounter({ frames: hero.frameCount, interval: 6 });
+
+// in render(): the origin sits at the player's feet, so facing does not shift it
+hero.draw(ctx, walk.frame, screenX, screenY, { flipX: player.dir === 'left' });
+```
+
+---
+
 ## detection.ts
 
 Entity and prop detection helpers for interaction systems.

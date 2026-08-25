@@ -9,6 +9,7 @@ export { camera, updateCamera } from './camera.js';
 export { isSolid } from './collision.js';
 export { handleMovement } from './movement.js';
 export { renderWorld, tileToScreen, createSpriteRegistry } from './renderer.js';
+export { createSpriteSheet, loadSpriteSheet, loadSpriteSheets } from './sprites.js';
 export { createInventory } from './inventory.js';
 export { showNotification } from './notifications.js';
 export { damagePlayer, healPlayer, setOnGameOverCallback, createDamageCooldown } from './health.js';
@@ -52,6 +53,9 @@ export type {
     RenderLayer,
     RenderWorldOpts,
     SpriteRegistry,
+    SpriteSheet,
+    SpriteSheetOpts,
+    DrawSpriteOpts,
     DetectionOpts,
     InteractionSource,
     InteractionManager,
