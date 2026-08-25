@@ -4,12 +4,143 @@ All notable changes to the adenosine monorepo are documented here.
 
 ## [Unreleased]
 
-### Added
+Every package's metadata changed; no package's code did.
 
-- **Tile map editor** (`tools/tiles.html`) — browser-based pixel art editor for RPG maps with paint/fill/pick tools, export/import JSON, and live RPG preview
-- **CSS theme customizer** (`tools/theme.html`) — live color picker for cards (13 vars), puzzle (3 vars), chat (12 vars), and multiplayer (7 vars) with CSS export
-- **16 example files** in `tools/examples/` covering all 7 packages
-- Restructured `playground/` to `tools/` with a hub page linking all tools
+### Changed — `homepage` now points at the tools, not the README
+
+All seven manifests pointed `homepage` at
+`https://github.com/magmacrunchmedia/adenosine#readme`, so npm's "Homepage" link
+landed a reader back on the same README npm was already rendering. It now points
+at <https://magmacrunch.com/ware/adenosine/>, where the packages can be tried in
+a browser without installing anything. `repository` is unchanged — that is what
+drives npm's "Repository" link, and each package's `directory` field correctly
+locates it in the monorepo. The root manifest gained the same `homepage` and its
+`repository` was normalised to the object form the seven packages already use.
+
+### Added — a check that the CDN pins are not last release's
+
+The browser tools do not bundle the engines. They load them from jsDelivr at
+runtime off a version typed into the source by hand: seven in `playground.js`,
+four in `theme.js`, one inline in `tiles.js`, and a minor pin in every README —
+**thirty-five in total**, none of which the compiler, the tests, or `npm publish`
+can see.
+
+So a release bumps `package.json` and nothing else, and every tool keeps serving
+the previous build to everyone who opens it. There is no error, because the old
+version is still on the CDN and still works. A playground demonstrating
+behaviour the installed package no longer has is worse than none.
+
+`scripts/check-cdn-pins.mjs` checks each pin against the manifest of the package
+it names — exact pins to the full version, minor pins to `major.minor`. It is
+deliberately **offline**: asking npm what is published would fail every pull
+request that bumps a version before releasing it, and would make CI depend on a
+registry being reachable. Whether a pinned version actually resolves on npm is a
+different question, asked after publishing.
+
+It also fails when a file reaches jsDelivr but yields no recognisable pin. The
+first draft required the `@magmacrunch/` scope, which `theme.js` never writes
+next to the package name — so it skipped that file entirely and still reported
+success, the same shape of green-but-vacuous run that `check-api-docs.mjs` had
+on Windows.
+
+### Added — the website repins itself after a release
+
+`publish.yml` gained a `sync-playground` job that waits for each new version to
+resolve on npm, then dispatches `adenosine-release` to the magmacrunch.com repo,
+which rewrites the pins in its copy of the tools and commits. This is the same
+arrangement `magmascript` and `texastoast` already use; adenosine was the one
+that never got it. Because seven packages publish at independent versions, the
+payload carries a version map rather than the single string those two send.
+
+### Fixed — tools loading the wrong copy
+
+- `tools/tiles.js` loaded the RPG engine from the CDN unconditionally, so the
+  map editor's preview showed the last release even when served from `tools/`
+  beside a freshly built `packages/rpg/dist/`. It now prefers the local build,
+  matching what `playground.js` and `theme.js` already did.
+- The playground's footer kept reading `ready` from the previous package while a
+  new bundle was in flight. It says `loading…` now.
+
+### Added — a place to try the packages without installing anything
+
+- **Playground** (`tools/playground.html`) — a live editor that loads each
+  package's IIFE bundle from jsDelivr or from `packages/*/dist/`, runs the code,
+  and captures console output. It exists because the fastest previous route to
+  seeing a deck deal was `npm install` plus a bundler.
+- **16 example files** in `tools/examples/`, covering all seven packages — eight
+  of them RPG, which needs the most wiring to show anything.
+- **Tile map editor** (`tools/tiles.html`) — pixel art editor for RPG maps with
+  paint/fill/pick tools, JSON export/import, and a live RPG preview. Its output
+  drops straight into `AdRPG.setMap()`.
+- **CSS theme customizer** (`tools/theme.html`) — live color picker for cards
+  (13 vars), puzzle (11 vars), chat (12 vars), and multiplayer (7 vars), with a
+  `:root {}` block to copy out. It is the companion to the custom properties the
+  2026-08-19 release added.
+- **`AGENTS.md`** — repository conventions for coding agents.
+
+### Changed
+
+- `playground/` became `tools/`, with a hub page indexing all three tools. One
+  tool in a directory named for one tool does not survive the second tool.
+- Tools pages share a header, an about section, and consistent back links. An
+  earlier about *modal* was tried and dropped — three pages that each opened
+  their own dialog to say the same paragraph.
+- Tools resolve packages from jsDelivr when served from `magmacrunch.com` and
+  from `packages/*/dist/` otherwise, so the deployed copies work without a build
+  and the local ones pick up local changes.
+
+### Fixed
+
+- Test count in the README badge (546 → 559) and a `magmacrunch` typo.
+- `rpg-camera` example used its own key handling instead of the engine's input.
+- Duplicate `MP.quit()` entry in `packages/multiplayer/API.md`.
+
+### Fixed — documentation that described APIs which do not exist
+
+The API references were written by reading the source and describing it, which is
+the process that produces confident fiction. `scripts/check-api-docs.mjs` catches
+names that do not exist; it does not read parameter lists, and these all named
+real functions with invented signatures.
+
+- **`packages/puzzle/API.md` had four of five factories wrong.** `createUI` takes
+  no arguments and builds modals and dropdowns — it was documented as
+  `createUI(game, container)`, a binding layer it never was. `createRenderer` is
+  `create(boardElement, config?)` and renders `<div>` tiles into the DOM; it was
+  documented as a canvas renderer taking an `HTMLCanvasElement`. `createScoring`
+  is `create(gameName, config?)` and persists to `localStorage`; it was
+  documented as taking a game and an `adenosine-score-client` instance, which it
+  has never touched. `createInput` is `create(callbacks, boardElement?)`, not
+  `(game, container, callbacks?)`. `StateChangeInfo` was given three fields it
+  does not have instead of the six it does.
+- **`packages/cards/API.md`** documented `new CribbageHandEval()` — it is a plain
+  object and cannot be constructed — and `renderStack(ctx, denom, count, cx,
+  topY)` returning a Y coordinate, when it takes a canvas *element*, three
+  arguments, and returns nothing.
+- **`packages/multiplayer/API.md`** documented `createRoom()` and
+  `joinRoom(code)`. Both take `(name, color, roomCode)`; a call written from the
+  old docs sends a room request with no player attached.
+
+### Added — the rest of the public surface, now documented
+
+- `packages/cards/API.md`: the card-art exports (`pipColor`, `cornerPipSVG`,
+  `cornerHTML`, `getSuitLayout`, `getNumberCardHTML`, `getAceHTML`,
+  `FACE_CARD_SVG`, `FC_PIP_ART`, `FC_CORNERS`, `getCardBackSVG`), `ChipAnim`, and
+  the `HAND_RANKS` / `HAND_POINTS` / `CRIBBAGE_SCORE` tables. Three of these were
+  named in a stability guarantee in the 2026-08-19 entry while appearing in no
+  reference at all.
+- `packages/multiplayer/API.md`: `MP.join`, `MP.spectate`, and the `MsgType`,
+  `BoardGameConfig`, and `BoardGameButton` types.
+- `packages/rpg/API.md`: `DIRECTION_VECTORS`.
+
+### Fixed — checks that could not run on Windows
+
+- `scripts/check-packaging.mjs` spawned a bare `npm`, which on Windows is
+  `npm.cmd` — `execFileSync` will not find it by `PATHEXT` and, since Node 20,
+  will not spawn it directly either. The check crashed rather than ran.
+- **`scripts/check-api-docs.mjs` imported bundles by absolute path**, which the
+  ESM loader reads as a URL with protocol `c:` on Windows. Every package was
+  skipped, and the script still printed "Every documented name exists" and exited
+  0 — a green check that had checked nothing. Skips are now a failure.
 
 ## [adoptable: CDN, theming] — 2026-08-19
 
@@ -179,7 +310,7 @@ others, so it is written down in `API.md` as well.
 - `POKER_RANK_VALUES` — ace-high rank values
 - `pokerValue(rank)` — the ace-high value of one rank
 
-## [Unreleased — relicense and de-hardcode]
+## [relicense and de-hardcode] — 2026-08-18
 
 Released: `chat` 0.4.0, `multiplayer` 0.4.0, and patch bumps to `rpg` 0.2.1,
 `puzzle` 0.2.2, `audio` 0.2.2, `score-client` 0.2.3.

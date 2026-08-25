@@ -346,7 +346,12 @@ function startPreview() {
 
   if (typeof window.AdRPG === 'undefined') {
     const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2.3/dist/index.global.js';
+    // Served from the site there is no packages/ sibling, so the CDN is the only
+    // option; served from tools/ the local build is, and preferring it means the
+    // preview shows the engine you just changed rather than the last release.
+    s.src = location.hostname === 'magmacrunch.com'
+      ? 'https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2.3/dist/index.global.js'
+      : '../packages/rpg/dist/index.global.js';
     s.onload = boot;
     s.onerror = () => { previewContent.innerHTML = '<div style="color:#ff6b6b;">Failed to load AdRPG.</div>'; };
     previewContent.appendChild(s);

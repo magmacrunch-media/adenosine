@@ -21,7 +21,7 @@
     "directory": "packages/chat"
   },
   "author": "magmacrunch media",
-  "homepage": "https://github.com/magmacrunchmedia/adenosine#readme",
+  "homepage": "https://magmacrunch.com/ware/adenosine/",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": [

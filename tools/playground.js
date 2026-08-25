@@ -90,6 +90,9 @@ function bundleURL(pkg) {
 
 function loadBundle(pkg) {
   if (loadedScript) { loadedScript.remove(); loadedScript = null; }
+  // Say so while it is in flight — otherwise the footer keeps reading "ready"
+  // from the previous package right up until the new one lands or fails.
+  statusReady.innerHTML = '<span class="dot loading"></span>loading…';
   const script = document.createElement("script");
   script.src = bundleURL(pkg);
   script.onload  = () => setStatusDot(true);

@@ -56,3 +56,10 @@ jobs:
       # A shipped file has to stand on its own.
       - name: Check CSS custom properties have fallbacks
         run: node scripts/check-css-fallbacks.mjs
+
+      # The browser tools load packages from jsDelivr off a version typed into
+      # the source by hand, in thirty-five places. A release that bumps only
+      # package.json leaves them serving the previous build to everyone — with
+      # no error, because the old version is still on the CDN and still works.
+      - name: Check CDN pins match the packages
+        run: node scripts/check-cdn-pins.mjs
