@@ -20,6 +20,17 @@
 
   <main>
     <div id="canvas-panel">
+      <div id="canvas-toolbar">
+        <button id="zoom-out" title="Zoom out (-)">&minus;</button>
+        <span id="zoom-label">16&times;</span>
+        <button id="zoom-in" title="Zoom in (=)">+</button>
+        <span class="tb-sep"></span>
+        <button id="grid-toggle" class="tool-btn toggle active" title="Toggle pixel grid (D)">&#9638; Grid</button>
+        <button id="mirror-toggle" class="tool-btn toggle" title="Mirror drawing across the vertical center (M)">&#8651; Mirror</button>
+        <button id="onion-toggle" class="tool-btn toggle" title="Onion skin — ghost of the previous frame (N)">&#9678; Onion</button>
+        <span class="tb-sep"></span>
+        <span id="canvas-dims" class="tb-stat">32 &times; 32</span>
+      </div>
       <canvas id="frame-canvas"></canvas>
       <div class="preview-row">
         <div class="preview-block">
@@ -32,6 +43,8 @@
         </div>
       </div>
     </div>
+
+    <div id="sidebar-resizer" title="Drag to resize the sidebar"></div>
 
     <div id="sidebar">
       <details class="side-section" data-section="tools" open>
@@ -47,13 +60,6 @@
           <button class="tool-btn" data-tool="origin" title="Set origin point (O)">&#8982;</button>
         </div>
         <div id="tool-readout" class="tool-readout"></div>
-
-        <div class="sub-label">modifiers</div>
-        <div class="tool-grid three">
-          <button id="mirror-toggle" class="tool-btn toggle" title="Mirror drawing across the vertical center (M)">&#8651; Mir</button>
-          <button id="onion-toggle" class="tool-btn toggle" title="Onion skin — ghost of the previous frame (N)">&#9678; Onion</button>
-          <button id="grid-toggle" class="tool-btn toggle active" title="Toggle pixel grid (D)">&#9638; Grid</button>
-        </div>
       </details>
 
       <details class="side-section" data-section="color" open>
@@ -139,12 +145,6 @@
           </label>
         </div>
         <div class="hint">passed to <code>sprite_load</code>, not stored in the PNG</div>
-        <div class="sub-label">zoom</div>
-        <div class="row">
-          <button id="zoom-out" title="Zoom out (-)">&minus;</button>
-          <span id="zoom-label">16&times;</span>
-          <button id="zoom-in" title="Zoom in (=)">+</button>
-        </div>
       </details>
 
       <details class="side-section" data-section="export" open>

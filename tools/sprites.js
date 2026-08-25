@@ -10,6 +10,8 @@ const ZOOM_STEPS = [2, 3, 4, 6, 8, 12, 16, 24, 32, 48];
 const SHAPE_TOOLS = new Set(['line', 'rect', 'ellipse']);
 const ANIM_SCALES = [1, 2, 4, 8];
 const SECTION_KEY = 'adenosine-sprites-sections';
+const VIEW_KEY = 'adenosine-sprites-view';
+const SIDEBAR_MIN = 200, SIDEBAR_MAX = 420;
 const TOOL_META = {
   pencil: ['Pencil', 'B'], erase: ['Erase', 'E'], fill: ['Fill', 'G'], line: ['Line', 'L'],
   rect: ['Rect', 'U'], ellipse: ['Ellipse', 'C'], pick: ['Pick', 'I'], origin: ['Origin', 'O'],
@@ -46,6 +48,9 @@ const oyInput = document.getElementById('origin-y');
 const zoomLabel = document.getElementById('zoom-label');
 const frameLabel = document.getElementById('frame-label');
 const toolReadout = document.getElementById('tool-readout');
+const canvasDims = document.getElementById('canvas-dims');
+const sidebar = document.getElementById('sidebar');
+const resizer = document.getElementById('sidebar-resizer');
 const animPlayBtn = document.getElementById('anim-play');
 const animFpsInput = document.getElementById('anim-fps');
 const animScaleBtn = document.getElementById('anim-scale');
@@ -113,6 +118,7 @@ function redo() {
 function sizeCanvas() {
   canvas.width = frameW * zoom;
   canvas.height = frameH * zoom;
+  canvasDims.innerHTML = `${frameW} &times; ${frameH}`;
 }
 
 function render() {
@@ -558,9 +564,9 @@ const mirrorToggle = document.getElementById('mirror-toggle');
 const onionToggle = document.getElementById('onion-toggle');
 const gridToggle = document.getElementById('grid-toggle');
 
-function setMirror(v) { mirrorX = v; mirrorToggle.classList.toggle('active', v); render(); }
-function setOnion(v) { onionSkin = v; onionToggle.classList.toggle('active', v); render(); }
-function setGrid(v) { gridOn = v; gridToggle.classList.toggle('active', v); render(); }
+function setMirror(v) { mirrorX = v; mirrorToggle.classList.toggle('active', v); render(); saveViewPrefs(); }
+function setOnion(v) { onionSkin = v; onionToggle.classList.toggle('active', v); render(); saveViewPrefs(); }
+function setGrid(v) { gridOn = v; gridToggle.classList.toggle('active', v); render(); saveViewPrefs(); }
 
 mirrorToggle.addEventListener('click', () => setMirror(!mirrorX));
 onionToggle.addEventListener('click', () => setOnion(!onionSkin));
@@ -653,7 +659,7 @@ document.getElementById('zoom-in').addEventListener('click', () =>
 function setZoom(z) {
   zoom = z;
   zoomLabel.innerHTML = `${zoom}&times;`;
-  sizeCanvas(); render();
+  sizeCanvas(); render(); saveViewPrefs();
 }
 
 // ── Export ──────────────────────────────────────────────
@@ -790,9 +796,16 @@ document.addEventListener('keydown', (e) => {
 
 const sections = [...document.querySelectorAll('#sidebar details[data-section]')];
 
+function readPrefs(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; }
+}
+
+function writePrefs(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+
 function loadSectionPrefs() {
-  let prefs;
-  try { prefs = JSON.parse(localStorage.getItem(SECTION_KEY)); } catch {}
+  const prefs = readPrefs(SECTION_KEY);
   if (!prefs) return;
   for (const d of sections)
     if (d.dataset.section in prefs) d.open = !!prefs[d.dataset.section];
@@ -801,13 +814,59 @@ function loadSectionPrefs() {
 function saveSectionPrefs() {
   const prefs = {};
   for (const d of sections) prefs[d.dataset.section] = d.open;
-  try { localStorage.setItem(SECTION_KEY, JSON.stringify(prefs)); } catch {}
+  writePrefs(SECTION_KEY, prefs);
 }
 
 sections.forEach(d => d.addEventListener('toggle', saveSectionPrefs));
 
+// ── View preferences ────────────────────────────────────
+
+function saveViewPrefs() {
+  writePrefs(VIEW_KEY, { zoom, gridOn, mirrorX, onionSkin, sidebarW: sidebar.offsetWidth });
+}
+
+function loadViewPrefs() {
+  const p = readPrefs(VIEW_KEY);
+  if (!p) return;
+  if (ZOOM_STEPS.includes(p.zoom)) zoom = p.zoom;
+  if (typeof p.gridOn === 'boolean') gridOn = p.gridOn;
+  if (typeof p.mirrorX === 'boolean') mirrorX = p.mirrorX;
+  if (typeof p.onionSkin === 'boolean') onionSkin = p.onionSkin;
+  if (p.sidebarW) setSidebarWidth(p.sidebarW);
+  zoomLabel.innerHTML = `${zoom}&times;`;
+  gridToggle.classList.toggle('active', gridOn);
+  mirrorToggle.classList.toggle('active', mirrorX);
+  onionToggle.classList.toggle('active', onionSkin);
+}
+
+// ── Sidebar resizing ────────────────────────────────────
+
+function setSidebarWidth(px) {
+  sidebar.style.width = `${Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, px))}px`;
+}
+
+resizer.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  resizer.classList.add('dragging');
+  document.body.classList.add('resizing');
+  // width grows as the pointer moves left, so measure from the window's right edge
+  const move = (ev) => setSidebarWidth(window.innerWidth - ev.clientX);
+  const up = () => {
+    resizer.classList.remove('dragging');
+    document.body.classList.remove('resizing');
+    document.removeEventListener('mousemove', move);
+    document.removeEventListener('mouseup', up);
+    saveViewPrefs();
+  };
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseup', up);
+});
+
+resizer.addEventListener('dblclick', () => { setSidebarWidth(240); saveViewPrefs(); });
+
 // ── Init ────────────────────────────────────────────────
 loadSectionPrefs();
+loadViewPrefs();
 frames = [blankFrame()];
 sizeCanvas();
 render();
