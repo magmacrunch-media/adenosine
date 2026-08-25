@@ -6,6 +6,32 @@ All notable changes to the adenosine monorepo are documented here.
 
 Every package's metadata changed; no package's code did.
 
+### Added — a sprite editor in `tools/`
+
+`tools/sprites.html` draws pixel-art sprite frames and exports them as a
+uniform-grid PNG sheet. It is the first tool here that is not about adenosine:
+the sheet it writes is the format magnolia and texastoast already read, so the
+three engines can share art without anyone hand-cropping a sheet.
+
+Frames are laid out in a single row, so a frame's index and its column are the
+same number — `SpriteSheet(path, w, h)` in texastoast addresses frame *i* as
+`(i, 0)`, and magnolia takes the whole PNG regardless. The origin cannot travel
+in a PNG, so the export panel prints it beside a ready-to-paste
+`sprite_load(&s, path, ox, oy)` instead of leaving it to be re-derived at the
+call site.
+
+Drawing is pencil, eraser, flood fill, line, rectangle, ellipse and eyedropper,
+with mirrored drawing for characters and onion skinning against the previous
+frame. Strokes interpolate between mouse events, so a fast drag leaves a line
+rather than a dotted one, and each stroke is a single undo step rather than one
+per pixel. An animation preview plays the frames at 1–30 fps at up to 8×, which
+is the only way to tell whether a walk cycle reads before it is in a game.
+
+Palette swatches are editable in place, `Ramp` generates a four-shade
+hue-shifted ramp from the current colour, and importing a sheet harvests its
+colours by frequency. Import slices any uniform-grid PNG back into editable
+frames, which makes the tool a round trip rather than a one-way export.
+
 ### Changed — `homepage` now points at the tools, not the README
 
 All seven manifests pointed `homepage` at

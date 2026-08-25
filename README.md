@@ -287,6 +287,7 @@ npx serve tools
 |------|-------------|
 | [Playground](tools/playground.html) | Code editor with pre-loaded examples for every package |
 | [Tile Map Editor](tools/tiles.html) | Draw tile maps for the RPG engine, export JSON, preview with AdRPG |
+| [Sprite Editor](tools/sprites.html) | Pixel editor with animation preview, onion skin, and shape tools; exports uniform-grid PNG sheets for magnolia and texastoast |
 | [Theme Customizer](tools/theme.html) | Customize CSS themes for cards, puzzle, chat, and multiplayer |
 
 ## Script Tag (no bundler)
