@@ -65,13 +65,31 @@ MP.sendAction({ type: 'play_card', card: { suit: 'hearts', rank: 'A' } });
 
 Send a chat message in the current room.
 
-### `MP.createRoom()`
+### `MP.join(name, color, room?)`
 
-Request a new room from the server. Triggers `onRoomCreated` callback.
+Enter a room by name, letting the server place you if `room` is omitted. Sets the
+local name immediately; the server confirms via `onWelcome`.
 
-### `MP.joinRoom(code)`
+| Param | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | Display name |
+| `color` | `string` | Player colour — see [MP_PALETTE](#mp_palette) |
+| `room` | `string` | Optional room code |
 
-Join an existing room.
+### `MP.createRoom(name, color, roomCode)`
+
+Request a new room from the server. **All three arguments are required** — the
+join details travel with the create. Triggers the `onRoomCreated` callback.
+
+### `MP.joinRoom(name, color, roomCode)`
+
+Join an existing room. Like `createRoom`, this carries the player's identity, so
+it is not a bare `joinRoom(code)`. Triggers `onRoomJoined`.
+
+### `MP.spectate(name, room?)`
+
+Watch without playing. Marks the client a spectator locally and the server
+answers with `onSpectatorWelcome` rather than `onWelcome`.
 
 ### `MP.startGame()`
 
@@ -236,7 +254,21 @@ interface MPMessage {
 
 ```ts
 interface MPConfig {
-  defaultServer?: string;
-  allowlist?: readonly string[];
+  defaultServer?: string;      // where connect() goes with no argument
+  allowlist?: readonly string[];  // extra hosts a ?server= override may name
 }
 ```
+
+### `MsgType`
+
+```ts
+type MsgType = (typeof MSG)[keyof typeof MSG];
+```
+
+The union of every value in [MSG](#msg) — useful for exhaustive switches over
+incoming `message.type`.
+
+### `BoardGameConfig` / `BoardGameButton`
+
+Documented with [BoardGameTemplate](#boardgametemplate) above.
+

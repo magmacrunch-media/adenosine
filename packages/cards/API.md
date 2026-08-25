@@ -7,6 +7,7 @@ Card deck, pixel-art SVG rendering, poker chip animations, and hand evaluators.
 - [Card](#card) — Single card
 - [Deck](#deck) — Shuffled 52-card deck
 - [Hand Evaluators](#hand-evaluators) — Poker and cribbage scoring
+- [Card Art](#card-art) — Pip layout, corners, face card SVG
 - [Chip Animation](#chip-animation) — Canvas poker chip rendering
 - [Constants](#constants) — Suits, ranks, colours
 - [CSS Variables](#css-variables) — Theming
@@ -126,16 +127,20 @@ card.value = POKER_RANK_VALUES[card.rank];   // A=14
 Do this at the single point where cards enter play, not per hand — this bug has
 recurred twice by being remembered at some deal sites and not others.
 
-### Cribbage: `new CribbageHandEval()`
+### Cribbage: `CribbageHandEval`
 
-#### `.scoreHand(hand, start?)`
+**A plain object, not a class — there is no `new CribbageHandEval()`.** Call its
+methods directly off the export.
+
+#### `CribbageHandEval.scoreHand(hand, starter, isCrib?)`
 
 Score a cribbage hand.
 
 | Param | Type | Description |
 |-------|------|-------------|
 | `hand` | `CribCard[]` | 4 cards in hand |
-| `start` | `CribCard` | The starter card (cut card) |
+| `starter` | `CribCard \| null` | The starter card (cut card); pass `null` for none |
+| `isCrib` | `boolean` | Whether this hand is the crib — a crib flush needs all five suits to match. Default `false`. |
 
 Returns `CribScore`:
 
@@ -144,25 +149,112 @@ Returns `CribScore`:
 | `total` | `number` | Total points |
 | `breakdown` | `CribBreakdown` | Points per category: `{ fifteens, pairs, runs, flush, nobs }` |
 
+#### Other `CribbageHandEval` methods
+
+| Method | Description |
+|--------|-------------|
+| `.countFifteens(cards)` | Combinations summing to 15 |
+| `.countPairs(cards)` | Pairs, counting three- and four-of-a-kind as their pair count |
+| `.countRuns(cards)` | Run points, multiplied by duplicate rank combinations |
+| `.countFlush(hand, starter, isCrib)` | 4 for a flush in hand, 5 including the starter |
+| `.countNobs(hand, starter)` | 1 for the jack matching the starter's suit |
+| `.scorePeggingPlay(card, playedCards)` | Points for one card during the play |
+
+`CRIBBAGE_SCORE` exports the point values these use — `FIFTEEN`, `PAIR`,
+`THREE_OF_KIND`, `FOUR_OF_KIND`, `FLUSH_4`, `FLUSH_5`, `NIBS`, `HIS_HEELS`, `GO`,
+`THIRTY_ONE`.
+
+### Poker lookup tables
+
+| Export | Description |
+|--------|-------------|
+| `HAND_RANKS` | Hand name → comparison rank, `'High Card'` 0 through `'Royal Flush'` 9 |
+| `HAND_POINTS` | Hand name → score value, `'High Card'` through `'Royal Flush'` 1000 |
+
+Both are keyed by the same `HandName` strings `HandEvaluator.evaluate()` returns.
+
+---
+
+## Card Art
+
+The HTML/SVG a `Card` renders is assembled from these, all exported so a game can
+build its own card faces without going through `Card.getHTML()`.
+
+### Number and ace faces
+
+| Export | Description |
+|--------|-------------|
+| `pipColor(suit)` | The CSS colour for a suit's ink — the `--fc-red` / `--fc-black` custom properties, with literal fallbacks |
+| `cornerPipSVG(suit, color)` | One corner pip glyph as SVG markup |
+| `cornerHTML(rank, suit, color?)` | Both corner indices (rank letter plus suit glyph) as markup |
+| `getSuitLayout(rank, suit, color?)` | The centre pip arrangement for a number card |
+| `getNumberCardHTML(suit, rank)` | A complete 2–10 face |
+| `getAceHTML(suit, rank)` | A complete ace face, with the oversized centre pip |
+
+Omitting `color` emits no inline `style` at all, leaving the colour to the
+stylesheet — which is what `Card.getHTML()` does. Pass one only to override.
+
+### Face cards and backs
+
+| Export | Description |
+|--------|-------------|
+| `FACE_CARD_SVG` | The 12 pixel-art J/Q/K faces, keyed `'<rank>_<suit>'` |
+| `FC_PIP_ART` | Per-suit pip artwork the face cards embed |
+| `FC_CORNERS(rank, suit, color)` | Corner indices sized for the face-card SVG viewbox — a function, despite the constant-style name |
+| `getCardBackSVG()` | The card back, as SVG markup |
+
+Every colour in this artwork is a `var(--fc-*, fallback)` reference, so a theme
+override retints the faces without touching the markup. See
+[CSS Variables](#css-variables).
+
 ---
 
 ## Chip Animation
 
 ### `drawChip(ctx, denom, cx, topY)`
 
-Draw a single chip sprite onto a canvas context.
+Draw a single chip sprite onto a canvas **context**, centred on `cx` with its top
+edge at `topY`.
 
-### `renderStack(ctx, denom, count, cx, topY)`
+| Param | Type |
+|-------|------|
+| `ctx` | `CanvasRenderingContext2D` |
+| `denom` | `Denom` — an entry of `DENOMS` |
+| `cx` / `topY` | `number` |
 
-Draw a stack of like-valued chips. Returns the Y coordinate below the stack.
+### `renderStack(canvas, denom, count)`
+
+Draw a stack of like-valued chips. Takes a **canvas element, not a context** — it
+sizes the canvas to fit the stack before drawing. Returns nothing.
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `canvas` | `HTMLCanvasElement` | Resized to fit; existing content is cleared |
+| `denom` | `Denom` | An entry of `DENOMS` |
+| `count` | `number` | Chips in the stack; the drawn height is capped |
 
 ### `breakIntoStacks(amount)`
 
-Break a chip amount into an array of `ChipStack` objects.
+Break a chip amount into `ChipStack[]` — `{ denom, count }` per denomination,
+largest first.
 
 ### `DENOMS`
 
 Array of 5 chip denominations: 500 (purple), 100 (black), 25 (green), 5 (red), 1 (white).
+
+### `ChipAnim`
+
+Stateful helper that renders a chip count into a page element. A plain object,
+not a class.
+
+| Method | Description |
+|--------|-------------|
+| `.init(displayId, legendId?)` | Element ids to render into; default `'chipDisplay'` / `'chipLegend'` |
+| `.setChips(amount)` | Set the count and redraw stacks and legend |
+| `.addChips(delta)` | Adjust the count and redraw; clamped at 0 |
+| `.getChips()` | Current count |
+
+A count of 0 renders a `B U S T` message instead of stacks.
 
 ---
 

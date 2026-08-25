@@ -60,6 +60,20 @@ an unpinned URL follows `latest` and will cross a major without warning.
 
 Installed from npm instead, the same file is `dist/index.global.js`.
 
+## UI helpers
+
+`createUI()` is separate from the game and takes no arguments — modals, custom
+dropdowns, and the formatting every puzzle page needed:
+
+```js
+import { createUI } from '@magmacrunch/adenosine-puzzle';
+
+const ui = createUI();
+ui.registerModal('gameover', document.getElementById('gameover'));
+ui.setupModalClose('gameover', [document.getElementById('close')]);
+ui.setText(document.getElementById('time'), ui.formatTime(90)); // "1:30"
+```
+
 ## Full API
 
 [`API.md`](API.md) documents every export, with parameters and return shapes.

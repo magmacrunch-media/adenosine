@@ -5,10 +5,10 @@ Sliding tile puzzle framework with grid engine, input, rendering, scoring, and U
 ## Table of Contents
 
 - [createGame](#creategame) — Puzzle game instance
-- [createUI](#createui) — DOM binding
-- [createScoring](#createscoring) — High-score integration
-- [createRenderer](#createrenderer) — Canvas rendering
-- [createInput](#createinput) — Touch/mouse/keyboard input
+- [createUI](#createui) — Modals, dropdowns, formatting helpers
+- [createScoring](#createscoring) — localStorage score table
+- [createRenderer](#createrenderer) — DOM tile rendering
+- [createInput](#createinput) — Arrow keys and touch swipe
 - [PuzzleGrid](#puzzlegrid) — Grid math utilities
 - [Types](#types)
 
@@ -38,6 +38,7 @@ game.init();
 | `.init()` | Build the grid and seed it. Call before anything else — `.grid` is `null` until it runs. |
 | `.handleMove(direction)` | Play a move (`'up'`, `'down'`, `'left'`, `'right'`). Returns `true` if the board changed. |
 | `.moveInDirection(direction)` | The slide itself, without the move bookkeeping. Override to implement your puzzle's rules. |
+| `.moveLeft()` | The leftward slide, called by the default `.moveInDirection()` after rotating the board. Override this one to write the rules once instead of four times. |
 | `.addRandomTile()` | Place one tile. Supply your own — the default does nothing. |
 | `.addInitialTiles()` | Called by `.init()`; calls `.addRandomTile()` twice. |
 | `.isActive()` | `false` once won or lost |
@@ -61,50 +62,67 @@ a board begins with two tiles even when `spawnTiles: false`.
 
 ## createUI
 
-### `createUI(game, container)`
+### `createUI()`
 
-Bind a game to a DOM container. Creates the game board and handles tile rendering.
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `game` | `PuzzleGame` | Game instance from `createGame` |
-| `container` | `HTMLElement` | DOM element to render into |
+Common UI helpers — modals, custom dropdowns, DOM shortcuts, and formatting.
+Takes no arguments and holds no reference to a game; it is a grab bag of the
+patterns every puzzle page needed, not a binding layer.
 
 Returns `PuzzleUI`.
 
 ```js
-const ui = AdPuzzle.createUI(game, document.getElementById('board'));
+const ui = AdPuzzle.createUI();
+ui.registerModal('help', document.getElementById('help-modal'));
+ui.showModal('help');
 ```
+
+### PuzzleUI methods
+
+| Method | Description |
+|--------|-------------|
+| `.registerModal(id, element)` | Register an element under an id |
+| `.showModal(id)` / `.hideModal(id)` | Toggle the `active` class |
+| `.hideAllModals()` | Close every registered modal |
+| `.isModalOpen(id)` | Whether the modal carries `active` |
+| `.setupModalClose(modalId, closeButtons)` | Wire close buttons plus backdrop click |
+| `.setupDropdown(container, selected, options, onSelect?)` | Custom `<div>` dropdown |
+| `.$(selector)` / `.$$(selector)` | `querySelector` / `querySelectorAll` |
+| `.show(el)` / `.hide(el)` | Set `display` to `''` or `'none'`; null-safe |
+| `.setText(el, text)` / `.setHTML(el, html)` | Null-safe writes |
+| `.formatTime(seconds)` | `m:ss` |
+| `.formatScore(score)` | Thousands separators |
 
 ---
 
 ## createScoring
 
-### `createScoring(game, scoreClient?)`
+### `createScoring(gameName, config?)`
 
-Connect high-score tracking to a puzzle game.
+Score table persisted to `localStorage` under `<gameName>_scores`. **This is
+standalone — it does not talk to `adenosine-score-client` or any server.**
 
 | Param | Type | Description |
 |-------|------|-------------|
-| `game` | `PuzzleGame` | Game instance |
-| `scoreClient` | `ScoreClient` | Optional adenosine-score-client instance |
+| `gameName` | `string` | Storage key prefix |
+| `config` | `PuzzleScoringConfig` | `{ ascending }` — `true` ranks low scores first, for move- or time-based puzzles. Default `false`. |
 
 Returns `PuzzleScoring`.
 
 ```js
-const scoring = AdPuzzle.createScoring(game, scoreClient);
+const scoring = AdPuzzle.createScoring('fifteen-puzzle', { ascending: true });
+scoring.addScore(game.score, 'normal', { moves: game.moves, time: game.getElapsedTime() });
 ```
 
 ### PuzzleScoring methods
 
 | Method | Description |
 |--------|-------------|
-| `.addScore(entry)` | Record a finished game |
-| `.getTopScores(difficulty?)` | Leaderboard, best first |
+| `.addScore(score, difficulty, metadata?)` | Record a finished game; `metadata` may carry `moves`, `time`, `highestTile`. Returns the new rank. |
+| `.getTopScores(difficulty?, limit?)` | Leaderboard, best first |
 | `.getRank(score, difficulty?)` | Where a score would place |
 | `.isNewHighScore(score, difficulty?)` | Whether it makes the table |
 | `.getDifficulties()` | Difficulty keys that have scores |
-| `.clearScores(difficulty?)` | Wipe stored scores |
+| `.clearScores()` | Wipe every stored score — takes no arguments |
 
 Move counts and elapsed time come from the game, not the scorer —
 `game.moves` and `game.getElapsedTime()`.
@@ -113,35 +131,57 @@ Move counts and elapsed time come from the game, not the scorer —
 
 ## createRenderer
 
-### `createRenderer(game, canvas, config?)`
+### `createRenderer(boardElement, config?)`
 
-Low-level canvas renderer for custom layouts.
+Tile rendering into a DOM container. **This is not a canvas renderer** — it
+builds `<div>` elements and appends them to `boardElement`.
 
 | Param | Type | Description |
 |-------|------|-------------|
-| `game` | `PuzzleGame` | Game instance |
-| `canvas` | `HTMLCanvasElement` | Canvas to draw on |
-| `config` | `PuzzleRenderConfig` | Optional rendering options |
+| `boardElement` | `HTMLElement` | Container the tiles are rendered into |
+| `config` | `PuzzleRenderConfig` | `{ tileClass, emptyClass }`; default `'tile'` and `'tile-empty'` |
 
 Returns `PuzzleRender`.
+
+```js
+const renderer = AdPuzzle.createRenderer(document.getElementById('board'));
+renderer.renderGrid(game.getGrid());
+```
+
+### PuzzleRender methods
+
+| Method | Description |
+|--------|-------------|
+| `.renderGrid(grid, tileRenderer?)` | Rebuild every tile; supply `tileRenderer` for custom elements |
+| `.renderGridWithSpecial(grid, getTileContent)` | Rebuild using `TileInfo` — text, classes, attributes |
+| `.createDefaultTile(row, col, value)` | The default `<div>` tile |
+| `.updateTile(row, col, value, extraClasses?)` | Update one tile in place |
+| `.getTile(row, col)` / `.getAllTiles()` | Query rendered tiles |
+| `.clear()` | Empty the container |
 
 ---
 
 ## createInput
 
-### `createInput(game, container, callbacks?)`
+### `createInput(callbacks, boardElement?)`
 
-Handle touch, mouse, and keyboard input for tile sliding.
+Arrow keys plus touch swipe. **Callbacks come first; the game is not passed in** —
+the input layer only asks whether play is live and reports a direction.
 
 | Param | Type | Description |
 |-------|------|-------------|
-| `game` | `PuzzleGame` | Game instance |
-| `container` | `HTMLElement` | Element to capture input on |
-| `callbacks` | `PuzzleInputCallbacks` | Optional event callbacks |
+| `callbacks` | `PuzzleInputCallbacks` | `{ onMove(direction), isActive() }`, both required |
+| `boardElement` | `HTMLElement` | Optional element to bind touch events to |
 
-Returns `PuzzleInput`.
+Swipes shorter than 30px are ignored. Returns `PuzzleInput` — call `.destroy()`
+to remove every listener.
 
----
+```js
+const input = AdPuzzle.createInput({
+  onMove: (dir) => game.handleMove(dir),
+  isActive: () => game.isActive(),
+}, document.getElementById('board'));
+```
 
 ## PuzzleGrid
 
@@ -188,18 +228,40 @@ type Direction = 'up' | 'down' | 'left' | 'right';
 
 ```ts
 interface PuzzleGame {
+  // Supply these — the defaults do nothing.
+  addRandomTile(): void;
+  moveLeft(): void;
+
   init(): void;
   handleMove(dir: Direction): boolean;
   moveInDirection(dir: Direction): void;
-  addRandomTile(): void;
+  addInitialTiles(): void;
+  checkWin(): boolean;
+  checkGameState(): void;
   isActive(): boolean;
+  getElapsedTime(): number;
   getGrid(): PuzzleGridType;
   setGrid(g: PuzzleGridType): void;
-  getElapsedTime(): number;
+  render(): void;
+  notifyStateChange(): void;
+
   setOnRender(cb: (game: PuzzleGame) => void): void;
   setOnStateChange(cb: (info: StateChangeInfo) => void): void;
   setOnGameOver(cb: (game: PuzzleGame) => void): void;
   setOnWin(cb: (game: PuzzleGame) => void): void;
+
+  grid: PuzzleGridType;
+  score: number;
+  moves: number;
+  gameOver: boolean;
+  won: boolean;
+  endTime: number | null;
+  readonly size: number;
+  readonly difficulty: string;
+  readonly gameName: string;
+  readonly spawnTiles: boolean;
+  readonly lastDirection: Direction | null;
+  readonly startTime: number | null;
 }
 ```
 
@@ -207,8 +269,60 @@ interface PuzzleGame {
 
 ```ts
 interface StateChangeInfo {
-  direction: Direction;
-  solved: boolean;
+  score: number;
   moves: number;
+  gameOver: boolean;
+  won: boolean;
+  elapsed: number;
+  grid: PuzzleGridType;
+}
+```
+
+### `PuzzleScoringConfig`
+
+```ts
+interface PuzzleScoringConfig {
+  ascending?: boolean;   // rank low scores first, default false
+}
+```
+
+### `ScoreEntry`
+
+```ts
+interface ScoreEntry {
+  score: number;
+  difficulty: string;
+  date: string;
+  moves: number;
+  time: number;
+  highestTile: number;
+}
+```
+
+### `PuzzleRenderConfig`
+
+```ts
+interface PuzzleRenderConfig {
+  tileClass?: string;    // default 'tile'
+  emptyClass?: string;   // default 'tile-empty'
+}
+```
+
+### `TileInfo`
+
+```ts
+interface TileInfo {
+  text: string;
+  classes?: string[];
+  attributes?: Record<string, string>;
+}
+```
+
+### `PuzzleInputCallbacks`
+
+```ts
+interface PuzzleInputCallbacks {
+  onMove: (direction: Direction) => void;
+  isActive: () => boolean;
 }
 ```

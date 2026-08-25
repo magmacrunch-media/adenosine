@@ -193,6 +193,18 @@ Tile-based player movement with diagonal normalization and collision.
 
 **Mutates:** `player.x`, `player.y`, `player.facingX`, `player.facingY`, `player.direction`, `player.isWalking`
 
+### `DIRECTION_VECTORS`
+
+`Record<Direction, { x, y }>` — the unit vector for each of `'up'`, `'down'`,
+`'left'`, `'right'`, with `y` growing downward as screen coordinates do. What
+`player.facingX` / `facingY` are set from, so use it when computing the tile a
+player faces rather than re-deriving the signs.
+
+```js
+const { x, y } = AdRPG.DIRECTION_VECTORS[player.direction];
+const facingTile = { x: player.x + x, y: player.y + y };
+```
+
 ---
 
 ## renderer.ts

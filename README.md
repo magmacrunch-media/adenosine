@@ -4,7 +4,7 @@ A collection of lightweight web game engines by [magmacrunch media](https://magm
 
 Named after "Adenosine" by Texas Hold'Em Lava Dome, published by magmacrunch music
 
-[![test](https://img.shields.io/badge/tests-559%20passing-brightgreen)](#testing)
+[![test](https://img.shields.io/badge/tests-559%20passing-brightgreen)](#development)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![npm](https://img.shields.io/npm/v/@magmacrunch/adenosine-rpg)](https://www.npmjs.com/package/@magmacrunch/adenosine-rpg)
 
@@ -237,17 +237,42 @@ Adenosine packages are extracted from the [magmacrunch.com](https://magmacrunch.
 
 This is a monorepo using npm workspaces.
 
+Node 20 or newer (CI runs 22).
+
 ```bash
 npm install                        # install all dependencies
-npm test                           # run all tests across packages
+npm test                           # 559 tests across 35 files
 npm run build                      # build all packages (ESM + IIFE)
 npm run typecheck                  # typecheck all packages
-
-# Single package
-cd packages/rpg
-npm test
-npm run build
+npm run check                      # the guards below — needs a build first
 ```
+
+```bash
+cd packages/rpg && npm test        # a single package
+```
+
+`npm run check` runs four scripts in `scripts/`, each guarding a promise the
+packages make:
+
+| Script | Asserts |
+|--------|---------|
+| `check-packaging.mjs` | Every file a `package.json` references is actually in the tarball |
+| `check-no-hardcoded-hosts.mjs` | No package ships a deployment's own hostnames as a fallback |
+| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
+| `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback, so the styles stand alone |
+
+## Examples
+
+`examples/` holds one page per package that exercises its API and prints the
+results — closer to a readable test than a demo. They load the local builds, so
+run `npm run build` first:
+
+```bash
+npm run build && npx serve examples
+```
+
+`examples/quickstart.html` is the exception: a single self-contained file that
+deals a hand off the CDN, with no build step and no server.
 
 ## Tools
 
@@ -269,7 +294,7 @@ npx serve tools
 Each package builds an IIFE bundle alongside ESM for direct `<script>` tag usage:
 
 ```html
-<script src="path/to/adenosine-rpg.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2/dist/index.global.js"></script>
 <script>
   const loop = AdRPG.createGameLoop({ update, render, fps: 30 });
   loop.start();
