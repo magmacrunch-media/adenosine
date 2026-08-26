@@ -231,7 +231,19 @@ npm install @magmacrunch/adenosine-chat
 
 ## Origin
 
-Adenosine packages are extracted from the [magmacrunch.com](https://magmacrunch.com) arcade shared code. The original games remain in the website repo; these packages are the standalone, reusable versions.
+Adenosine packages are extracted from the [magmacrunch.com](https://magmacrunch.com) arcade shared code. Most games are still authored in the website repo; these packages are the standalone, reusable versions.
+
+Games with more than one version have moved out into their own repositories,
+which hold the browser build and a Nintendo Wii port side by side. The copy
+served from the website's `arcade/` is generated from them, so these are where
+the browser game is actually edited:
+
+- [moonlight-drift](https://github.com/magmacrunchmedia/moonlight-drift) — one-button cave flyer
+- [george-boole](https://github.com/magmacrunchmedia/george-boole) — logic-gate puzzle
+- [texas-holdem-lava-dome](https://github.com/magmacrunchmedia/texas-holdem-lava-dome) — solo Hold'Em against a rising dome
+
+Their Wii halves run on [magnolia](https://github.com/magmacrunchmedia/magnolia)
+rather than on adenosine.
 
 ## Development
 
