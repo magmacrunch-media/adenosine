@@ -17,6 +17,31 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run build
-      - run: npm publish --workspaces --access public
+      # `npm publish --workspaces` stops at the first package whose version is
+      # already on the registry, and it walks them alphabetically -- so a release
+      # bumping only chat and multiplayer would die on audio and never reach
+      # them. Earlier releases hid this by patch-bumping all seven every time,
+      # which publishes packages that did not change. Publish what is new.
+      - name: Publish packages whose version is not on npm yet
+        run: |
+          PUBLISHED=0
+          for DIR in packages/*/; do
+            NAME=$(node -p "require('./${DIR}package.json').name")
+            VERSION=$(node -p "require('./${DIR}package.json').version")
+            ENCODED=$(printf '%s' "$NAME" | sed 's|/|%2F|')
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}"               "https://registry.npmjs.org/$ENCODED/$VERSION")
+            if [ "$STATUS" = "200" ]; then
+              echo "skip     $NAME@$VERSION (already published)"
+              continue
+            fi
+            echo "publish  $NAME@$VERSION"
+            npm publish -w "$NAME" --access public
+            PUBLISHED=$((PUBLISHED + 1))
+          done
+          echo "Published $PUBLISHED package(s)."
+          if [ "$PUBLISHED" -eq 0 ]; then
+            echo "A release that publishes nothing is a release nobody meant to cut."
+            exit 1
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
