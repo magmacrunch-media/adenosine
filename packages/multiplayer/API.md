@@ -182,7 +182,14 @@ Generates the common HTML structure for board games (lobby, game board area, gam
 
 ### `BoardGameTemplate.render(config)`
 
-Build and inject the page HTML. Returns nothing — modifies the DOM directly.
+Build the page HTML, append it to `.container`, and return it.
+
+It does both: the markup is injected for you, and the same string comes back
+for a caller that wants to inspect or place it elsewhere. If no `.container`
+exists the markup is still returned, just not inserted.
+
+Note that `insertAdjacentHTML` never executes inserted `<script>` elements, so
+a caller must place its own script tags in the document after calling this.
 
 | Param | Type | Description |
 |-------|------|-------------|

@@ -4,7 +4,7 @@ TypeScript monorepo of seven browser game-engine packages (npm workspaces), publ
 to npm as `@magmacrunch/adenosine-*`. Zero runtime dependencies. Each package ships
 dual-format: ESM for bundlers plus an IIFE bundle (`dist/index.global.js`) consumed
 via `<script>`/jsDelivr — the magmacrunch.com website repo loads those IIFE bundles
-pinned to exact versions. 559 tests across 35 files. Apache-2.0.
+pinned to exact versions. 592 tests across 36 files. Apache-2.0.
 
 ## AI Attribution
 
@@ -27,7 +27,7 @@ packages/
   # each package: src/, dist/ (built), API.md, tsup.config.ts, vitest tests
 scripts/                check-*.mjs guard scripts run by `npm run check`
 tools/                  browser tools: playground.html, tiles.html (tile map editor),
-                        sprites.html (the SPRITE//FORGE sprite editor), theme.html
+                        theme.html
 examples/               one page per package, loads local dist/ builds
 .github/workflows/      ci.yml (test, typecheck, build, all guards), publish.yml
 ```
@@ -36,7 +36,7 @@ examples/               one page per package, loads local dist/ builds
 
 ```bash
 npm install                        # all workspaces
-npm test                           # 559 tests, vitest per package
+npm test                           # 592 tests, vitest per package
 npm run build                      # per package: tsup (ESM + IIFE) + tsc declarations
 npm run typecheck                  # tsc --noEmit per package
 npm run check                      # guard scripts below — needs a build first
@@ -81,7 +81,7 @@ Uniform grid PNG: frames are frameWidth x frameHeight cells, counted left-to-rig
 then top-to-bottom. The origin/anchor is stored with the sheet at load time, not
 re-derived at call sites. This format is read by all three engines — adenosine (TS),
 magnolia (C/Wii), texastoast (Python) — so a sheet exported from SPRITE//FORGE
-(adenosine/tools/sprites.html) feeds all of them. Canonical spec:
+(https://magmacrunch.com/ware/sprite-forge/) feeds all of them. Canonical spec:
 `packages/rpg/API.md`, the `sprites.ts` section (`loadSpriteSheet`,
 `createSpriteSheet`, `loadSpriteSheets`). Changing the format is a three-repo change.
 

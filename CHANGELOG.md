@@ -47,6 +47,17 @@ This landed in the one part of the codebase with no coverage at all. Chat's 22
 tests were entirely about SharedWorker URLs and `?server=` allowlisting — the
 lesson from the *previous* security bug. Nothing rendered anything.
 
+### Fixed — documentation
+
+- `BoardGameTemplate.render()` was documented as returning nothing and modifying
+  the DOM. It does both: it appends to `.container` **and** returns the markup.
+- `AGENTS.md` still listed `tools/sprites.html` and named it the canonical
+  SPRITE//FORGE path, three commits after `b9eba16` moved the editor out.
+- Test counts said 559 across 35 files; the real numbers had been 583 across 36
+  for some time, and are 592 after the tests above.
+- `README.md` said `npm run check` runs four scripts and omitted
+  `check-cdn-pins.mjs` from its table. `AGENTS.md` already had this right.
+
 ### Changed — metadata
 
 Every package's metadata changed; no package's code did.
