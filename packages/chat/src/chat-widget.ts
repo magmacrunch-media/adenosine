@@ -730,8 +730,19 @@ export const ChatWidget = (function() {
         var div = document.createElement('div');
         div.className = 'acw-msg';
         if (field(msg, 'from') === 'system') div.className += ' system';
-        div.innerHTML = '<span class="chat-name" style="color:' + escapeHtml(field(msg, 'color') || '#ff2e9c') + '">' +
-            escapeHtml(field(msg, 'from')) + ':</span> ' + escapeHtml(field(msg, 'text'));
+
+        // Built through the DOM rather than concatenated into innerHTML. Every
+        // field here — name, colour, text — is peer-supplied: it travels to the
+        // server and is broadcast back to everyone else. textContent cannot open
+        // a tag, and a colour assigned through the CSSOM is either a value the
+        // parser accepts or nothing at all.
+        var nameEl = document.createElement('span');
+        nameEl.className = 'chat-name';
+        nameEl.style.color = field(msg, 'color') || '#ff2e9c';
+        nameEl.textContent = field(msg, 'from') + ':';
+
+        div.appendChild(nameEl);
+        div.appendChild(document.createTextNode(' ' + field(msg, 'text')));
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
     }
@@ -744,9 +755,22 @@ export const ChatWidget = (function() {
             users.forEach(function(u) {
                 var div = document.createElement('div');
                 div.className = 'acw-online-user';
-                div.innerHTML = '<span class="acw-online-dot" style="background:' + escapeHtml(u.color ?? '') + '"></span>' +
-                    '<span class="acw-online-name">' + escapeHtml(u.name) + '</span>' +
-                    '<span class="acw-online-status">' + escapeHtml(u.game || (u.rooms && u.rooms.length ? 'In Room' : 'Online')) + '</span>';
+
+                var dot = document.createElement('span');
+                dot.className = 'acw-online-dot';
+                dot.style.background = u.color ?? '';
+
+                var nameEl = document.createElement('span');
+                nameEl.className = 'acw-online-name';
+                nameEl.textContent = u.name;
+
+                var statusEl = document.createElement('span');
+                statusEl.className = 'acw-online-status';
+                statusEl.textContent = u.game || (u.rooms && u.rooms.length ? 'In Room' : 'Online');
+
+                div.appendChild(dot);
+                div.appendChild(nameEl);
+                div.appendChild(statusEl);
                 list!.appendChild(div);
             });
         }
@@ -782,12 +806,6 @@ export const ChatWidget = (function() {
     function field(msg: ChatMessage, key: string): string {
         const v = msg[key];
         return typeof v === 'string' ? v : '';
-    }
-
-    function escapeHtml(text: string): string {
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 
     // ── Color Helpers ───────────────────────────────────────────────────

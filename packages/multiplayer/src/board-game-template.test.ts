@@ -177,3 +177,58 @@ describe('MP_PALETTE', () => {
     }
   });
 });
+
+/**
+ * Attribute escaping.
+ *
+ * esc() escaped by assigning to textContent and reading innerHTML back, which
+ * runs the HTML fragment serialization algorithm: it escapes &, < and >, and
+ * leaves the double quote alone. Every id here is concatenated into id="...",
+ * where one quote ends the attribute and the rest becomes markup. `cls` had no
+ * escaping at all, directly beside an esc() call.
+ *
+ * Config here is author-supplied rather than peer-supplied, so this is a
+ * sharp edge rather than the hole chat had -- but a game that names a button
+ * from anything it did not write itself inherits the hole.
+ */
+describe('render() cannot be talked into extra attributes', () => {
+  const hostile = 'x" onfocus="alert(1)';
+
+  /** Every button the template rendered, read back off the injected DOM. */
+  function buttonsAfter(cfg: Parameters<typeof BoardGameTemplate.render>[0]) {
+    const dom = onPage('https://example.com/');
+    BoardGameTemplate.render(cfg);
+    return [...dom.window.document.querySelectorAll('button')];
+  }
+
+  it('does not let a quote in a button id open a new attribute', () => {
+    const btns = buttonsAfter({ title: 'CHESS', buttons: [{ id: hostile, label: 'GO' }] });
+
+    for (const b of btns) expect(b.hasAttribute('onfocus')).toBe(false);
+    expect(btns.some((b) => b.getAttribute('id') === hostile)).toBe(true);
+  });
+
+  it('does not let a quote in a button class open a new attribute', () => {
+    const btns = buttonsAfter({ title: 'CHESS', buttons: [{ id: 'go', label: 'GO', cls: hostile }] });
+
+    for (const b of btns) expect(b.hasAttribute('onfocus')).toBe(false);
+    expect(btns.find((b) => b.id === 'go')!.getAttribute('class')).toBe('start-btn ' + hostile);
+  });
+
+  it('does not let a quote in a game control id open a new attribute', () => {
+    const btns = buttonsAfter({ title: 'CHESS', gameControls: [{ id: hostile, label: 'QUIT' }] });
+
+    for (const b of btns) expect(b.hasAttribute('onfocus')).toBe(false);
+    expect(btns.some((b) => b.getAttribute('id') === hostile)).toBe(true);
+  });
+
+  it('renders a label containing markup as text', () => {
+    const dom = onPage('https://example.com/');
+    BoardGameTemplate.render({ title: 'CHESS', buttons: [{ id: 'go', label: '<img src=x onerror=alert(1)>' }] });
+
+    const container = dom.window.document.querySelector('.container')!;
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.textContent).toContain('<img src=x onerror=alert(1)>');
+  });
+});
+

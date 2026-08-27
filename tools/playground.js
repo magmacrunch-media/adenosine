@@ -11,8 +11,8 @@ const PACKAGES = {
   cards:         { global: "AdCards",   version: "0.7.4", css: ["cards.css","chip-animation.css"] },
   audio:         { global: "AdAudio",   version: "0.2.4", css: [] },
   "score-client":{ global: "AdScore",   version: "0.2.5", css: [] },
-  multiplayer:   { global: "AdMP",      version: "0.4.4", css: ["lobby.css"] },
-  chat:          { global: "AdChat",    version: "0.4.3", css: ["chat-widget.css"] },
+  multiplayer:   { global: "AdMP",      version: "0.4.5", css: ["lobby.css"] },
+  chat:          { global: "AdChat",    version: "0.4.4", css: ["chat-widget.css"] },
 };
 
 const EXAMPLES = {

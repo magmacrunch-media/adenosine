@@ -17,6 +17,8 @@ import { JSDOM } from 'jsdom';
 let requestedWorkerUrl: string | null = null;
 /** The chat server URL the widget hands to the worker on connect. */
 let requestedServerUrl: string | null = null;
+/** The worker port the widget wired itself to, so a test can feed it messages. */
+let workerPort: { onmessage: ((e: { data: string }) => void) | null } | null = null;
 
 /**
  * Stand up a page with a given loading <script>, import the widget into it, and
@@ -46,10 +48,11 @@ async function resolveWith(opts: {
 
   requestedWorkerUrl = null;
   requestedServerUrl = null;
+  workerPort = null;
   (window as unknown as Record<string, unknown>)['SharedWorker'] =
     function (this: unknown, url: string) {
       requestedWorkerUrl = url;
-      (this as { port: unknown }).port = {
+      (this as { port: unknown }).port = workerPort = {
         onmessage: null, start() {},
         postMessage(raw: string) {
           try {
@@ -72,6 +75,17 @@ async function resolveWith(opts: {
   const { ChatWidget } = await import('./chat-widget.js');
   ChatWidget.connect(connectOpts);
   return requestedWorkerUrl;
+}
+
+/**
+ * Stand the widget up, push one message through the worker port as the server
+ * would, and hand back the document so a test can read what was rendered.
+ */
+async function renderServerMessage(msg: Record<string, unknown>): Promise<Document> {
+  await resolveWith({ scriptSrc: 'https://magmacrunch.com/arcade/shared/adenosine-chat.js' });
+  if (!workerPort?.onmessage) throw new Error('widget never wired the worker port');
+  workerPort.onmessage({ data: JSON.stringify(msg) });
+  return globalThis.document;
 }
 
 /** Same setup, but report the chat server the widget decided to talk to. */
@@ -193,5 +207,77 @@ describe('chat server resolution', () => {
       pageUrl: 'https://games.example.com/a/?server=relay.example.net',
       connectOpts: { allowlist: ['relay.example.net'] },
     })).toBe('wss://relay.example.net');
+  });
+});
+
+/**
+ * Rendering escapes.
+ *
+ * escapeHtml() escaped by assigning to textContent and reading innerHTML back.
+ * That runs the HTML fragment serialization algorithm, which escapes &, < and >
+ * and leaves the double quote alone -- and the result was concatenated into
+ * style="color:...". A colour of `red" onmouseover="alert(1)` closed the
+ * attribute and added an event handler.
+ *
+ * Nothing here was peer-proof by accident: name, colour and text all travel to
+ * the server and come back to every other client, so one player could run script
+ * in everyone else's page. These assert on parsed attributes rather than on the
+ * HTML string, because the string looking wrong is not the bug -- the browser
+ * agreeing to build an attribute out of it is.
+ */
+describe('message rendering cannot be talked into markup', () => {
+  const hostile = 'red" onmouseover="alert(1)';
+
+  it('does not let a peer colour become an event handler', async () => {
+    const doc = await renderServerMessage({ type: 'chat', from: 'mallory', color: hostile, text: 'hi' });
+
+    const name = doc.querySelector('.chat-name')!;
+    expect(name).toBeTruthy();
+    expect(name.hasAttribute('onmouseover')).toBe(false);
+    // Nothing beyond the two the widget sets itself. Note `style` may be absent
+    // entirely: an unparseable colour sets no declaration, so no attribute is
+    // ever created -- which is the point.
+    expect(name.getAttributeNames().filter((a) => a !== 'class' && a !== 'style')).toEqual([]);
+  });
+
+  it('drops a colour the CSS parser will not take, rather than emitting it', async () => {
+    const doc = await renderServerMessage({ type: 'chat', from: 'mallory', color: hostile, text: 'hi' });
+
+    // The CSSOM refuses the whole declaration, so no colour is set at all.
+    expect((doc.querySelector('.chat-name') as HTMLElement).style.color).toBe('');
+  });
+
+  it('keeps a legitimate colour working', async () => {
+    const doc = await renderServerMessage({ type: 'chat', from: 'alice', color: '#00f5ff', text: 'hi' });
+
+    expect((doc.querySelector('.chat-name') as HTMLElement).style.color).toBe('rgb(0, 245, 255)');
+  });
+
+  it('renders a hostile name and text as text, not elements', async () => {
+    const doc = await renderServerMessage({
+      type: 'chat',
+      from: '<img src=x onerror=alert(1)>',
+      color: '#fff',
+      text: "</span><script>alert(1)</script>",
+    });
+
+    const container = doc.getElementById('chatMessagesGlobal')!;
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('script')).toBeNull();
+    expect(container.textContent).toContain('<img src=x onerror=alert(1)>');
+    expect(container.textContent).toContain('<script>alert(1)</script>');
+  });
+
+  it('does not let a hostile colour in the online list become an attribute', async () => {
+    const doc = await renderServerMessage({
+      type: 'user_list',
+      users: [{ name: 'mallory', color: hostile, game: '<b>x</b>' }],
+      count: 1,
+    });
+
+    const dot = doc.querySelector('.acw-online-dot')!;
+    expect(dot.hasAttribute('onmouseover')).toBe(false);
+    expect(dot.getAttributeNames().filter((a) => a !== 'class' && a !== 'style')).toEqual([]);
+    expect(doc.querySelector('.acw-online-status')!.querySelector('b')).toBeNull();
   });
 });

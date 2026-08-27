@@ -4,6 +4,51 @@ All notable changes to the adenosine monorepo are documented here.
 
 ## [Unreleased]
 
+### Security — `chat` 0.4.4, `multiplayer` 0.4.5
+
+**A peer could run script in every other player's page.** `adenosine-chat`
+0.4.3 is affected; upgrade to 0.4.4.
+
+`escapeHtml` escaped by assigning to `textContent` and reading `innerHTML` back.
+That runs the HTML fragment serialization algorithm, which escapes `&`, `<`, `>`
+and a non-breaking space — and **not** the double quote, because a text node
+never needs one escaped. The result went straight into a double-quoted
+attribute:
+
+```js
+'<span class="chat-name" style="color:' + escapeHtml(color) + '">'
+```
+
+A `color` of `red" onmouseover="alert(1)` closed the attribute and opened an
+event handler. `color` is not the page's to choose: the widget sends
+`{type:'set_color', color}` and the server broadcasts it back to everyone else,
+so one participant picked what every other participant's browser parsed.
+
+The fix is not a bigger escape table. Both render paths now build their nodes
+through the DOM — `createElement`, `textContent`, and `.style.color` — so the
+markup has no seam for a quote to sit in, and a colour goes through the CSSOM,
+which either accepts a value or drops it. `escapeHtml` had no callers left and
+is gone; a corrected copy sitting unused is an invitation to reuse it.
+
+`multiplayer`'s `esc()` was the same round-trip, feeding `id="…"` in the board
+game template, and `cls` was interpolated into `class="…"` with no escaping at
+all, immediately beside an `esc()` call. That template builds a string by design,
+so `esc()` now escapes the five characters explicitly and `cls` goes through it.
+Config there is author-supplied rather than peer-supplied, which makes it a sharp
+edge rather than a hole — until a game names a button from something it did not
+write itself.
+
+Both are covered by tests now, asserting on **parsed attributes** rather than on
+the HTML string: what makes this a vulnerability is not that the string looks
+wrong, it is that the browser agrees to build an attribute out of it. All seven
+fail against the old code.
+
+This landed in the one part of the codebase with no coverage at all. Chat's 22
+tests were entirely about SharedWorker URLs and `?server=` allowlisting — the
+lesson from the *previous* security bug. Nothing rendered anything.
+
+### Changed — metadata
+
 Every package's metadata changed; no package's code did.
 
 ### Added — `rpg` can load sprite sheets

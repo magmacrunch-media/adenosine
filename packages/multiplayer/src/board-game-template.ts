@@ -44,10 +44,19 @@ export interface BoardGameConfig {
 export const BoardGameTemplate = (function () {
     'use strict';
 
+    // Escapes explicitly rather than via a textContent -> innerHTML round-trip.
+    // That round-trip runs the HTML fragment serialization algorithm, which
+    // escapes &, < and >, but never a double quote -- and every id below lands
+    // inside a double-quoted attribute, where one quote ends the attribute and
+    // whatever follows becomes markup. `&` has to be replaced first, or it would
+    // re-escape the ampersands the later replacements introduce.
     function esc(s: string): string {
-        var d = document.createElement('div');
-        d.textContent = s;
-        return d.innerHTML;
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     /**
@@ -86,7 +95,7 @@ export const BoardGameTemplate = (function () {
         for (const b of buttons) {
             const cls = 'start-btn' + (b.cls ? ' ' + b.cls : '');
             const icon = b.icon ? b.icon + '&nbsp;&nbsp;' : '';
-            btnsHtml += '<button id="' + esc(b.id) + '" class="' + cls + '">' + icon + esc(b.label) + '</button>\n';
+            btnsHtml += '<button id="' + esc(b.id) + '" class="' + esc(cls) + '">' + icon + esc(b.label) + '</button>\n';
         }
 
         // ── Start footer ──
