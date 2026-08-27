@@ -140,14 +140,18 @@ next to the package name — so it skipped that file entirely and still reported
 success, the same shape of green-but-vacuous run that `check-api-docs.mjs` had
 on Windows.
 
-### Added — the website repins itself after a release
+### Added — the website repins itself weekly
 
-`publish.yml` gained a `sync-playground` job that waits for each new version to
-resolve on npm, then dispatches `adenosine-release` to the magmacrunch.com repo,
-which rewrites the pins in its copy of the tools and commits. This is the same
-arrangement `magmascript` and `texastoast` already use; adenosine was the one
-that never got it. Because seven packages publish at independent versions, the
-payload carries a version map rather than the single string those two send.
+magmacrunch.com rewrites the pins in its copy of the tools and commits, on a
+weekly schedule, confirming every version resolves on npm before writing.
+
+`magmascript` and `texastoast` also have their release workflow dispatch that
+sync immediately, which costs a cross-repo PAT on every repo that sends one.
+Adenosine does not: `publish.yml` stays the five steps it has always been and
+needs no secret but `NPM_TOKEN`. The tradeoff is that the site's pins can lag a
+release by up to a week — visible to nobody, because the previous version is
+still on the CDN and still works, which is the whole reason the sync exists. Run
+the workflow by hand from the Actions tab to skip the wait.
 
 ### Fixed — tools loading the wrong copy
 
