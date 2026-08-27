@@ -10,13 +10,25 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run build
+
+      # CI proves main is green, but a release is cut from a tag and publishes
+      # whatever that tag holds -- and an upload cannot be taken back. Re-run the
+      # suite and the guards here so the thing being uploaded is the thing that
+      # passed, not a sibling commit that did.
+      - run: npm test
+      # `check` needs the build above: it reads dist/ and the built bundles.
+      # check-packaging and check-cdn-pins matter most at exactly this moment --
+      # one asserts the tarball holds what the manifest promises, the other that
+      # the release does not leave the tools pinned to the previous version.
+      - run: npm run check
+
       # `npm publish --workspaces` stops at the first package whose version is
       # already on the registry, and it walks them alphabetically -- so a release
       # bumping only chat and multiplayer would die on audio and never reach
