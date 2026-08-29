@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/magmacrunchmedia/adenosine",
+    "url": "git+https://github.com/magmacrunchmedia/adenosine.git",
     "directory": "packages/cards"
   },
   "author": "magmacrunch media",

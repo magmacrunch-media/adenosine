@@ -93,20 +93,41 @@ and an out-of-range frame draws a magenta rectangle rather than throwing.
 
 Publishing a GitHub Release triggers `.github/workflows/publish.yml`:
 
-1. `npm ci && npm run build`, then `npm publish --workspaces --access public`
-   (auth via the `NPM_TOKEN` secret).
-2. The `sync-playground` job then collects every package's version into a map,
-   polls the npm registry until each published version is actually servable
-   (10 tries, 30 s apart — fails loudly rather than repin the site to a 404),
-   and sends a `repository_dispatch` (`event_type: adenosine-release`, payload =
-   the version map) to `magmacrunchmedia/magmacrunch.com` using
-   `WEBSITE_DISPATCH_TOKEN`. That makes the website repin its jsDelivr copies of
-   the browser tools immediately instead of at its weekly backstop sync.
+1. `npm ci && npm run build`, then `npm test` and `npm run check`. A release is
+   cut from a tag, not from `main`, and an upload cannot be taken back — so the
+   suite and the guards run again here, against the exact tree being shipped.
+2. A loop over `packages/*` publishes every package whose version is not already
+   on the registry, and fails if that count is zero. `npm publish --workspaces`
+   is deliberately not used: it walks alphabetically and stops at the first
+   already-published version, so a release bumping only `chat` and `multiplayer`
+   would die on `audio` and never reach them.
+
+Auth is the `NPM_TOKEN` secret, and npm is particular about which kind. It must
+be a **Classic Automation token, or a granular token with "Bypass 2FA" ticked**.
+Anything else fails at the upload itself with `E403 "Two-factor authentication
+or granular access token with bypass 2fa enabled is required to publish
+packages"` — after a green build, so it arrives late and reads like a permissions
+problem rather than a token-type one. Disabling 2FA on the account does not help;
+npm wants one of the two, and an account with 2FA off has neither.
+
+There is no release dispatch to the website any more. The website repins its
+jsDelivr copies on its own weekly sync, so a freshly published version is not
+live in the browser tools the moment a release finishes.
 
 The website consumes the IIFE bundles from
 `https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-<pkg>@<version>/dist/index.global.js`.
-Because old versions stay on the CDN, a missed repin fails silently — hence the
-dispatch and the `check-cdn-pins.mjs` guard.
+Because old versions stay on the CDN, a missed repin fails silently — which is
+what `check-cdn-pins.mjs` exists to catch.
+
+### Not done yet: trusted publishing
+
+npm supports OIDC trusted publishing, which retires `NPM_TOKEN` entirely — no
+stored secret, no expiry, no bypass flag to forget. It needs a trusted publisher
+registered on npmjs.com for each of the seven packages (repo plus workflow
+filename), `permissions: id-token: write` in `publish.yml`, npm >= 11.5.1 and
+Node >= 22.14. Configure the npm side first: whether npm falls back to the token
+when no trusted publisher is registered is undocumented, and a release is the
+wrong place to find out.
 
 ## Git
 
