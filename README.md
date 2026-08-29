@@ -245,6 +245,13 @@ the browser game is actually edited:
 Their Wii halves run on [magnolia](https://github.com/magmacrunchmedia/magnolia)
 rather than on adenosine.
 
+## Versioning
+
+Semver, with [VERSIONING.md](VERSIONING.md) spelling out what that covers: named
+exports, the IIFE globals and bundle path, the wire protocols in `PROTOCOL.md`,
+and documented CSS custom properties. Only the latest version of each package
+gets fixes.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: zero runtime

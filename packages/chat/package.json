@@ -23,6 +23,8 @@
   "author": "magmacrunch media",
   "homepage": "https://magmacrunch.com/ware/adenosine/",
   "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js",
   "types": "dist/index.d.ts",
   "sideEffects": [
     "*.css"
@@ -32,6 +34,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./global": "./dist/index.global.js",
     "./chat-widget.css": "./chat-widget.css",
     "./chat-worker.js": "./dist/chat-worker.js"
   },

@@ -279,3 +279,26 @@ incoming `message.type`.
 
 Documented with [BoardGameTemplate](#boardgametemplate) above.
 
+---
+
+## Connection lifecycle
+
+**`MP` does not reconnect, deliberately.** On `close` it clears the session
+identity the server assigned — `_myName`, `_myColor`, `_roomCode`, `_isHost`,
+`_isSpectator` — and calls `onDisconnected()`.
+
+That is not an oversight, and it is the opposite of what
+`adenosine-score-client` does with its own socket. The difference is in what
+each client is holding when the socket drops:
+
+- `score-client` holds a **queue of writes**. They are replayable, so it
+  reconnects every 3s and flushes them. Nothing is lost by trying again.
+- `MP` holds **server-side session identity**. A room membership exists on the
+  server, and reopening a socket does not restore it. An automatic reconnect
+  would hand you a live connection that belongs to no room, in which every
+  `send` is silently dropped — worse than a clean disconnect, because it looks
+  like it is working.
+
+So rejoining is the caller's decision, made with the caller's knowledge of
+whether the game is still worth rejoining. Handle `onDisconnected()`, and call
+`connect()` and `joinRoom()` again if you want to come back.

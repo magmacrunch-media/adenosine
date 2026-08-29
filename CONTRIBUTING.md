@@ -81,5 +81,8 @@ attributes for exactly that reason.
 
 The seven packages version independently, and the private root package is never
 published. A number in one package's changelog means nothing about any other.
-A formal semver and support policy does not exist yet — until it does, treat
-minor versions as potentially breaking and pin exactly if that matters to you.
+
+[VERSIONING.md](VERSIONING.md) is the policy: what a major protects (named
+exports, IIFE globals and the bundle path, the wire protocols, documented CSS
+custom properties), what it does not, and how deprecations work. Read it before
+changing anything in those four categories.
