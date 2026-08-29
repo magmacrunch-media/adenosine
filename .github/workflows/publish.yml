@@ -9,12 +9,25 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # Required for npm provenance: npm exchanges this for an OIDC token and
+      # has Sigstore attest that these tarballs were built by this workflow,
+      # from this commit. Without it `--provenance` below fails at the upload,
+      # which is the worst possible moment to find out.
+      id-token: write
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+
+      # Node 22 bundles npm 10.9, which can do provenance but not OIDC trusted
+      # publishing -- that needs >= 11.5.1. Upgrading here keeps the two on the
+      # same npm, so switching to trusted publishing later is one flag rather
+      # than a version hunt during a release.
+      - name: Use an npm new enough for trusted publishing
+        run: npm install -g npm@^11
+
       - run: npm ci
       - run: npm run build
 
@@ -47,7 +60,7 @@ jobs:
               continue
             fi
             echo "publish  $NAME@$VERSION"
-            npm publish -w "$NAME" --access public
+            npm publish -w "$NAME" --access public --provenance
             PUBLISHED=$((PUBLISHED + 1))
           done
           echo "Published $PUBLISHED package(s)."
@@ -57,3 +70,20 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+# Still on NPM_TOKEN. `--provenance` above works with it -- provenance needs
+# id-token: write and npm >= 9.5, not OIDC -- so installers get a verified
+# "built from this commit by this workflow" badge as of now.
+#
+# Retiring the token is one step further and cannot be done from this file
+# alone. npm OIDC trusted publishing needs a trusted publisher registered on
+# npmjs.com for each of the seven packages, naming this repo and this
+# workflow's filename (publish.yml). Once all seven are registered, delete the
+# `env:` block above and the NPM_TOKEN secret; npm authenticates from the OIDC
+# token instead. No stored secret, no expiry, and no bypass-2FA flag to forget
+# -- which is the failure that has bitten this repo before, arriving as an
+# E403 after a green build and reading like a permissions problem.
+#
+# Configure the npm side first. Whether npm falls back to the token when no
+# trusted publisher is registered is undocumented, and a release is the wrong
+# place to find out. Rehearse the whole thing on a prerelease tag.

@@ -139,15 +139,24 @@ The website consumes the IIFE bundles from
 Because old versions stay on the CDN, a missed repin fails silently — which is
 what `check-cdn-pins.mjs` exists to catch.
 
-### Not done yet: trusted publishing
+### Provenance is on; trusted publishing is one step away
 
-npm supports OIDC trusted publishing, which retires `NPM_TOKEN` entirely — no
-stored secret, no expiry, no bypass flag to forget. It needs a trusted publisher
-registered on npmjs.com for each of the seven packages (repo plus workflow
-filename), `permissions: id-token: write` in `publish.yml`, npm >= 11.5.1 and
-Node >= 22.14. Configure the npm side first: whether npm falls back to the token
-when no trusted publisher is registered is undocumented, and a release is the
-wrong place to find out.
+`publish.yml` now publishes with `--provenance` under `permissions: id-token:
+write`, and upgrades to npm >= 11 before installing. Provenance works with the
+existing `NPM_TOKEN` — it needs the OIDC *permission*, not OIDC *auth* — so
+installers already get a Sigstore attestation that a tarball was built by this
+workflow from this commit.
+
+**Untested until a release actually runs.** Rehearse on a prerelease tag before
+relying on it; an upload cannot be taken back.
+
+What remains is retiring the token. OIDC trusted publishing needs a trusted
+publisher registered on npmjs.com **for each of the seven packages**, naming
+this repo and the workflow filename (`publish.yml`). Once all seven are
+registered, delete the `env: NODE_AUTH_TOKEN` block and the secret. Configure
+the npm side first: whether npm falls back to the token when no trusted
+publisher is registered is undocumented, and a release is the wrong place to
+find out.
 
 ## Git
 
