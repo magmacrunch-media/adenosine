@@ -58,7 +58,7 @@ packages' engines floor of >= 20 describes consumers, not contributors.
 | `check-packaging.mjs` | Every file a `package.json` references is in the tarball, and every shipped `.map` resolves its sources |
 | `check-publish-resolution.mjs` | `publint` + `attw` agree the manifest resolves for real consumers |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's hostnames as fallback |
-| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
+| `check-api-docs.mjs` | Every method an `API.md` names exists, and every `opts.x` it documents is declared |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback |
 | `check-cdn-pins.mjs` | jsDelivr version pins in `tools/*.js` match the packages |
 | `check-bundle-size.mjs` | Each `dist/index.global.js` is within its gzipped budget |

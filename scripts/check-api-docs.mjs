@@ -17,6 +17,18 @@
  * Names are resolved against: module exports, class prototypes, plain exported
  * objects, and the objects returned by `create*()` factories — the last of which
  * is where most instance methods live in this codebase.
+ *
+ * A second pass covers the other half of a wrong reference. A method that does
+ * not exist sends someone to write code that throws. An *option* that does not
+ * exist sends them to write code that silently does nothing, which is the
+ * harder of the two to diagnose. So every dotted key a parameter table names --
+ * `opts.port`, `opts.frameWidth` -- is checked against the emitted declarations.
+ *
+ * Dotted paths only. A bare `port` in that column is a parameter name, and what
+ * a .d.ts calls its parameters is a naming choice rather than a contract:
+ * `audio` documents `loadMusic(url, config)` while the declaration says `opts`,
+ * and neither is wrong. A dotted key is different -- it names a member of a type
+ * the caller has to build, so it either exists or the documentation is lying.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -73,6 +85,36 @@ function surfaceOf(mod) {
   return names;
 }
 
+/**
+ * Word-boundary search without a regex. Written out because the needle is
+ * interpolated: a name containing a regex metacharacter would otherwise
+ * quietly change what is being asked.
+ */
+const WORDCHAR = /[A-Za-z0-9_$]/;
+function declares(haystack, word) {
+  let i = haystack.indexOf(word);
+  while (i !== -1) {
+    const before = i === 0 ? '' : haystack[i - 1];
+    const after = haystack[i + word.length] ?? '';
+    if (!WORDCHAR.test(before) && !WORDCHAR.test(after)) return true;
+    i = haystack.indexOf(word, i + 1);
+  }
+  return false;
+}
+
+/** Every `.d.ts` in a package's dist, concatenated. */
+function declarationsOf(pkgName) {
+  const dir = join(PKG_DIR, pkgName, 'dist');
+  return readdirSync(dir)
+    .filter((f) => f.endsWith('.d.ts'))
+    .map((f) => readFileSync(join(dir, f), 'utf8'))
+    .join('\n');
+}
+
+/** First column of a parameter-table row, when it is a dotted path. */
+const OPTION_ROW = /^\|\s*`[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+`\s*\|/;
+const OPTION_KEY = /\.([A-Za-z_][A-Za-z0-9_]*)`/;
+
 let failed = 0;
 let skipped = 0;
 for (const name of readdirSync(PKG_DIR)) {
@@ -104,14 +146,33 @@ for (const name of readdirSync(PKG_DIR)) {
 
   const ghosts = [...claimed].filter((c) => !NOT_API.has(c) && !surface.has(c));
 
-  if (ghosts.length) {
+  // Documenting a method that does not exist sends someone to write code that
+  // throws. Documenting an option that does not exist sends them to write code
+  // that silently does nothing, which is harder to diagnose, not easier.
+  const optionKeys = new Set();
+  for (const line of doc.split('\n')) {
+    if (!OPTION_ROW.test(line)) continue;
+    const k = OPTION_KEY.exec(line);
+    if (k) optionKeys.add(k[1]);
+  }
+  const phantomOptions = [...optionKeys].filter((k) => !declares(declarationsOf(name), k));
+
+  if (ghosts.length || phantomOptions.length) {
     failed++;
-    console.error(`FAIL ${name} — API.md documents ${ghosts.length} name(s) that do not exist:`);
-    ghosts.forEach((g) => console.error(`       ${g}()`));
+    console.error(`FAIL ${name}`);
+    if (ghosts.length) {
+      console.error(`       ${ghosts.length} documented name(s) that do not exist:`);
+      ghosts.forEach((g) => console.error(`         ${g}()`));
+    }
+    if (phantomOptions.length) {
+      console.error(`       ${phantomOptions.length} documented option(s) no type declares:`);
+      phantomOptions.forEach((o) => console.error(`         opts.${o}`));
+    }
   } else {
-    console.log(`ok   ${name} — ${claimed.size} documented name(s), all resolve`);
+    console.log(`ok   ${name} — ${claimed.size} name(s), ${optionKeys.size} option key(s), all resolve`);
   }
 }
+
 
 if (failed) {
   console.error(`\n${failed} package(s) document an API that is not there.`);

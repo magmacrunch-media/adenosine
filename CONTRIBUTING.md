@@ -26,7 +26,7 @@ checks went wrong at least once:
 | `check-packaging.mjs` | Every file a manifest references is in the tarball, and every shipped sourcemap resolves |
 | `check-publish-resolution.mjs` | `publint` + `attw` agree the package resolves for bundlers and node16 |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's hostnames as a fallback or allowlist |
-| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
+| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle, and every option it documents is declared |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback |
 | `check-cdn-pins.mjs` | Hand-typed jsDelivr pins match the packages they name |
 

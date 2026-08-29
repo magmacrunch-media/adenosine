@@ -285,7 +285,7 @@ packages make:
 | `check-packaging.mjs` | Every file a `package.json` references is actually in the tarball, and every shipped sourcemap resolves |
 | `check-publish-resolution.mjs` | `publint` + `attw`: the manifest resolves for bundlers and node16, not just packs |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's own hostnames as a fallback |
-| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
+| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle, and every option it documents is declared |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback, so the styles stand alone |
 | `check-cdn-pins.mjs` | Every hand-typed jsDelivr pin matches the version of the package it names |
 | `check-bundle-size.mjs` | Every IIFE bundle is within its gzipped size budget |
