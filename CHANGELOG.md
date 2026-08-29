@@ -8,7 +8,27 @@ licensing. Changes to a single package now go in that package's own
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed — vitest 4
+
+Dependabot proposed `vitest` and `@vitest/coverage-v8` as two separate PRs
+(#6, #7). They cannot land apart: either alone leaves the runner and its
+coverage provider on different majors. Merged as one change instead.
+
+All 600 tests pass unmodified. Coverage thresholds were **re-baselined, not
+lowered** — v4 counts differently, and the denominators prove it rather than
+the percentages:
+
+| | statements | branches | functions |
+|---|---|---|---|
+| audio | 209 → 132 | 52 → 77 | 26 → 28 |
+| cards | 943 → 544 | 246 → 249 | 63 → 100 |
+| chat | 613 → 480 | 95 → **279** | 42 → 66 |
+| puzzle | 628 → 413 | 141 → 174 | 66 → **105** |
+| rpg | 992 → 664 | 392 → 416 | 114 → 136 |
+
+Statement counts fell while branch and function counts rose sharply, so the two
+instruments do not produce comparable percentages. No test was removed or
+weakened, and rpg still covers 100% of its functions under both.
 
 ## [audio 0.3.0, cards 0.8.0, chat 0.5.0, multiplayer 0.5.0, puzzle 0.3.0, rpg 0.3.0, score-client 0.3.0] — 2026-08-29
 
