@@ -112,3 +112,10 @@ jobs:
       # no error, because the old version is still on the CDN and still works.
       - name: Check CDN pins match the packages
         run: node scripts/check-cdn-pins.mjs
+
+      # The IIFE bundles are loaded whole off jsDelivr by every arcade page, so
+      # their size is page weight paid by every visitor. Budgets are on gzipped
+      # bytes: cards is 100 KB raw and 11.7 KB gzipped -- almost all of it
+      # pixel-art SVG -- so a raw-byte budget would indict the wrong package.
+      - name: Check bundle sizes
+        run: node scripts/check-bundle-size.mjs

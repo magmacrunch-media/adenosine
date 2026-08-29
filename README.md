@@ -277,7 +277,7 @@ npm run check                      # the guards below — needs a build first
 cd packages/rpg && npm test        # a single package
 ```
 
-`npm run check` runs six scripts in `scripts/`, each guarding a promise the
+`npm run check` runs seven scripts in `scripts/`, each guarding a promise the
 packages make:
 
 | Script | Asserts |
@@ -288,6 +288,7 @@ packages make:
 | `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback, so the styles stand alone |
 | `check-cdn-pins.mjs` | Every hand-typed jsDelivr pin matches the version of the package it names |
+| `check-bundle-size.mjs` | Every IIFE bundle is within its gzipped size budget |
 
 ## Examples
 

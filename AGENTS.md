@@ -51,7 +51,7 @@ Node >= 20 required; CI runs a matrix of Node 20 and 22. The dev toolchain
 needs the latest 20.x (oxlint requires ^20.19.0 || >=22.12.0); the published
 packages' engines floor of >= 20 describes consumers, not contributors.
 
-`npm run check` runs six scripts in `scripts/`, each also a CI step:
+`npm run check` runs seven scripts in `scripts/`, each also a CI step:
 
 | Script | Asserts |
 |--------|---------|
@@ -61,6 +61,7 @@ packages' engines floor of >= 20 describes consumers, not contributors.
 | `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback |
 | `check-cdn-pins.mjs` | jsDelivr version pins in `tools/*.js` match the packages |
+| `check-bundle-size.mjs` | Each `dist/index.global.js` is within its gzipped budget |
 
 ## Conventions
 
