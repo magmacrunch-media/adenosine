@@ -248,7 +248,7 @@ describe('handleMovement', () => {
         });
 
         it('player slides along a wall (horizontal move when vertical blocked)', () => {
-            isSolid.mockImplementation((x, y) => x >= 6);
+            isSolid.mockImplementation((x, _y) => x >= 6);
             const player = createPlayer(5.8, 3);
             keys['d'] = true;
             handleMovement(player, { speed: 0.4 });

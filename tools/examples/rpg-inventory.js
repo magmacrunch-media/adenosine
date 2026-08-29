@@ -18,7 +18,7 @@ AdRPG.setMap(map);
 AdRPG.player.x = 6;
 AdRPG.player.y = 5;
 
-var input = AdRPG.initInput();
+AdRPG.initInput();
 var registry = AdRPG.createItemRegistry();
 var worldItems = AdRPG.createWorldItems();
 var inv = AdRPG.createInventory();

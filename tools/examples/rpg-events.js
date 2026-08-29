@@ -20,7 +20,7 @@ AdRPG.player.y = 5;
 AdRPG.player.health = 100;
 AdRPG.player.maxHealth = 100;
 
-var input = AdRPG.initInput();
+AdRPG.initInput();
 var em = AdRPG.createEntityManager();
 var cooldown = AdRPG.createDamageCooldown(45);
 var eventLog = [];

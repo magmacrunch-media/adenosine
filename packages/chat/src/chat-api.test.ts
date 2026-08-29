@@ -4,7 +4,7 @@
  * The chat-widget.test.ts covers URL resolution and server selection. These
  * test the observable runtime API: localStorage keys and worker messages.
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 
 let postedMessages: unknown[] = [];

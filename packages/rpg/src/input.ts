@@ -3,7 +3,7 @@
 
 import { DEFAULT_BINDINGS } from './bindings.js';
 import { engine } from './events.js';
-import type { KeyBindings, InputListener, InitInputOpts } from './types.js';
+import type { InputListener, InitInputOpts } from './types.js';
 
 export const keys: Record<string, boolean> = {};
 export const keysPressed: Record<string, boolean> = {};

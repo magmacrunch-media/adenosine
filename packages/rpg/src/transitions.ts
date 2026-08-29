@@ -1,7 +1,7 @@
 // engine/transitions.ts
 // Map transition system — enter/exit interiors with position locking.
 
-import { player, currentMap, setCurrentMap, setMap, transitionCooldown, setTransitionCooldown, canvas } from './state.js';
+import { player, setCurrentMap, setMap, setTransitionCooldown, canvas } from './state.js';
 import { camera } from './camera.js';
 import { engine } from './events.js';
 import type { TransitionOpts, Direction } from './types.js';

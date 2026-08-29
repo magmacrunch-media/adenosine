@@ -254,6 +254,7 @@ Node 20 or newer (CI runs 22).
 ```bash
 npm install                        # install all dependencies
 npm test                           # 592 tests across 36 files
+npm run lint                       # oxlint over packages, scripts, tools, examples
 npm run build                      # build all packages (ESM + IIFE)
 npm run typecheck                  # typecheck all packages
 npm run check                      # the guards below — needs a build first
@@ -268,7 +269,7 @@ packages make:
 
 | Script | Asserts |
 |--------|---------|
-| `check-packaging.mjs` | Every file a `package.json` references is actually in the tarball |
+| `check-packaging.mjs` | Every file a `package.json` references is actually in the tarball, and every shipped sourcemap resolves |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's own hostnames as a fallback |
 | `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback, so the styles stand alone |

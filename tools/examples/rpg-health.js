@@ -20,7 +20,7 @@ AdRPG.player.y = 4;
 AdRPG.player.health = 100;
 AdRPG.player.maxHealth = 100;
 
-var input = AdRPG.initInput();
+AdRPG.initInput();
 var cooldown = AdRPG.createDamageCooldown(60);
 var isGameOver = false;
 

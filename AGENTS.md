@@ -37,6 +37,7 @@ examples/               one page per package, loads local dist/ builds
 ```bash
 npm install                        # all workspaces
 npm test                           # 592 tests, vitest per package
+npm run lint                       # oxlint, zero findings expected
 npm run build                      # per package: tsup (ESM + IIFE) + tsc declarations
 npm run typecheck                  # tsc --noEmit per package
 npm run check                      # guard scripts below — needs a build first
@@ -51,7 +52,7 @@ Node >= 20 required; CI runs Node 22.
 
 | Script | Asserts |
 |--------|---------|
-| `check-packaging.mjs` | Every file a `package.json` references is in the tarball |
+| `check-packaging.mjs` | Every file a `package.json` references is in the tarball, and every shipped `.map` resolves its sources |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's hostnames as fallback |
 | `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback |
@@ -60,6 +61,13 @@ Node >= 20 required; CI runs Node 22.
 ## Conventions
 
 - Zero runtime dependencies in every package; strict TypeScript.
+- Lint is **oxlint**, not ESLint: typescript-eslint throws "does not support TS 7.0"
+  at import against the TypeScript 7 this repo builds with (typescript-eslint #10940).
+  oxlint parses TypeScript itself and has no `typescript` dependency. Config is
+  `.oxlintrc.json`; `correctness` is an error, and catch params are exempt from
+  `no-unused-vars` because `catch(e) {}` is the house idiom.
+- No `declarationMap`: tsc only ever runs `--emitDeclarationOnly`, so the maps
+  landed solely in the tarball, pointing at a `src/` that `files[]` does not ship.
 - Packages version independently (root `0.2.0` is private and never published;
   e.g. `rpg` is at `0.2.3`).
 - IIFE globals: `AdRPG`, `AdPuzzle`, `AdCards`, `AdAudio`, `AdChat`, `AdMP`,

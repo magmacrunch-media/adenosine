@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createItemRegistry, createWorldItems } from './items.js';
-import { engine } from './events.js';
 
 describe('createItemRegistry', () => {
     let registry;

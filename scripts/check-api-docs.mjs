@@ -60,7 +60,7 @@ function surfaceOf(mod) {
       // class -> prototype methods
       try { addOwn(v.prototype); } catch { /* not a class */ }
       // create*() factory -> the object it returns
-      if (/^create/.test(key)) {
+      if (key.startsWith('create')) {
         for (const args of [[], [{}], [{ size: 4, gameName: 'check' }],
                             [dom.window.document.getElementById('board')]]) {
           try { const r = v(...args); addOwn(r); if (r) for (const n of Object.keys(r)) names.add(n); break; }

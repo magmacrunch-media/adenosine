@@ -20,6 +20,20 @@ jobs:
       - name: Install
         run: npm ci
 
+      # oxlint, not ESLint: typescript-eslint refuses to load against the
+      # TypeScript 7 this repo builds with -- it throws "typescript-eslint does
+      # not support TS 7.0" at import, tracked upstream in typescript-eslint
+      # #10940. oxlint parses TypeScript itself and has no `typescript`
+      # dependency at all, so it is unaffected. Revisit when that lands.
+      #
+      # The first pass over the tree found a real one: the house map in
+      # tools/examples/rpg-transitions.js put its door tile on the bottom wall,
+      # which the wall branch above already claimed, so the door was never
+      # emitted and the example you could enter had no way out. Plus two dozen
+      # dead imports the compiler is happy to ignore.
+      - name: Lint
+        run: npm run lint
+
       - name: Test
         run: npm test
 

@@ -6,7 +6,7 @@
  * `ws:` so an https page could not connect at all, and a `?server=` parameter
  * could aim a visitor's socket at any host. These pin that surface.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { MP } from './network.js';
 

@@ -12,7 +12,6 @@
 // feet stays planted when it grows, shrinks or turns around.
 
 import type {
-    DrawSpriteOpts,
     SpriteSheet,
     SpriteSheetOpts,
 } from './types.js';
