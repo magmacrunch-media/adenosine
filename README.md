@@ -264,12 +264,13 @@ npm run check                      # the guards below — needs a build first
 cd packages/rpg && npm test        # a single package
 ```
 
-`npm run check` runs five scripts in `scripts/`, each guarding a promise the
+`npm run check` runs six scripts in `scripts/`, each guarding a promise the
 packages make:
 
 | Script | Asserts |
 |--------|---------|
 | `check-packaging.mjs` | Every file a `package.json` references is actually in the tarball, and every shipped sourcemap resolves |
+| `check-publish-resolution.mjs` | `publint` + `attw`: the manifest resolves for bundlers and node16, not just packs |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's own hostnames as a fallback |
 | `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback, so the styles stand alone |

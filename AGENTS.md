@@ -48,11 +48,12 @@ npx serve tools                    # tools at http://localhost:3000
 
 Node >= 20 required; CI runs Node 22.
 
-`npm run check` runs five scripts in `scripts/`, each also a CI step:
+`npm run check` runs six scripts in `scripts/`, each also a CI step:
 
 | Script | Asserts |
 |--------|---------|
 | `check-packaging.mjs` | Every file a `package.json` references is in the tarball, and every shipped `.map` resolves its sources |
+| `check-publish-resolution.mjs` | `publint` + `attw` agree the manifest resolves for real consumers |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's hostnames as fallback |
 | `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback |

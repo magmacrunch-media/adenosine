@@ -20,9 +20,11 @@
     "test": "npm run test --workspaces --if-present",
     "lint": "oxlint",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "check": "node scripts/check-packaging.mjs && node scripts/check-no-hardcoded-hosts.mjs && node scripts/check-api-docs.mjs && node scripts/check-css-fallbacks.mjs && node scripts/check-cdn-pins.mjs"
+    "check": "node scripts/check-packaging.mjs && node scripts/check-publish-resolution.mjs && node scripts/check-no-hardcoded-hosts.mjs && node scripts/check-api-docs.mjs && node scripts/check-css-fallbacks.mjs && node scripts/check-cdn-pins.mjs"
   },
   "devDependencies": {
-    "oxlint": "^1.80.0"
+    "@arethetypeswrong/cli": "^0.18.5",
+    "oxlint": "^1.80.0",
+    "publint": "^0.3.24"
   }
 }

@@ -49,6 +49,14 @@ jobs:
       - name: Check packaging
         run: node scripts/check-packaging.mjs
 
+      # Being in the tarball and being reachable are different questions. An
+      # exports map can name every file correctly and still leave `types`
+      # unresolvable under moduleResolution: node16 while working under
+      # bundler, or declare "type": "commonjs" over ESM -- which the packaging
+      # check above passes clean, because every file it names does exist.
+      - name: Check packages resolve for consumers
+        run: node scripts/check-publish-resolution.mjs
+
       # chat and multiplayer once shipped one deployment's hostnames as both
       # their fallbacks and their ?server= allowlists, so any third-party
       # install sent its users' traffic to a stranger's machine. The fast fix
