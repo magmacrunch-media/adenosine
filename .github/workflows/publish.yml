@@ -15,8 +15,8 @@ jobs:
       # which is the worst possible moment to find out.
       id-token: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
@@ -69,6 +69,11 @@ jobs:
             exit 1
           fi
         env:
+          # setup-node v7 dropped the dummy NODE_AUTH_TOKEN it used to export
+          # alongside the .npmrc it writes. Harmless here because the real token
+          # is set explicitly on this step -- but it is the auth path, on a
+          # workflow that has also never run with --provenance. Both are
+          # untested until a release happens; rehearse on a prerelease tag.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 # Still on NPM_TOKEN. `--provenance` above works with it -- provenance needs

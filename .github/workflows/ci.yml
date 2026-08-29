@@ -19,9 +19,9 @@ jobs:
     # The engines.node >= 20 the packages actually promise is verified by the
     # `engines` job below, against the built output rather than the toolchain.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -125,9 +125,9 @@ jobs:
       matrix:
         node: [20, 22, 24]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -136,7 +136,7 @@ jobs:
 
       # Switch the runtime. The check below imports built artifacts and uses
       # only node: builtins, so it needs no install of its own.
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
