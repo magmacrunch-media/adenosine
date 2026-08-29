@@ -59,8 +59,17 @@ jobs:
               echo "skip     $NAME@$VERSION (already published)"
               continue
             fi
-            echo "publish  $NAME@$VERSION"
-            npm publish -w "$NAME" --access public --provenance
+            # npm applies the `latest` dist-tag to whatever it publishes, and
+            # does NOT special-case prereleases. So a 1.0.0-rc.1 published with
+            # no --tag becomes what `npm install <pkg>` hands people, which is
+            # the opposite of what cutting a release candidate is for. Route
+            # anything with a semver prerelease segment to `next` instead.
+            case "$VERSION" in
+              *-*) NPM_TAG=next ;;
+              *)   NPM_TAG=latest ;;
+            esac
+            echo "publish  $NAME@$VERSION (dist-tag: $NPM_TAG)"
+            npm publish -w "$NAME" --access public --provenance --tag "$NPM_TAG"
             PUBLISHED=$((PUBLISHED + 1))
           done
           echo "Published $PUBLISHED package(s)."
