@@ -39,6 +39,7 @@
     "lobby.css",
     "NOTICE",
     "API.md",
+    "CHANGELOG.md",
     "PROTOCOL.md"
   ],
   "publishConfig": {

@@ -87,6 +87,11 @@ packages' engines floor of >= 20 describes consumers, not contributors.
   (~35 places); `check-cdn-pins.mjs` keeps them matched to `package.json`.
 - No base classes: engines expose systems, callers wire them (callbacks + data).
 - Ship the `NOTICE` file with anything distributed (Apache-2.0 attribution).
+- Package-scoped changes go in that package's own `CHANGELOG.md` (shipped in its
+  tarball); repo-wide changes — CI, guards, tooling — go in the root
+  `CHANGELOG.md`. Do not write the same entry in both.
+- Vulnerabilities are reported through GitHub private advisories, per
+  `SECURITY.md`. Only the latest version of each package gets fixes.
 - `examples/` pages read like tests — they exercise the API and print results;
   `examples/quickstart.html` alone is self-contained off the CDN.
 

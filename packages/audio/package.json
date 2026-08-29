@@ -33,7 +33,8 @@
   "files": [
     "dist",
     "NOTICE",
-    "API.md"
+    "API.md",
+    "CHANGELOG.md"
   ],
   "publishConfig": {
     "access": "public"

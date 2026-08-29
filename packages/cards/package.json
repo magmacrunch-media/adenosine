@@ -41,7 +41,8 @@
     "cards.css",
     "chip-animation.css",
     "NOTICE",
-    "API.md"
+    "API.md",
+    "CHANGELOG.md"
   ],
   "publishConfig": {
     "access": "public"

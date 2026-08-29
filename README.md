@@ -245,6 +245,12 @@ the browser game is actually edited:
 Their Wii halves run on [magnolia](https://github.com/magmacrunchmedia/magnolia)
 rather than on adenosine.
 
+## Security
+
+Report vulnerabilities privately through
+[GitHub advisories](https://github.com/magmacrunchmedia/adenosine/security/advisories/new),
+not public issues. Details, scope and response times are in [SECURITY.md](SECURITY.md).
+
 ## Development
 
 This is a monorepo using npm workspaces.
