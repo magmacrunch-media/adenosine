@@ -170,13 +170,7 @@ export const ChatWidget = (function() {
     let typingHideTimer: ReturnType<typeof setTimeout> | null = null;
     let unreadCount = 0;
     let isExpanded = false;
-    let activeTab = 'global';
     let widgetEl: HTMLElement | null = null;
-
-    /** Look up an element the widget itself created. */
-    function el<T extends HTMLElement = HTMLElement>(id: string): T | null {
-        return document.getElementById(id) as T | null;
-    }
 
     function getSessionToken() {
         try {
@@ -700,7 +694,6 @@ export const ChatWidget = (function() {
     // ── Tabs ────────────────────────────────────────────────────────────
 
     function switchTab(tab: string): void {
-        activeTab = tab;
         var messages = document.getElementById('chatMessagesGlobal');
         var online = document.getElementById('chatOnline');
         const tabs = widgetEl!.querySelectorAll<HTMLElement>('.acw-tab');
@@ -781,7 +774,9 @@ export const ChatWidget = (function() {
         if (el) el.textContent = String(count);
     }
 
-    function showTyping(name: string, room?: string | null): void {
+    // `_room` is unused for the same reason as `_target` in addMessage: the
+    // widget renders one merged list, so a typing notice is not room-scoped.
+    function showTyping(name: string, _room?: string | null): void {
         var el = document.getElementById('chatTyping');
         if (!el) return;
         el!.textContent = name + ' is typing...';

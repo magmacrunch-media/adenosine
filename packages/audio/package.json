@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-audio",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "type": "module",
   "description": "Web Audio API engine for game music and sound effects",
   "license": "Apache-2.0",
@@ -23,17 +23,21 @@
   "author": "magmacrunch media",
   "homepage": "https://magmacrunch.com/ware/adenosine/",
   "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./global": "./dist/index.global.js"
   },
   "files": [
     "dist",
     "NOTICE",
-    "API.md"
+    "API.md",
+    "CHANGELOG.md"
   ],
   "publishConfig": {
     "access": "public"
@@ -41,7 +45,8 @@
   "scripts": {
     "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

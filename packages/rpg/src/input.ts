@@ -3,18 +3,27 @@
 
 import { DEFAULT_BINDINGS } from './bindings.js';
 import { engine } from './events.js';
-import type { KeyBindings, InputListener, InitInputOpts } from './types.js';
+import type { InputListener, InitInputOpts } from './types.js';
 
 export const keys: Record<string, boolean> = {};
 export const keysPressed: Record<string, boolean> = {};
 
 let activeListeners: InputListener | null = null;
 
-export function _resetInputState(): void {
+/**
+ * Detach the window listeners and forget every held key.
+ *
+ * This existed as `_resetInputState`, exported but underscored and used only by
+ * this package's own tests -- the same reset `resetEngine()` now does for the
+ * rest of the engine, discovered once and solved privately.
+ */
+export function resetInput(): void {
     if (activeListeners) {
         activeListeners.destroy();
     }
     activeListeners = null;
+    for (const k of Object.keys(keys)) delete keys[k];
+    for (const k of Object.keys(keysPressed)) delete keysPressed[k];
 }
 
 export function initInput({ onPause, onInteract, bindings = DEFAULT_BINDINGS }: InitInputOpts = {}): InputListener {

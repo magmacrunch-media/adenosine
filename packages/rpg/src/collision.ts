@@ -2,7 +2,7 @@
 // Tile-based + entity collision detection.
 // Game provides: solidTiles, getEntitiesForMap, getPropsForMap
 
-import type { Entity, PropCollisionTile, CollisionOptions } from './types.js';
+import type { CollisionOptions } from './types.js';
 
 export function isSolid(x: number, y: number, { map, solidTiles = [], entities = [], props = [] }: CollisionOptions = {}): boolean {
     if (!map || !map.length) return true;

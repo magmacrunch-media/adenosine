@@ -5,6 +5,7 @@ Complete API reference for all Adenosine modules.
 ## Table of Contents
 
 - [state.ts](#statets) — Game state
+- [reset.ts](#resetts) — Put the engine back to a known state
 - [game-loop.ts](#game-loopts) — Game loop
 - [input.ts](#inputts) — Keyboard input
 - [bindings.ts](#bindingsts) — Key bindings
@@ -66,6 +67,38 @@ Centralized game state — the single source of truth for all engine modules.
 
 ---
 
+## reset.ts
+
+### `resetEngine()`
+
+Put every piece of engine-wide state back to its value at import time: the
+player's position, facing and health; `map` and `currentMap`; the started,
+paused and game-over flags; the transition cooldown and animation counters; the
+camera; the held keys and their window listeners; the game-over callback; and
+every listener on the shared `engine` bus.
+
+The engine keeps one shared copy of `player`, `map`, `camera`, `keys` and
+`engine`, created when the module loads. That is deliberate — one game per page
+— but a page that starts a second scene without reloading otherwise inherits
+everything the first one did.
+
+Two things it deliberately does **not** do:
+
+- **The canvas and its context stay bound.** They are a render target rather
+  than game state, and clearing them would force an `initCanvas()` on a caller
+  who only wanted to restart a level.
+- **Input is detached, not re-attached.** A scene being torn down should stop
+  hearing about keys, so a new scene calls `initInput()` again.
+
+```js
+AdRPG.resetEngine();   // back to a known state
+AdRPG.initInput();     // re-arm input for the new scene
+AdRPG.setMap(nextMap);
+AdRPG.setGameStarted(true);
+```
+
+---
+
 ## game-loop.ts
 
 Fixed-timestep game loop with FPS limiting via `requestAnimationFrame`.
@@ -111,6 +144,11 @@ Keyboard input handling — tracks held keys and one-shot key presses.
 **Returns:** `{ destroy }` — removes event listeners
 
 **Events emitted:** `pause-toggle`, `interact`
+
+### `resetInput()`
+
+Detach the window listeners and forget every held key. Call before wiring input
+for a new scene; `resetEngine()` already does it for you.
 
 ---
 
@@ -621,7 +659,7 @@ Minimal pub/sub event bus.
 
 ### `createEventBus()`
 
-**Returns:** `EventBus` — `{ on, once, off, emit }`
+**Returns:** `EventBus` — `{ on, once, off, emit, clear }`
 
 | Method | Signature | Returns | Description |
 |--------|-----------|---------|-------------|
@@ -629,6 +667,11 @@ Minimal pub/sub event bus.
 | `once` | `(event, fn)` | `() => void` | Subscribe once |
 | `off` | `(event, fn)` | `void` | Unsubscribe |
 | `emit` | `(event, data)` | `void` | Emit event |
+| `clear` | `(event?)` | `void` | Remove every listener, or every listener for one event |
+
+`off` needs the exact function reference, which a caller that subscribed with an
+inline closure no longer has. `clear` is the way to let those go — without it,
+anything that re-runs against a long-lived bus accumulates handlers.
 
 ### `engine`
 

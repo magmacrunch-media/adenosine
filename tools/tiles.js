@@ -350,7 +350,7 @@ function startPreview() {
     // option; served from tools/ the local build is, and preferring it means the
     // preview shows the engine you just changed rather than the last release.
     s.src = location.hostname === 'magmacrunch.com'
-      ? 'https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2.3/dist/index.global.js'
+      ? 'https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.3.0/dist/index.global.js'
       : '../packages/rpg/dist/index.global.js';
     s.onload = boot;
     s.onerror = () => { previewContent.innerHTML = '<div style="color:#ff6b6b;">Failed to load AdRPG.</div>'; };

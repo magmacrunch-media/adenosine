@@ -25,8 +25,10 @@ var maps = {
     for (var y = 0; y < h; y++) {
       var row = [];
       for (var x = 0; x < w; x++) {
-        if (x === 0 || y === 0 || x === w - 1 || y === h - 1) row.push(2);
-        else if (x === 4 && y === h - 1) row.push(3);
+        // Door first: it sits ON the bottom wall, so the wall test below would
+        // otherwise claim it and the house would have no way out.
+        if (x === 4 && y === h - 1) row.push(3);
+        else if (x === 0 || y === 0 || x === w - 1 || y === h - 1) row.push(2);
         else row.push(0);
       }
       m.push(row);
@@ -44,7 +46,7 @@ AdRPG.setMap(maps[currentMap]);
 AdRPG.player.x = 7;
 AdRPG.player.y = 3;
 
-var input = AdRPG.initInput();
+AdRPG.initInput();
 
 function checkTransition() {
   var p = AdRPG.player;

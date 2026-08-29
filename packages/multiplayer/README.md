@@ -73,8 +73,8 @@ language with a WebSocket library.
 Straight from a CDN — no npm, no build step:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-multiplayer@0.4/lobby.css">
-<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-multiplayer@0.4/dist/index.global.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-multiplayer@0.5/lobby.css">
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-multiplayer@0.5/dist/index.global.js"></script>
 ```
 
 The IIFE build exposes `window.AdMP`. The version is pinned to a minor here on purpose:

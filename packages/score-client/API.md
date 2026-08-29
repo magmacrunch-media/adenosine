@@ -136,3 +136,18 @@ interface ScoreClientOptions {
   path?: string;
 }
 ```
+
+---
+
+## Connection lifecycle
+
+**`ScoreClient` reconnects automatically**, every 3s, and flushes any saves
+queued while it was down. Saves survive a reload because the queue is persisted
+to `localStorage`, so a score submitted offline still lands later.
+
+This is the opposite of `adenosine-multiplayer`, and the difference is
+deliberate. A score is a replayable write: sending it late is the same as
+sending it on time. A multiplayer room membership is server-side session
+identity, which reopening a socket does not restore — so that client hands the
+decision back to the caller instead. Same transport, different thing being
+held.

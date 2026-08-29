@@ -9,6 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    # The toolchain runs on 22 and cannot run lower. jsdom 30 declares
+    # engines ^22.22.2 || ^24.15.0 || >=26.0.0, so the suite does not execute on
+    # Node 20 at all, and oxlint needs ^20.19.0 || >=22.12.0. That is a
+    # dev-dependency floor and says nothing about the packages, which are
+    # browser libraries with zero runtime dependencies.
+    #
+    # The engines.node >= 20 the packages actually promise is verified by the
+    # `engines` job below, against the built output rather than the toolchain.
     steps:
       - uses: actions/checkout@v5
 
@@ -20,8 +29,31 @@ jobs:
       - name: Install
         run: npm ci
 
+      # oxlint, not ESLint: typescript-eslint refuses to load against the
+      # TypeScript 7 this repo builds with -- it throws "typescript-eslint does
+      # not support TS 7.0" at import, tracked upstream in typescript-eslint
+      # #10940. oxlint parses TypeScript itself and has no `typescript`
+      # dependency at all, so it is unaffected. Revisit when that lands.
+      #
+      # The first pass over the tree found a real one: the house map in
+      # tools/examples/rpg-transitions.js put its door tile on the bottom wall,
+      # which the wall branch above already claimed, so the door was never
+      # emitted and the example you could enter had no way out. Plus two dozen
+      # dead imports the compiler is happy to ignore.
+      - name: Lint
+        run: npm run lint
+
       - name: Test
         run: npm test
+
+      # Thresholds are pinned at what each suite reaches today, so this cannot
+      # fail on arrival -- it fails the first time a change drops coverage.
+      # That ordering matters here: the chat XSS fixed in 0.4.4 lived in the
+      # one package with no render coverage at all, while its 22 tests were
+      # entirely about SharedWorker URLs. chat is still the thinnest of the
+      # seven at 54%, and multiplayer covers 38% of its functions.
+      - name: Coverage thresholds
+        run: npm run coverage
 
       - name: Typecheck
         run: npm run typecheck
@@ -34,6 +66,14 @@ jobs:
       # repo so far was of exactly that shape, so assert it explicitly.
       - name: Check packaging
         run: node scripts/check-packaging.mjs
+
+      # Being in the tarball and being reachable are different questions. An
+      # exports map can name every file correctly and still leave `types`
+      # unresolvable under moduleResolution: node16 while working under
+      # bundler, or declare "type": "commonjs" over ESM -- which the packaging
+      # check above passes clean, because every file it names does exist.
+      - name: Check packages resolve for consumers
+        run: node scripts/check-publish-resolution.mjs
 
       # chat and multiplayer once shipped one deployment's hostnames as both
       # their fallbacks and their ?server= allowlists, so any third-party
@@ -63,3 +103,42 @@ jobs:
       # no error, because the old version is still on the CDN and still works.
       - name: Check CDN pins match the packages
         run: node scripts/check-cdn-pins.mjs
+
+      # The IIFE bundles are loaded whole off jsDelivr by every arcade page, so
+      # their size is page weight paid by every visitor. Budgets are on gzipped
+      # bytes: cards is 100 KB raw and 11.7 KB gzipped -- almost all of it
+      # pixel-art SVG -- so a raw-byte budget would indict the wrong package.
+      - name: Check bundle sizes
+        run: node scripts/check-bundle-size.mjs
+
+  # Every package declares engines.node >= 20. That is a promise to whoever
+  # installs them, and running the whole suite on 20 does not test it -- the dev
+  # toolchain cannot run there, so such a job fails for reasons that have
+  # nothing to do with what adenosine promises. What a Node 20 consumer does is
+  # import the built ESM, so that is what this checks: build on a Node the
+  # toolchain supports, then switch runtimes and import.
+  engines:
+    name: consumer import on node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      # Switch the runtime. The check below imports built artifacts and uses
+      # only node: builtins, so it needs no install of its own.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Import every package on this Node
+        run: node scripts/check-consumer-import.mjs

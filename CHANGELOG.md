@@ -2,7 +2,50 @@
 
 All notable changes to the adenosine monorepo are documented here.
 
+This file records **repo-wide** changes — CI, guard scripts, build tooling,
+licensing. Changes to a single package now go in that package's own
+`CHANGELOG.md`, which ships in its tarball.
+
 ## [Unreleased]
+
+_Nothing yet._
+
+## [audio 0.3.0, cards 0.8.0, chat 0.5.0, multiplayer 0.5.0, puzzle 0.3.0, rpg 0.3.0, score-client 0.3.0] — 2026-08-29
+
+A minor across all seven: each gains `./global` as a declared export, and `rpg`
+gains `resetEngine()`. Deliberately **not** 1.0.0 — `resetEngine` was written
+today and has never run outside this repo, and freezing a day-old API into a
+permanent promise is what 1.0 exists to avoid. 1.0.0 follows once this has run
+in the arcade, as a version-only change with no behaviour in it.
+
+### Added — a release-engineering floor
+
+- **oxlint** over packages, scripts, tools and examples, with a CI step. Not
+  ESLint: typescript-eslint throws `does not support TS 7.0` at import against
+  the TypeScript 7 this repo builds with (typescript-eslint #10940).
+- **Coverage thresholds** per package, pinned to what each suite reaches today
+  (rpg 98%, chat 54%, puzzle 51%) — a ratchet that fails on a drop.
+- **`scripts/check-publish-resolution.mjs`**, running `publint` and `attw` over
+  every workspace. Being in the tarball and being reachable are different
+  questions and only the first was being asked.
+- **A Node 20 CI leg.** Every package declares `engines.node >= 20`; CI ran only
+  22, so the floor was untested.
+- **`SECURITY.md`**, and a `CHANGELOG.md` per package.
+
+### Fixed
+
+- **Declaration maps pointed at nothing.** `declarationMap` was on, so all seven
+  packages shipped `dist/*.d.ts.map` naming `../src/*.ts` — a path `files[]` has
+  never included. 55 dead maps. `check-packaging.mjs` now fails on any shipped
+  map whose sources are neither present nor inlined.
+- **`tools/examples/rpg-transitions.js` had a house you could not leave.** The
+  map builder tested walls before the door, and the door sits on the bottom
+  wall, so the door tile was never emitted — in the example whose subject is
+  two-way transitions. Found by the lint pass.
+- Twelve dead imports, a vestigial `animClass` parameter in `cards`, and an
+  uncalled `el()` helper plus a write-only `activeTab` in `chat`.
+
+## [chat 0.4.4, multiplayer 0.4.5] — 2026-08-27
 
 ### Security — `chat` 0.4.4, `multiplayer` 0.4.5
 

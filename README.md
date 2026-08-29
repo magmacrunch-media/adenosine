@@ -245,15 +245,40 @@ the browser game is actually edited:
 Their Wii halves run on [magnolia](https://github.com/magmacrunchmedia/magnolia)
 rather than on adenosine.
 
+## Versioning
+
+Semver, with [VERSIONING.md](VERSIONING.md) spelling out what that covers: named
+exports, the IIFE globals and bundle path, the wire protocols in `PROTOCOL.md`,
+and documented CSS custom properties. Only the latest version of each package
+gets fixes.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: zero runtime
+dependencies, no base classes, and `API.md` is checked against the built bundle
+in CI, so it changes in the same commit as the API does.
+
+## Security
+
+Report vulnerabilities privately through
+[GitHub advisories](https://github.com/magmacrunchmedia/adenosine/security/advisories/new),
+not public issues. Details, scope and response times are in [SECURITY.md](SECURITY.md).
+
 ## Development
 
 This is a monorepo using npm workspaces.
 
-Node 20 or newer (CI runs 22).
+Node 20 or newer to *use* the packages; **Node 22 or newer to develop them**.
+The dev toolchain has the higher floor — jsdom 30 declares
+`^22.22.2 || ^24.15.0 || >=26.0.0`, so the test suite does not run on 20. CI
+runs the suite on 22 and separately imports the built packages on 20, 22 and 24
+to check the `engines` promise itself.
 
 ```bash
 npm install                        # install all dependencies
 npm test                           # 592 tests across 36 files
+npm run lint                       # oxlint over packages, scripts, tools, examples
+npm run coverage                   # tests + per-package coverage thresholds
 npm run build                      # build all packages (ESM + IIFE)
 npm run typecheck                  # typecheck all packages
 npm run check                      # the guards below — needs a build first
@@ -263,16 +288,18 @@ npm run check                      # the guards below — needs a build first
 cd packages/rpg && npm test        # a single package
 ```
 
-`npm run check` runs five scripts in `scripts/`, each guarding a promise the
+`npm run check` runs seven scripts in `scripts/`, each guarding a promise the
 packages make:
 
 | Script | Asserts |
 |--------|---------|
-| `check-packaging.mjs` | Every file a `package.json` references is actually in the tarball |
+| `check-packaging.mjs` | Every file a `package.json` references is actually in the tarball, and every shipped sourcemap resolves |
+| `check-publish-resolution.mjs` | `publint` + `attw`: the manifest resolves for bundlers and node16, not just packs |
 | `check-no-hardcoded-hosts.mjs` | No package ships a deployment's own hostnames as a fallback |
-| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle |
+| `check-api-docs.mjs` | Every method an `API.md` names exists on the built bundle, and every option it documents is declared |
 | `check-css-fallbacks.mjs` | Every `var()` in shipped CSS carries a fallback, so the styles stand alone |
 | `check-cdn-pins.mjs` | Every hand-typed jsDelivr pin matches the version of the package it names |
+| `check-bundle-size.mjs` | Every IIFE bundle is within its gzipped size budget |
 
 ## Examples
 
@@ -308,7 +335,7 @@ npx serve tools
 Each package builds an IIFE bundle alongside ESM for direct `<script>` tag usage:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.3/dist/index.global.js"></script>
 <script>
   const loop = AdRPG.createGameLoop({ update, render, fps: 30 });
   loop.start();

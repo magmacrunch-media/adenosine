@@ -11,7 +11,7 @@
  * The module reads document.currentScript while it is evaluating, so each case
  * builds its DOM first and then imports the module fresh.
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 
 let requestedWorkerUrl: string | null = null;

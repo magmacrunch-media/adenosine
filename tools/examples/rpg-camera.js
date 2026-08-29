@@ -20,7 +20,7 @@ AdRPG.setMap(map);
 AdRPG.player.x = 10;
 AdRPG.player.y = 7;
 
-var input = AdRPG.initInput();
+AdRPG.initInput();
 
 console.log('WASD or arrows to move. Smooth movement with wall sliding.');
 

@@ -80,7 +80,9 @@ function cornerHTML(rank: string, suit: string, color?: string): string {
 }
 
 // ── Ace ───────────────────────────────────────────────────────
-function getAceHTML(suit: string, rank: string): string {
+// _rank is unused -- an ace's rank is always "A" -- but the signature stays
+// parallel to getNumberCardHTML so deck.ts can dispatch to either.
+function getAceHTML(suit: string, _rank: string): string {
     return `
         ${cornerHTML('A', suit)}
         <div class="card-suit-center single">

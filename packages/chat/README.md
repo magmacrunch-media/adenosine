@@ -54,8 +54,8 @@ nine in, with their fields — plus the five things a minimal server must do.
 Straight from a CDN — no npm, no build step:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-chat@0.4/chat-widget.css">
-<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-chat@0.4/dist/index.global.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-chat@0.5/chat-widget.css">
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-chat@0.5/dist/index.global.js"></script>
 ```
 
 The IIFE build exposes `window.AdChat`. The version is pinned to a minor here on purpose:
@@ -70,7 +70,7 @@ This is the one thing to know before reaching for the CDN line above. A
 refuses a cross-origin one outright, whatever CORS headers the host sends:
 
 ```
-new SharedWorker('https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-chat@0.4/dist/chat-worker.js')
+new SharedWorker('https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-chat@0.5/dist/chat-worker.js')
 → SecurityError: Script at '…' cannot be accessed from origin 'https://yoursite.example'
 ```
 

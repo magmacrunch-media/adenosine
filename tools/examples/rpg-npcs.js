@@ -18,12 +18,12 @@ AdRPG.setMap(map);
 AdRPG.player.x = 6;
 AdRPG.player.y = 5;
 
-var input = AdRPG.initInput();
+AdRPG.initInput();
 var em = AdRPG.createEntityManager();
 var dialogue = AdRPG.createDialogueSystem();
 var interactions = AdRPG.createInteractionManager();
 
-var elder = em.addNPC({
+em.addNPC({
   x: 3, y: 3, map: 'village', name: 'Elder',
   dialogue: [
     'welcome, traveler.',
@@ -32,7 +32,7 @@ var elder = em.addNPC({
   ]
 });
 
-var merchant = em.addNPC({
+em.addNPC({
   x: 8, y: 3, map: 'village', name: 'Merchant',
   dialogue: [
     'ah, a customer!',

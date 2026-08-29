@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-multiplayer",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "type": "module",
   "description": "Game-agnostic multiplayer WebSocket client for browser games",
   "license": "Apache-2.0",
@@ -23,6 +23,8 @@
   "author": "magmacrunch media",
   "homepage": "https://magmacrunch.com/ware/adenosine/",
   "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js",
   "types": "dist/index.d.ts",
   "sideEffects": [
     "*.css"
@@ -32,6 +34,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./global": "./dist/index.global.js",
     "./lobby.css": "./lobby.css"
   },
   "files": [
@@ -39,6 +42,7 @@
     "lobby.css",
     "NOTICE",
     "API.md",
+    "CHANGELOG.md",
     "PROTOCOL.md"
   ],
   "publishConfig": {
@@ -47,6 +51,7 @@
   "scripts": {
     "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

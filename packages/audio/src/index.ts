@@ -1,4 +1,4 @@
-import type { AudioManifest, VisibilityOptions } from './types.js';
+import type { AudioManifest } from './types.js';
 import {
   loadMusic as _loadMusic,
   playMusic as _playMusic,

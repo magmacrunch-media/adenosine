@@ -57,10 +57,10 @@ const VARS = {
 };
 
 const PKG_CSS = isLive ? {
-  cards:        `${CDN}/adenosine-cards@0.7/cards.css`,
-  puzzle:       `${CDN}/adenosine-puzzle@0.2/puzzle-base.css`,
-  chat:         `${CDN}/adenosine-chat@0.4/chat-widget.css`,
-  multiplayer:  `${CDN}/adenosine-multiplayer@0.4/lobby.css`,
+  cards:        `${CDN}/adenosine-cards@0.8/cards.css`,
+  puzzle:       `${CDN}/adenosine-puzzle@0.3/puzzle-base.css`,
+  chat:         `${CDN}/adenosine-chat@0.5/chat-widget.css`,
+  multiplayer:  `${CDN}/adenosine-multiplayer@0.5/lobby.css`,
 } : {
   cards:        '../packages/cards/cards.css',
   puzzle:       '../packages/puzzle/puzzle-base.css',
@@ -73,10 +73,10 @@ const PKG_GLOBAL = {
 };
 
 const PKG_BUNDLE = isLive ? {
-  cards:        `${CDN}/adenosine-cards@0.7/dist/index.global.js`,
-  puzzle:       `${CDN}/adenosine-puzzle@0.2/dist/index.global.js`,
-  chat:         `${CDN}/adenosine-chat@0.4/dist/index.global.js`,
-  multiplayer:  `${CDN}/adenosine-multiplayer@0.4/dist/index.global.js`,
+  cards:        `${CDN}/adenosine-cards@0.8/dist/index.global.js`,
+  puzzle:       `${CDN}/adenosine-puzzle@0.3/dist/index.global.js`,
+  chat:         `${CDN}/adenosine-chat@0.5/dist/index.global.js`,
+  multiplayer:  `${CDN}/adenosine-multiplayer@0.5/dist/index.global.js`,
 } : {
   cards:        '../packages/cards/dist/index.global.js',
   puzzle:       '../packages/puzzle/dist/index.global.js',

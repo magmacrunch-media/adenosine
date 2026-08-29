@@ -17,10 +17,9 @@ AdRPG.setCurrentMap('arena');
 AdRPG.setMap(map);
 AdRPG.player.x = 5;
 AdRPG.player.y = 4;
-AdRPG.player.health = 100;
 AdRPG.player.maxHealth = 100;
 
-var input = AdRPG.initInput();
+AdRPG.initInput();
 var cooldown = AdRPG.createDamageCooldown(60);
 var isGameOver = false;
 

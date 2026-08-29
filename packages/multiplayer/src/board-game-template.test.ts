@@ -4,7 +4,7 @@
  * The network.test.ts covers address resolution and allowlists. These cover
  * the template rendering and the callback/state API.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { BoardGameTemplate } from './board-game-template.js';
 import { MP } from './network.js';

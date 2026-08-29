@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  # npm workspaces are covered from the root: one manifest scan reaches all
+  # seven packages. Every runtime dependency count here is zero and should stay
+  # that way -- everything below is dev tooling.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # One PR a week for the toolchain instead of six. Version bumps to tsup,
+      # vitest, oxlint and friends are only interesting when CI disagrees with
+      # them, and CI runs the same on one PR as on six.
+      dev-tooling:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: chore
+
+  # The workflows pin actions by major (checkout@v5, setup-node@v5). Nothing
+  # else notices when one of those goes stale.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci

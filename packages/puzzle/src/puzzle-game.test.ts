@@ -69,7 +69,6 @@ describe('PuzzleGame', () => {
 
     it('increments moves when board changes', () => {
       const game = createGame({ spawnTiles: false });
-      let moveCount = 0;
       game.moveLeft = () => {
         // Simulate a move by shifting values
         game.grid.board[0][0] = 1;

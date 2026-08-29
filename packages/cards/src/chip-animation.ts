@@ -135,7 +135,7 @@ function breakIntoStacks(amount: number) {
 }
 
 // ── Render chips to the display element ────────────────────
-function renderChips(chips: number, animClass?: string) {
+function renderChips(chips: number) {
     const display = document.getElementById(_displayId);
     if (!display) return;
     display.innerHTML = '';

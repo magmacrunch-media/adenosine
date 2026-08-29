@@ -6,13 +6,13 @@ import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark@6";
 /* ── Package metadata ────────────────────────────────── */
 
 const PACKAGES = {
-  rpg:           { global: "AdRPG",     version: "0.2.3", css: [] },
-  puzzle:        { global: "AdPuzzle",  version: "0.2.5", css: ["puzzle-base.css","puzzle-grid.css","puzzle-modals.css","puzzle-responsive.css"] },
-  cards:         { global: "AdCards",   version: "0.7.4", css: ["cards.css","chip-animation.css"] },
-  audio:         { global: "AdAudio",   version: "0.2.4", css: [] },
-  "score-client":{ global: "AdScore",   version: "0.2.5", css: [] },
-  multiplayer:   { global: "AdMP",      version: "0.4.5", css: ["lobby.css"] },
-  chat:          { global: "AdChat",    version: "0.4.4", css: ["chat-widget.css"] },
+  rpg:           { global: "AdRPG",     version: "0.3.0", css: [] },
+  puzzle:        { global: "AdPuzzle",  version: "0.3.0", css: ["puzzle-base.css","puzzle-grid.css","puzzle-modals.css","puzzle-responsive.css"] },
+  cards:         { global: "AdCards",   version: "0.8.0", css: ["cards.css","chip-animation.css"] },
+  audio:         { global: "AdAudio",   version: "0.3.0", css: [] },
+  "score-client":{ global: "AdScore",   version: "0.3.0", css: [] },
+  multiplayer:   { global: "AdMP",      version: "0.5.0", css: ["lobby.css"] },
+  chat:          { global: "AdChat",    version: "0.5.0", css: ["chat-widget.css"] },
 };
 
 const EXAMPLES = {
@@ -171,6 +171,15 @@ function run() {
     canvas.width = 640;
     canvas.height = 480;
     outputContent.appendChild(canvas);
+  }
+
+  // The bundle outlives the script tag that loaded it, so AdRPG keeps one
+  // player, one camera, one event bus across every Run on this page. Without
+  // this, each Run stacked another full set of listeners onto that bus and
+  // inherited whatever health the previous example left behind -- which is why
+  // three of the rpg examples used to open by setting player.health back to 100.
+  if (typeof window.AdRPG !== "undefined" && typeof window.AdRPG.resetEngine === "function") {
+    window.AdRPG.resetEngine();
   }
 
   setupConsole();

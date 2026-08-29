@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-score-client",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "type": "module",
   "description": "WebSocket high score client with localStorage fallback",
   "license": "Apache-2.0",
@@ -22,17 +22,21 @@
   "author": "magmacrunch media",
   "homepage": "https://magmacrunch.com/ware/adenosine/",
   "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./global": "./dist/index.global.js"
   },
   "files": [
     "dist",
     "NOTICE",
-    "API.md"
+    "API.md",
+    "CHANGELOG.md"
   ],
   "publishConfig": {
     "access": "public"
@@ -40,7 +44,8 @@
   "scripts": {
     "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "jsdom": "^30.0.1",
