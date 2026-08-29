@@ -41,7 +41,8 @@
   "scripts": {
     "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

@@ -255,6 +255,7 @@ Node 20 or newer (CI runs 22).
 npm install                        # install all dependencies
 npm test                           # 592 tests across 36 files
 npm run lint                       # oxlint over packages, scripts, tools, examples
+npm run coverage                   # tests + per-package coverage thresholds
 npm run build                      # build all packages (ESM + IIFE)
 npm run typecheck                  # typecheck all packages
 npm run check                      # the guards below — needs a build first

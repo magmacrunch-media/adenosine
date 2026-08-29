@@ -38,6 +38,7 @@ examples/               one page per package, loads local dist/ builds
 npm install                        # all workspaces
 npm test                           # 592 tests, vitest per package
 npm run lint                       # oxlint, zero findings expected
+npm run coverage                   # same tests, with per-package thresholds
 npm run build                      # per package: tsup (ESM + IIFE) + tsc declarations
 npm run typecheck                  # tsc --noEmit per package
 npm run check                      # guard scripts below — needs a build first
@@ -62,6 +63,9 @@ Node >= 20 required; CI runs Node 22.
 ## Conventions
 
 - Zero runtime dependencies in every package; strict TypeScript.
+- Coverage thresholds live in each package's `vitest.config.ts`, pinned to what
+  the suite reaches today (rpg 98%, chat 54%, puzzle 51%). They are a ratchet:
+  raise them when coverage improves, never lower one to land a change.
 - Lint is **oxlint**, not ESLint: typescript-eslint throws "does not support TS 7.0"
   at import against the TypeScript 7 this repo builds with (typescript-eslint #10940).
   oxlint parses TypeScript itself and has no `typescript` dependency. Config is

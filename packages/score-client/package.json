@@ -40,7 +40,8 @@
   "scripts": {
     "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "jsdom": "^30.0.1",

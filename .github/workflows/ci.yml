@@ -37,6 +37,15 @@ jobs:
       - name: Test
         run: npm test
 
+      # Thresholds are pinned at what each suite reaches today, so this cannot
+      # fail on arrival -- it fails the first time a change drops coverage.
+      # That ordering matters here: the chat XSS fixed in 0.4.4 lived in the
+      # one package with no render coverage at all, while its 22 tests were
+      # entirely about SharedWorker URLs. chat is still the thinnest of the
+      # seven at 54%, and multiplayer covers 38% of its functions.
+      - name: Coverage thresholds
+        run: npm run coverage
+
       - name: Typecheck
         run: npm run typecheck
 
