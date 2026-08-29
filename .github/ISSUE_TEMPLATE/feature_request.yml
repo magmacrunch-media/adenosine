@@ -1,0 +1,41 @@
+name: Feature request
+description: Something a package should be able to do and cannot.
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - "@magmacrunch/adenosine-audio"
+        - "@magmacrunch/adenosine-cards"
+        - "@magmacrunch/adenosine-chat"
+        - "@magmacrunch/adenosine-multiplayer"
+        - "@magmacrunch/adenosine-puzzle"
+        - "@magmacrunch/adenosine-rpg"
+        - "@magmacrunch/adenosine-score-client"
+        - "a new package"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to build?
+      description: The game or feature, not the API you have in mind for it. These engines expose systems and let callers wire them, so the shape of the answer often is not the shape of the request.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What are you doing instead today?
+      description: If you have worked around it, that workaround is useful evidence about where the seam belongs.
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints you already know about
+      options:
+        - label: This would not add a runtime dependency (every package has zero, deliberately)
+        - label: I have checked the package's API.md

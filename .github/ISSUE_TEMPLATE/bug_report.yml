@@ -1,0 +1,63 @@
+name: Bug report
+description: Something in one of the packages does not behave as documented.
+labels: [bug]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: The seven version independently, so this matters more than usual.
+      options:
+        - "@magmacrunch/adenosine-audio"
+        - "@magmacrunch/adenosine-cards"
+        - "@magmacrunch/adenosine-chat"
+        - "@magmacrunch/adenosine-multiplayer"
+        - "@magmacrunch/adenosine-puzzle"
+        - "@magmacrunch/adenosine-rpg"
+        - "@magmacrunch/adenosine-score-client"
+        - "the repo itself (build, CI, docs)"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: From your lockfile, or the version in the jsDelivr URL.
+      placeholder: "0.7.4"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: consumption
+    attributes:
+      label: How are you loading it?
+      options:
+        - ESM via a bundler
+        - IIFE via <script> (AdRPG, AdCards, …)
+        - Neither / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect, and what happened instead?
+      description: If the docs say one thing and the code does another, quote the doc line — that is a bug in its own right here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: A snippet, a page, or a failing test. A failing test is ideal.
+      render: js
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Browser and OS
+      placeholder: "Firefox 141, Windows 11"

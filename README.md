@@ -245,6 +245,12 @@ the browser game is actually edited:
 Their Wii halves run on [magnolia](https://github.com/magmacrunchmedia/magnolia)
 rather than on adenosine.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: zero runtime
+dependencies, no base classes, and `API.md` is checked against the built bundle
+in CI, so it changes in the same commit as the API does.
+
 ## Security
 
 Report vulnerabilities privately through
