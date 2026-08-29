@@ -8,6 +8,16 @@ licensing. Changes to a single package now go in that package's own
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [audio 0.3.0, cards 0.8.0, chat 0.5.0, multiplayer 0.5.0, puzzle 0.3.0, rpg 0.3.0, score-client 0.3.0] — 2026-08-29
+
+A minor across all seven: each gains `./global` as a declared export, and `rpg`
+gains `resetEngine()`. Deliberately **not** 1.0.0 — `resetEngine` was written
+today and has never run outside this repo, and freezing a day-old API into a
+permanent promise is what 1.0 exists to avoid. 1.0.0 follows once this has run
+in the arcade, as a version-only change with no behaviour in it.
+
 ### Added — a release-engineering floor
 
 - **oxlint** over packages, scripts, tools and examples, with a CI step. Not

@@ -11,6 +11,21 @@ any other package.
 
 _Nothing yet._
 
+## 0.5.0 — 2026-08-29
+
+### Changed
+
+- Removed an `el()` helper nothing called (two functions shadowed it with their own `var el`) and an `activeTab` variable written in two places and read in none. `showTyping`'s unused `room` parameter renamed `_room` — the widget renders one merged list, so a typing notice is not room-scoped, the same reason `_target` on `addMessage` is unused.
+
+### Changed — packaging
+
+- `dist/index.global.js` is now a declared export (`./global`) with `unpkg` and
+  `jsdelivr` fields, so the bundle the browser tools load off the CDN is named
+  in the manifest instead of merely existing at a known path.
+- `CHANGELOG.md` now ships in the tarball.
+- Dead `.d.ts.map` files are gone. They pointed at a `src/` the tarball has
+  never included, so an editor's go-to-definition followed them nowhere.
+
 ## 0.4.4 — 2026-08-27
 
 ### Security

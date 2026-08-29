@@ -43,7 +43,7 @@ new ScoreClient().connect('wss://scores.example.com/scores');  // bypass entirel
 Straight from a CDN — no npm, no build step:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-score-client@0.2/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-score-client@0.3/dist/index.global.js"></script>
 ```
 
 The IIFE build exposes `window.AdScore`. The version is pinned to a minor here on purpose:

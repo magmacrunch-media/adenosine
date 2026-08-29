@@ -11,6 +11,21 @@ any other package.
 
 _Nothing yet._
 
+## 0.5.0 — 2026-08-29
+
+### Changed
+
+- API reference now documents the connection lifecycle: `MP` does not reconnect, deliberately, because room membership is server-side identity a reopened socket does not restore.
+
+### Changed — packaging
+
+- `dist/index.global.js` is now a declared export (`./global`) with `unpkg` and
+  `jsdelivr` fields, so the bundle the browser tools load off the CDN is named
+  in the manifest instead of merely existing at a known path.
+- `CHANGELOG.md` now ships in the tarball.
+- Dead `.d.ts.map` files are gone. They pointed at a `src/` the tarball has
+  never included, so an editor's go-to-definition followed them nowhere.
+
 ## 0.4.5 — 2026-08-27
 
 ### Security

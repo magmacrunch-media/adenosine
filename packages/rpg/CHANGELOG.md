@@ -9,6 +9,10 @@ any other package.
 
 ## Unreleased
 
+_Nothing yet._
+
+## 0.3.0 — 2026-08-29
+
 ### Added
 
 - **`resetEngine()`** — puts every piece of engine-wide state back to its value
@@ -38,6 +42,15 @@ of this package's test files reset the same globals in `beforeEach`, and
 line.
 
 `setOnGameOverCallback` now accepts `null` to clear it.
+
+### Changed — packaging
+
+- `dist/index.global.js` is now a declared export (`./global`) with `unpkg` and
+  `jsdelivr` fields, so the bundle the browser tools load off the CDN is named
+  in the manifest instead of merely existing at a known path.
+- `CHANGELOG.md` now ships in the tarball.
+- Dead `.d.ts.map` files are gone. They pointed at a `src/` the tarball has
+  never included, so an editor's go-to-definition followed them nowhere.
 
 ## Earlier releases
 

@@ -57,7 +57,7 @@ loop.start();
 Straight from a CDN — no npm, no build step:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.3/dist/index.global.js"></script>
 ```
 
 The IIFE build exposes `window.AdRPG`. The version is pinned to a minor here on purpose:

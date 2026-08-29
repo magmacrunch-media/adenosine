@@ -335,7 +335,7 @@ npx serve tools
 Each package builds an IIFE bundle alongside ESM for direct `<script>` tag usage:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.2/dist/index.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-rpg@0.3/dist/index.global.js"></script>
 <script>
   const loop = AdRPG.createGameLoop({ update, render, fps: 30 });
   loop.start();
