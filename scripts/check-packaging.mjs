@@ -15,7 +15,7 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { join, dirname, resolve } from 'node:path';
+import { join, dirname, resolve, posix } from 'node:path';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PKG_DIR = join(ROOT, 'packages');
@@ -82,6 +82,31 @@ for (const name of names) {
     const bare = entry.replace(/^\.\//, '').replace(/\/$/, '');
     const covered = [...shipped].some((f) => f === bare || f.startsWith(bare + '/'));
     if (!covered) problems.push(`files[] lists "${entry}" but nothing under it shipped`);
+  }
+
+  // A sourcemap that names a file the tarball does not contain is worse than no
+  // sourcemap: the editor follows it and lands on nothing. Every package shipped
+  // 23-odd dist/*.d.ts.map pointing at ../src/*.ts, which files[] never included
+  // -- and unlike esbuild's index.js.map, tsc cannot inline sourcesContent into a
+  // declaration map, so there was nothing to fall back on. Either the source
+  // travels with the map or the content is embedded in it; nothing else resolves.
+  for (const f of shipped) {
+    if (!f.endsWith('.map')) continue;
+    let map;
+    try {
+      map = JSON.parse(readFileSync(join(PKG_DIR, name, f), 'utf8'));
+    } catch {
+      problems.push(`"${f}" is not readable JSON — build before running this check`);
+      continue;
+    }
+    const sources = map.sources ?? [];
+    sources.forEach((src, i) => {
+      if (map.sourcesContent?.[i] != null) return; // embedded, resolves anywhere
+      const target = posix.normalize(posix.join(posix.dirname(f), src));
+      if (!shipped.has(target)) {
+        problems.push(`"${f}" maps to "${src}", which is neither in the tarball nor inlined`);
+      }
+    });
   }
 
   if (problems.length) {

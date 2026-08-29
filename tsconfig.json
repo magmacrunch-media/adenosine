@@ -5,7 +5,12 @@
     "moduleResolution": "bundler",
     "strict": true,
     "declaration": true,
-    "declarationMap": true,
+    // No declarationMap: tsc runs with --emitDeclarationOnly, so the only place
+    // these ever land is the published tarball -- where they pointed at
+    // ../src/*.ts, which files[] does not ship, and which declaration maps
+    // cannot inline the way esbuild inlines sourcesContent into index.js.map.
+    // A map to a file the tarball does not contain sends an editor's
+    // go-to-definition nowhere. check-packaging.mjs now fails on one.
     "sourceMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
