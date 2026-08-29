@@ -249,7 +249,7 @@ rather than on adenosine.
 
 This is a monorepo using npm workspaces.
 
-Node 20 or newer (CI runs 22).
+Node 20 or newer (CI runs 20 and 22).
 
 ```bash
 npm install                        # install all dependencies

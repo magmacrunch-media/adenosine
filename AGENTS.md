@@ -47,7 +47,9 @@ npm run build && npx serve examples
 npx serve tools                    # tools at http://localhost:3000
 ```
 
-Node >= 20 required; CI runs Node 22.
+Node >= 20 required; CI runs a matrix of Node 20 and 22. The dev toolchain
+needs the latest 20.x (oxlint requires ^20.19.0 || >=22.12.0); the published
+packages' engines floor of >= 20 describes consumers, not contributors.
 
 `npm run check` runs six scripts in `scripts/`, each also a CI step:
 

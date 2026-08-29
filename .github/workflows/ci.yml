@@ -9,12 +9,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    # Every package declares engines.node >= 20, but CI only ever ran 22, so
+    # the floor was a claim rather than a tested one. fail-fast is off because
+    # when a version-specific break does appear, the useful information is
+    # which versions pass -- not just that one of them stopped.
+    #
+    # "20" resolves to the latest 20.x, which matters: oxlint needs
+    # ^20.19.0 || >=22.12.0, so an exact older 20.x would fail on the linter
+    # rather than on anything adenosine did. The published packages' own
+    # engines floor stays >= 20 -- it describes consumers, who never run the
+    # dev toolchain.
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+
+    name: node ${{ matrix.node }}
+
     steps:
       - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
           cache: npm
 
       - name: Install
