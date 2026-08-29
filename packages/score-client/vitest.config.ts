@@ -7,15 +7,20 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.test.ts'],
       reporter: ['text-summary'],
-      // A ratchet, not a target: these are the numbers this suite actually
-      // reaches today, floored to the integer below. Raise them when coverage
-      // improves. Never lower one to make a change fit -- that is the whole
-      // point of writing them down.
+      // A ratchet, not a target: the numbers this suite actually reaches,
+      // floored to the integer below. Raise them when coverage improves.
+      //
+      // Re-baselined for vitest 4. These are LOWER than the vitest 3 figures
+      // (80.99/77.38/88.46) and no test was removed or weakened -- v4 counts
+      // differently, so the denominators moved: 221->136 stmts, 26->29 functions.
+      // The two instruments do not produce comparable percentages, which is
+      // why this is a re-baseline rather than a lowering. Do not read the drop
+      // as lost coverage, and do not lower one of these to land a change.
       thresholds: {
-        statements: 80,
-        branches: 77,
-        functions: 88,
-        lines: 80,
+        statements: 82,
+        branches: 74,
+        functions: 86,
+        lines: 82,
       },
     },
   },
