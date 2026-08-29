@@ -132,7 +132,10 @@ Publishing a GitHub Release triggers `.github/workflows/publish.yml`:
    cut from a tag, not from `main`, and an upload cannot be taken back — so the
    suite and the guards run again here, against the exact tree being shipped.
 2. A loop over `packages/*` publishes every package whose version is not already
-   on the registry, and fails if that count is zero. `npm publish --workspaces`
+   on the registry, and fails if that count is zero. A version carrying a semver
+   prerelease segment (`1.0.0-rc.1`) publishes under the `next` dist-tag rather
+   than `latest` — npm does not special-case prereleases, so without that a
+   release candidate becomes what `npm install <pkg>` hands people. `npm publish --workspaces`
    is deliberately not used: it walks alphabetically and stops at the first
    already-published version, so a release bumping only `chat` and `multiplayer`
    would die on `audio` and never reach them.
