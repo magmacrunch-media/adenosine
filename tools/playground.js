@@ -173,6 +173,15 @@ function run() {
     outputContent.appendChild(canvas);
   }
 
+  // The bundle outlives the script tag that loaded it, so AdRPG keeps one
+  // player, one camera, one event bus across every Run on this page. Without
+  // this, each Run stacked another full set of listeners onto that bus and
+  // inherited whatever health the previous example left behind -- which is why
+  // three of the rpg examples used to open by setting player.health back to 100.
+  if (typeof window.AdRPG !== "undefined" && typeof window.AdRPG.resetEngine === "function") {
+    window.AdRPG.resetEngine();
+  }
+
   setupConsole();
   try {
     const code = editor.state.doc.toString();

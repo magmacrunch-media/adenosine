@@ -7,7 +7,8 @@ import type { DamageCooldown } from './types.js';
 
 let onGameOverCallback: (() => void) | null = null;
 
-export function setOnGameOverCallback(fn: () => void): void { onGameOverCallback = fn; }
+/** Pass null to clear. A stale callback holds a closure over a dead scene. */
+export function setOnGameOverCallback(fn: (() => void) | null): void { onGameOverCallback = fn; }
 
 export function damagePlayer(amount: number): void {
     if (amount <= 0) return;

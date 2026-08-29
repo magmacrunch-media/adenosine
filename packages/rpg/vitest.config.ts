@@ -12,10 +12,10 @@ export default defineConfig({
       // improves. Never lower one to make a change fit -- that is the whole
       // point of writing them down.
       thresholds: {
-        statements: 98,
-        branches: 93,
-        functions: 91,
-        lines: 98,
+        statements: 99,
+        branches: 94,
+        functions: 100,
+        lines: 99,
       },
     },
   },

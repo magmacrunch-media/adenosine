@@ -17,7 +17,6 @@ AdRPG.setCurrentMap('arena');
 AdRPG.setMap(map);
 AdRPG.player.x = 5;
 AdRPG.player.y = 4;
-AdRPG.player.health = 100;
 AdRPG.player.maxHealth = 100;
 
 AdRPG.initInput();

@@ -181,6 +181,15 @@ export interface EventBus {
     once<K extends EventName>(event: K, fn: EventMap[K] extends void ? () => void : (data: EventMap[K]) => void): () => void;
     off(event: EventName, fn: EventListener): void;
     emit<K extends EventName>(event: K, ...args: EventMap[K] extends void ? [] : [EventMap[K]]): void;
+    /**
+     * Remove every listener, or every listener for one event.
+     *
+     * `off` needs the exact function reference, which a caller that used an
+     * inline closure no longer has. Without this there was no way to let go of
+     * them at all, so anything that re-ran against a long-lived bus accumulated
+     * handlers -- which is what the playground does on every Run.
+     */
+    clear(event?: EventName): void;
 }
 
 // ── Input ────────────────────────────────────────────────────────

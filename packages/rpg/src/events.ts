@@ -25,6 +25,13 @@ export function createEventBus(): EventBus {
                 listeners[event] = arr.filter(f => f !== fn) as ListenerFn[];
             }
         },
+        clear(event?: EventName): void {
+            if (event === undefined) {
+                for (const key of Object.keys(listeners) as EventName[]) delete listeners[key];
+            } else {
+                delete listeners[event];
+            }
+        },
         emit<K extends EventName>(event: K, ...args: EventMap[K] extends void ? [] : [EventMap[K]]): void {
             for (const fn of (listeners[event] || [])) {
                 if (args.length > 0) {

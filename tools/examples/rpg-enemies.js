@@ -20,7 +20,6 @@ AdRPG.setCurrentMap('dungeon');
 AdRPG.setMap(map);
 AdRPG.player.x = 2;
 AdRPG.player.y = 2;
-AdRPG.player.health = 100;
 AdRPG.player.maxHealth = 100;
 
 AdRPG.initInput();
