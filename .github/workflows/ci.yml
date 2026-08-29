@@ -10,29 +10,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # Every package declares engines.node >= 20, but CI only ever ran 22, so
-    # the floor was a claim rather than a tested one. fail-fast is off because
-    # when a version-specific break does appear, the useful information is
-    # which versions pass -- not just that one of them stopped.
+    # The toolchain runs on 22 and cannot run lower. jsdom 30 declares
+    # engines ^22.22.2 || ^24.15.0 || >=26.0.0, so the suite does not execute on
+    # Node 20 at all, and oxlint needs ^20.19.0 || >=22.12.0. That is a
+    # dev-dependency floor and says nothing about the packages, which are
+    # browser libraries with zero runtime dependencies.
     #
-    # "20" resolves to the latest 20.x, which matters: oxlint needs
-    # ^20.19.0 || >=22.12.0, so an exact older 20.x would fail on the linter
-    # rather than on anything adenosine did. The published packages' own
-    # engines floor stays >= 20 -- it describes consumers, who never run the
-    # dev toolchain.
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [20, 22]
-
-    name: node ${{ matrix.node }}
-
+    # The engines.node >= 20 the packages actually promise is verified by the
+    # `engines` job below, against the built output rather than the toolchain.
     steps:
       - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v5
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
           cache: npm
 
       - name: Install
@@ -119,3 +110,35 @@ jobs:
       # pixel-art SVG -- so a raw-byte budget would indict the wrong package.
       - name: Check bundle sizes
         run: node scripts/check-bundle-size.mjs
+
+  # Every package declares engines.node >= 20. That is a promise to whoever
+  # installs them, and running the whole suite on 20 does not test it -- the dev
+  # toolchain cannot run there, so such a job fails for reasons that have
+  # nothing to do with what adenosine promises. What a Node 20 consumer does is
+  # import the built ESM, so that is what this checks: build on a Node the
+  # toolchain supports, then switch runtimes and import.
+  engines:
+    name: consumer import on node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      # Switch the runtime. The check below imports built artifacts and uses
+      # only node: builtins, so it needs no install of its own.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Import every package on this Node
+        run: node scripts/check-consumer-import.mjs

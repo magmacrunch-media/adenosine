@@ -261,7 +261,11 @@ not public issues. Details, scope and response times are in [SECURITY.md](SECURI
 
 This is a monorepo using npm workspaces.
 
-Node 20 or newer (CI runs 20 and 22).
+Node 20 or newer to *use* the packages; **Node 22 or newer to develop them**.
+The dev toolchain has the higher floor — jsdom 30 declares
+`^22.22.2 || ^24.15.0 || >=26.0.0`, so the test suite does not run on 20. CI
+runs the suite on 22 and separately imports the built packages on 20, 22 and 24
+to check the `engines` promise itself.
 
 ```bash
 npm install                        # install all dependencies

@@ -47,9 +47,17 @@ npm run build && npx serve examples
 npx serve tools                    # tools at http://localhost:3000
 ```
 
-Node >= 20 required; CI runs a matrix of Node 20 and 22. The dev toolchain
-needs the latest 20.x (oxlint requires ^20.19.0 || >=22.12.0); the published
-packages' engines floor of >= 20 describes consumers, not contributors.
+**Node >= 22 to develop, Node >= 20 to consume.** These are different numbers
+and the difference is load-bearing. jsdom 30 declares
+`^22.22.2 || ^24.15.0 || >=26.0.0`, so `npm test` cannot run on Node 20 —
+it dies with `webidl.util.markAsUncloneable is not a function`. oxlint wants
+`^20.19.0 || >=22.12.0`. Neither constrains the published packages, which are
+browser libraries with zero runtime dependencies.
+
+So `ci.yml` has two jobs: `build` runs the whole toolchain on 22, and `engines`
+builds on 22 then switches runtime to import the built packages on 20, 22 and
+24 (`scripts/check-consumer-import.mjs`). Running the suite itself across a
+Node matrix tests the toolchain, not the promise.
 
 `npm run check` runs seven scripts in `scripts/`, each also a CI step:
 

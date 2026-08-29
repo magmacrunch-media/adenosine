@@ -14,7 +14,9 @@ npm run build      # tsup (ESM + IIFE) + tsc declarations
 npm run check      # the six guard scripts -- needs a build first
 ```
 
-Node 20 or newer. CI runs 20 and 22.
+**Node 22 or newer to develop.** The packages themselves support Node 20 — and
+CI checks that by importing the built output there — but the test suite cannot
+run on 20, because jsdom 30 requires `^22.22.2 || ^24.15.0 || >=26.0.0`.
 
 ## What CI will ask of you
 
