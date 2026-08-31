@@ -112,6 +112,6 @@ ESM only. The `exports` map declares no `require` condition, so this cannot be
 
 [Apache-2.0](LICENSE) — Copyright 2026 Magma Crunch Media.
 
-Part of [adenosine](https://github.com/magmacrunchmedia/adenosine), a collection
+Part of [adenosine](https://github.com/magmacrunch-media/adenosine), a collection
 of lightweight web game engines by [magmacrunch media](https://magmacrunch.com).
 Keep the `NOTICE` file with any copy you distribute.

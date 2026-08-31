@@ -169,7 +169,7 @@ hand. The sheets it writes are what `loadSpriteSheet` reads.
 ### Changed — `homepage` now points at the tools, not the README
 
 All seven manifests pointed `homepage` at
-`https://github.com/magmacrunchmedia/adenosine#readme`, so npm's "Homepage" link
+`https://github.com/magmacrunch-media/adenosine#readme`, so npm's "Homepage" link
 landed a reader back on the same README npm was already rendering. It now points
 at <https://magmacrunch.com/ware/adenosine/>, where the packages can be tried in
 a browser without installing anything. `repository` is unchanged — that is what

@@ -238,11 +238,11 @@ which hold the browser build and a Nintendo Wii port side by side. The copy
 served from the website's `arcade/` is generated from them, so these are where
 the browser game is actually edited:
 
-- [moonlight-drift](https://github.com/magmacrunchmedia/moonlight-drift) — one-button cave flyer
-- [george-boole](https://github.com/magmacrunchmedia/george-boole) — logic-gate puzzle
-- [texas-holdem-lava-dome](https://github.com/magmacrunchmedia/texas-holdem-lava-dome) — solo Hold'Em against a rising dome
+- [moonlight-drift](https://github.com/magmacrunch-media/moonlight-drift) — one-button cave flyer
+- [george-boole](https://github.com/magmacrunch-media/george-boole) — logic-gate puzzle
+- [texas-holdem-lava-dome](https://github.com/magmacrunch-media/texas-holdem-lava-dome) — solo Hold'Em against a rising dome
 
-Their Wii halves run on [magnolia](https://github.com/magmacrunchmedia/magnolia)
+Their Wii halves run on [magnolia](https://github.com/magmacrunch-media/magnolia)
 rather than on adenosine.
 
 ## Versioning
@@ -261,7 +261,7 @@ in CI, so it changes in the same commit as the API does.
 ## Security
 
 Report vulnerabilities privately through
-[GitHub advisories](https://github.com/magmacrunchmedia/adenosine/security/advisories/new),
+[GitHub advisories](https://github.com/magmacrunch-media/adenosine/security/advisories/new),
 not public issues. Details, scope and response times are in [SECURITY.md](SECURITY.md).
 
 ## Development

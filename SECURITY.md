@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 **Report privately through GitHub:** open a draft advisory at
-[Security → Advisories → Report a vulnerability](https://github.com/magmacrunchmedia/adenosine/security/advisories/new).
+[Security → Advisories → Report a vulnerability](https://github.com/magmacrunch-media/adenosine/security/advisories/new).
 That keeps the report visible only to you and the maintainers until a fix ships.
 
 Please do **not** open a public issue for a vulnerability. Public issues are the

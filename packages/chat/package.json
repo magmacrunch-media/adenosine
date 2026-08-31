@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/magmacrunchmedia/adenosine.git",
+    "url": "git+https://github.com/magmacrunch-media/adenosine.git",
     "directory": "packages/chat"
   },
   "author": "magmacrunch media",
