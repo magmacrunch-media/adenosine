@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a vulnerability
-    url: https://github.com/magmacrunchmedia/adenosine/security/advisories/new
+    url: https://github.com/magmacrunch-media/adenosine/security/advisories/new
     about: Privately, through GitHub advisories. Please do not open a public issue.
   - name: Try the packages without installing anything
     url: https://magmacrunch.com/ware/adenosine/
