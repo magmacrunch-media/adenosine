@@ -50,6 +50,8 @@ export interface OnlineUser {
   game?: string;
   /** Room codes the user has joined. */
   rooms?: string[];
+  /** Connected, but their page reports nobody at it. Listed, not counted. */
+  away?: boolean;
 }
 
 /**
@@ -165,6 +167,12 @@ export const ChatWidget = (function() {
     let usingWorker = false;
     let currentRoom: string | null = null;
     let myName: string | null = null;
+    /** Whether this socket has sent set_name, i.e. whether we are on the roster. */
+    let registered = false;
+    /** Last presence we published, so only transitions go on the wire. */
+    let publishedPresence: string | null = null;
+    let lastActivity = Date.now();
+    let presenceTimer: ReturnType<typeof setInterval> | null = null;
     let myColor: string | null = null;
     let typingTimeout: ReturnType<typeof setTimeout> | null = null;
     let typingHideTimer: ReturnType<typeof setTimeout> | null = null;
@@ -256,6 +264,7 @@ export const ChatWidget = (function() {
         }
 
         wireEvents();
+        startPresenceWatch();
     }
 
     // ── Event Wiring ────────────────────────────────────────────────────
@@ -443,12 +452,49 @@ export const ChatWidget = (function() {
         sock.onerror = function() { sock!.close(); };
     }
 
-    function sendSavedCredentials() {
+    /**
+     * Claim a place on the roster. `set_name` is what turns a connected socket
+     * into a person the server counts, so this is the only thing that does it.
+     */
+    function registerName(name: string): void {
         var token = getSessionToken();
-        const nameMsg: Record<string, unknown> = { type: 'set_name', name: myName || 'Player' };
+        const nameMsg: Record<string, unknown> = { type: 'set_name', name: name };
         if (token) nameMsg['session_token'] = token;
         sendToServer(nameMsg);
+        registered = true;
+    }
+
+    /**
+     * Be on the roster, naming ourselves first if we never have been.
+     *
+     * Called by everything that needs a session — sending, joining a room,
+     * choosing a name or a colour. We pick the fallback name here rather than
+     * letting the server invent one, so the message echoed locally carries the
+     * same name everyone else will see it under. A collision still gets
+     * corrected by `name_assigned`.
+     */
+    function ensureRegistered(): string {
+        if (!myName) myName = 'Player' + Math.floor(10 + Math.random() * 90);
+        if (!registered) registerName(myName);
+        return myName;
+    }
+
+    /**
+     * Replay what we know about ourselves onto a newly opened socket.
+     *
+     * A visitor who has never named themselves is deliberately left off the
+     * roster: this used to send `set_name` unconditionally, so merely loading
+     * an arcade page registered somebody as a `PlayerNN` and the count measured
+     * page loads rather than participants. They join the moment they actually
+     * join in — see ensureRegistered.
+     */
+    function sendSavedCredentials() {
+        registered = false;              // a new socket carries no session yet
+        publishedPresence = null;        // nor any presence the server remembers
+        if (!myName) return;
+        registerName(myName);
         if (myColor) sendToServer({ type: 'set_color', color: myColor });
+        publishPresence();
     }
 
     function handleWorkerMessage(data: string): void {
@@ -487,6 +533,9 @@ export const ChatWidget = (function() {
         sock = null;
         myName = null;
         myColor = null;
+        registered = false;
+        publishedPresence = null;
+        stopPresenceWatch();
     }
 
     // ── Message Handler ─────────────────────────────────────────────────
@@ -545,17 +594,90 @@ export const ChatWidget = (function() {
         }
     }
 
+    // ── Presence ────────────────────────────────────────────────────────
+
+    /**
+     * How long a visible but untouched page waits before it calls itself away.
+     *
+     * Generous on purpose. Watching a game without touching anything is a real
+     * way to be present, and being wrongly marked away is more annoying than
+     * being counted a few minutes after wandering off.
+     */
+    const IDLE_AFTER_MS = 10 * 60 * 1000;
+    const PRESENCE_POLL_MS = 30 * 1000;
+
+    /**
+     * Whether this page believes somebody is at it.
+     *
+     * Hidden means away outright. Visible but untouched for IDLE_AFTER_MS means
+     * away too — a laptop left open is as empty as a pocketed phone, and the
+     * socket looks identical from the server either way, because WebSocket
+     * ping/pong is answered by the browser's network stack without the page
+     * being involved at all.
+     */
+    function currentPresence(): string {
+        if (typeof document !== 'undefined' && document.hidden) return 'away';
+        if (Date.now() - lastActivity > IDLE_AFTER_MS) return 'away';
+        return 'here';
+    }
+
+    /**
+     * Tell the server, if this is news.
+     *
+     * Through the worker rather than sendToServer: one SharedWorker holds the
+     * socket for every tab, so it is the only place that can tell 'this page is
+     * hidden' from 'this person is gone'. It aggregates and forwards.
+     */
+    function publishPresence(): void {
+        if (!registered) return;          // a lurker has no presence to report
+        var state = currentPresence();
+        if (state === publishedPresence) return;
+        publishedPresence = state;
+        if (usingWorker && worker) {
+            try {
+                worker!.port.postMessage(JSON.stringify({ _worker: 'presence', state: state }));
+            } catch(e) {}
+        } else {
+            sendToServer({ type: 'presence', state: state });
+        }
+    }
+
+    function noteActivity(): void {
+        // Cheap enough to run on mousemove: one comparison, and the write only
+        // happens once things have gone quiet.
+        var now = Date.now();
+        if (now - lastActivity < 1000) return;
+        lastActivity = now;
+        publishPresence();
+    }
+
+    function startPresenceWatch(): void {
+        if (presenceTimer || typeof document === 'undefined') return;
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) lastActivity = Date.now();
+            publishPresence();
+        });
+        ['pointerdown', 'keydown', 'wheel', 'touchstart', 'mousemove'].forEach(function(ev) {
+            document.addEventListener(ev, noteActivity, { passive: true });
+        });
+        // Nothing fires an event when idleness *begins*, so it has to be polled.
+        presenceTimer = setInterval(publishPresence, PRESENCE_POLL_MS);
+    }
+
+    function stopPresenceWatch(): void {
+        if (presenceTimer) clearInterval(presenceTimer);
+        presenceTimer = null;
+    }
+
     // ── Room Management ─────────────────────────────────────────────────
 
     function joinRoom(roomCode: string): void {
         currentRoom = roomCode;
+        // Name ourselves BEFORE joining: the server drops join_room from a
+        // socket with no session, so a lurker pulled into a game room by
+        // ChatWidget.joinRoom() would otherwise never actually be in it.
+        ensureRegistered();
         sendToServer({ type: 'join_room', room: roomCode });
-        if (myName) {
-            var token = getSessionToken();
-            const nameMsg: Record<string, unknown> = { type: 'set_name', name: myName };
-            if (token) nameMsg['session_token'] = token;
-            sendToServer(nameMsg);
-        }
         var headerTitle = document.getElementById('chatHeaderTitle');
         if (headerTitle) headerTitle.textContent = '// ROOM ' + roomCode + ' //';
         const roomTab = widgetEl!.querySelector<HTMLElement>('[data-tab="room"]');
@@ -582,11 +704,7 @@ export const ChatWidget = (function() {
         const text = (input as HTMLInputElement | null)!.value.trim();
         if (!text) return;
 
-        var name = myName || 'Player';
-        var token = getSessionToken();
-        const nameMsg: Record<string, unknown> = { type: 'set_name', name: name };
-        if (token) nameMsg['session_token'] = token;
-        sendToServer(nameMsg);
+        var name = ensureRegistered();
 
         var msg = { type: 'chat', text: text };
         if (currentRoom) (msg as Record<string, unknown>)['room'] = currentRoom;
@@ -610,10 +728,8 @@ export const ChatWidget = (function() {
         if (!connected) return;
         myName = name;
         localStorage.setItem('adenosine_username', name);
-        var token = getSessionToken();
-        const nameMsg: Record<string, unknown> = { type: 'set_name', name: name };
-        if (token) nameMsg['session_token'] = token;
-        sendToServer(nameMsg);
+        registerName(name);
+        publishPresence();
         updateNameDisplay();
     }
 
@@ -664,6 +780,7 @@ export const ChatWidget = (function() {
     function setColor(color: string): void {
         myColor = color;
         localStorage.setItem('adenosine_color', color);
+        ensureRegistered();
         sendToServer({ type: 'set_color', color: color });
         updateColorDisplay();
         var popup = document.getElementById('colorPickerPopup');
@@ -746,7 +863,7 @@ export const ChatWidget = (function() {
         if (users) {
             users.forEach(function(u) {
                 var div = document.createElement('div');
-                div.className = 'acw-online-user';
+                div.className = u.away ? 'acw-online-user acw-away' : 'acw-online-user';
 
                 var dot = document.createElement('span');
                 dot.className = 'acw-online-dot';
@@ -758,7 +875,9 @@ export const ChatWidget = (function() {
 
                 var statusEl = document.createElement('span');
                 statusEl.className = 'acw-online-status';
-                statusEl.textContent = u.game || (u.rooms && u.rooms.length ? 'In Room' : 'Online');
+                statusEl.textContent = u.away
+                    ? 'Away'
+                    : (u.game || (u.rooms && u.rooms.length ? 'In Room' : 'Online'));
 
                 div.appendChild(dot);
                 div.appendChild(nameEl);

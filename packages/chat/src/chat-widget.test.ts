@@ -19,6 +19,13 @@ let requestedWorkerUrl: string | null = null;
 let requestedServerUrl: string | null = null;
 /** The worker port the widget wired itself to, so a test can feed it messages. */
 let workerPort: { onmessage: ((e: { data: string }) => void) | null } | null = null;
+/** Everything the widget pushed at the worker, newest last. */
+let sentToWorker: Record<string, unknown>[] = [];
+/** Just the payloads it asked the worker to forward to the server. */
+function sentToServer(): Record<string, unknown>[] {
+  return sentToWorker.filter((m) => m['_worker'] === 'send')
+                     .map((m) => m['data'] as Record<string, unknown>);
+}
 /** The per-page socket the widget opens when SharedWorker is unavailable. */
 let lastDirectSocket: { onmessage: ((e: { data: string }) => void) | null;
                        onopen: (() => void) | null;
@@ -57,6 +64,7 @@ async function resolveWith(opts: {
   requestedServerUrl = null;
   workerPort = null;
   lastDirectSocket = null;
+  sentToWorker = [];
   (window as unknown as Record<string, unknown>)['SharedWorker'] =
     function (this: unknown, url: string) {
       requestedWorkerUrl = url;
@@ -65,6 +73,7 @@ async function resolveWith(opts: {
         postMessage(raw: string) {
           try {
             const m = JSON.parse(raw);
+            sentToWorker.push(m);
             if (m._worker === 'connect') requestedServerUrl = m.url;
           } catch { /* not our message */ }
         },
@@ -368,5 +377,174 @@ describe('the online count does not outlive the connection', () => {
 
     expect(doc.getElementById('acwOnlineCount')!.textContent).toBe('1');
     expect(doc.querySelectorAll('.acw-online-user')).toHaveLength(1);
+  });
+});
+
+/**
+ * Who counts as online.
+ *
+ * The widget used to send `set_name` on every connect, so merely loading an
+ * arcade page registered a `PlayerNN` on the roster — the count measured page
+ * loads, not participants, and the arcade routinely reported people who had
+ * never opened the chat. A visitor now joins the roster when they join in.
+ */
+describe('a visitor who never joins in is not on the roster', () => {
+  const SCRIPT = 'https://magmacrunch.com/arcade/shared/adenosine-chat.js';
+
+  /** Stand the widget up with a saved name already in localStorage, then connect. */
+  async function connectNamed(name: string) {
+    await resolveWith({ scriptSrc: SCRIPT });
+    globalThis.localStorage.setItem('adenosine_username', name);
+    vi.resetModules();
+    const mod = await import('./chat-widget.js');
+    sentToWorker = [];
+    mod.ChatWidget.connect();
+    workerPort!.onmessage!({ data: JSON.stringify({ _worker: 'connect' }) });
+    return mod.ChatWidget;
+  }
+
+  /** Same, for a visitor who has never named themselves. */
+  async function connectAnonymous() {
+    await resolveWith({ scriptSrc: SCRIPT });
+    sentToWorker = [];
+    workerPort!.onmessage!({ data: JSON.stringify({ _worker: 'connect' }) });
+  }
+
+  function namesSent() {
+    return sentToServer().filter((m) => m['type'] === 'set_name');
+  }
+
+  it('sends no set_name for someone who has never named themselves', async () => {
+    await connectAnonymous();
+    expect(namesSent()).toEqual([]);
+  });
+
+  it('still replays a name the visitor chose on an earlier visit', async () => {
+    await connectNamed('Ada');
+    const names = namesSent();
+    expect(names).toHaveLength(1);
+    expect(names[0]!['name']).toBe('Ada');
+  });
+
+  it('joins the roster the moment the visitor sends a message', async () => {
+    await connectAnonymous();
+    const input = globalThis.document.getElementById('chatInput') as HTMLInputElement;
+    input.value = 'hello';
+    (globalThis.document.getElementById('chatSend') as HTMLElement).click();
+
+    const sent = sentToServer();
+    const name = sent.find((m) => m['type'] === 'set_name');
+    const chat = sent.find((m) => m['type'] === 'chat');
+    expect(name, 'sending a message must register the sender').toBeTruthy();
+    expect(chat!['text']).toBe('hello');
+    expect(sent.indexOf(name!)).toBeLessThan(sent.indexOf(chat!));
+  });
+
+  it('echoes the first message under the name it actually registered', async () => {
+    await connectAnonymous();
+    const input = globalThis.document.getElementById('chatInput') as HTMLInputElement;
+    input.value = 'hello';
+    (globalThis.document.getElementById('chatSend') as HTMLElement).click();
+
+    const registered = namesSent()[0]!['name'] as string;
+    const shown = globalThis.document.getElementById('chatMessagesGlobal')!.textContent!;
+    expect(registered).toMatch(/^Player[0-9][0-9]$/);
+    expect(shown, 'the local echo must not use a different name').toContain(registered);
+  });
+
+  it('registers before joining a room, or the join is dropped', async () => {
+    await resolveWith({ scriptSrc: SCRIPT });
+    vi.resetModules();
+    const mod = await import('./chat-widget.js');
+    mod.ChatWidget.connect();
+    workerPort!.onmessage!({ data: JSON.stringify({ _worker: 'connect' }) });
+    sentToWorker = [];
+    mod.ChatWidget.joinRoom('ABCD');
+
+    const sent = sentToServer();
+    const name = sent.findIndex((m) => m['type'] === 'set_name');
+    const join = sent.findIndex((m) => m['type'] === 'join_room');
+    expect(name).toBeGreaterThanOrEqual(0);
+    expect(join).toBeGreaterThanOrEqual(0);
+    expect(name, 'the server drops join_room from a socket with no session').toBeLessThan(join);
+  });
+});
+
+/**
+ * Away detection.
+ *
+ * The server's liveness check is WebSocket ping/pong, which the browser answers
+ * without waking the page — so a backgrounded tab on a pocketed phone was
+ * indistinguishable from somebody sitting at the keyboard. Only the page knows,
+ * and only the worker can tell one hidden tab from an absent person.
+ */
+describe('a hidden page reports itself away', () => {
+  const SCRIPT = 'https://magmacrunch.com/arcade/shared/adenosine-chat.js';
+
+  async function connectNamed() {
+    await resolveWith({ scriptSrc: SCRIPT });
+    // jsdom has no visible browsing context, so document.hidden is true out of
+    // the box — start from visible, or the widget is correctly away already and
+    // hiding the tab changes nothing.
+    setHidden(false);
+    globalThis.localStorage.setItem('adenosine_username', 'Ada');
+    vi.resetModules();
+    const mod = await import('./chat-widget.js');
+    mod.ChatWidget.connect();
+    workerPort!.onmessage!({ data: JSON.stringify({ _worker: 'connect' }) });
+  }
+
+  function setHidden(hidden: boolean) {
+    Object.defineProperty(globalThis.document, 'hidden', { value: hidden, configurable: true });
+    globalThis.document.dispatchEvent(new globalThis.window.Event('visibilitychange'));
+  }
+
+  function presenceFrames() {
+    return sentToWorker.filter((m) => m['_worker'] === 'presence').map((m) => m['state']);
+  }
+
+  it('tells the worker when the tab is hidden, and again when it returns', async () => {
+    await connectNamed();
+    sentToWorker = [];
+
+    setHidden(true);
+    expect(presenceFrames()).toEqual(['away']);
+
+    setHidden(false);
+    expect(presenceFrames()).toEqual(['away', 'here']);
+  });
+
+  it('does not repeat a state that has not changed', async () => {
+    await connectNamed();
+    sentToWorker = [];
+    setHidden(true);
+    setHidden(true);
+    expect(presenceFrames()).toEqual(['away']);
+  });
+
+  it('says nothing for a lurker, who has no presence to report', async () => {
+    await resolveWith({ scriptSrc: SCRIPT });
+    sentToWorker = [];
+    workerPort!.onmessage!({ data: JSON.stringify({ _worker: 'connect' }) });
+    setHidden(true);
+    expect(presenceFrames()).toEqual([]);
+  });
+
+  it('greys an away user in the roster and leaves them out of the count', async () => {
+    const doc = await renderServerMessage({
+      type: 'user_list',
+      users: [
+        { name: 'Ada', color: '#fff' },
+        { name: 'Grace', color: '#fff', away: true },
+      ],
+      count: 1,
+    });
+
+    expect(doc.getElementById('acwOnlineCount')!.textContent).toBe('1');
+    const rows = doc.querySelectorAll('.acw-online-user');
+    expect(rows).toHaveLength(2);
+    expect(rows[0]!.classList.contains('acw-away')).toBe(false);
+    expect(rows[1]!.classList.contains('acw-away')).toBe(true);
+    expect(rows[1]!.querySelector('.acw-online-status')!.textContent).toBe('Away');
   });
 });

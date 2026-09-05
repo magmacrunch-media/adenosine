@@ -24,6 +24,7 @@ ordinary WebSocket.
 | `join_room` | `room` | Join a named sub-room. |
 | `leave_room` | `room` | Leave it. |
 | `typing` | — | The user is typing. The server is expected to fan this out to others. |
+| `presence` | `state` | `here` or `away`. Whether anybody is actually at the pages holding this session. |
 
 Note there is **no `room` field on `chat`**. A client sends to whichever room it
 most recently joined; routing is server-side state, not per-message.
@@ -37,7 +38,7 @@ most recently joined; routing is server-side state, not per-message.
 | `history` | `messages[]` | Replays the global backlog; each entry has the `chat` shape |
 | `room_history` | `messages[]` | Replays a room's backlog |
 | `name_assigned` | `name` | Sets the user's name and persists it to `localStorage` |
-| `user_list` | `users[]`, `count` | Redraws the roster; also how a user learns their own assigned colour |
+| `user_list` | `users[]`, `count` | Redraws the roster; also how a user learns their own assigned colour. `count` is people **here**, `users` is everyone connected |
 | `typing` | `from`, `room` | Shows the typing indicator |
 | `status` | — | Accepted and ignored; free for server-side use |
 
@@ -53,8 +54,36 @@ as a system notice rather than a user line.
 Each entry in `user_list.users` is:
 
 ```ts
-{ name: string; color?: string; game?: string; rooms?: string[] }
+{ name: string; color?: string; game?: string; rooms?: string[]; away?: boolean }
 ```
+
+## Who is on the roster, and who is counted
+
+Two rules, both added in 0.6.0, and both about the count meaning *people*.
+
+**`set_name` is what puts you on the roster, and the widget holds it back**
+until the visitor does something — sends a message, joins a room, picks a name
+or a colour. It used to be sent on every connect, so merely loading a page
+registered a `PlayerNN` and the count measured page loads. A server should
+expect sockets that never name themselves: they still receive history, status
+and the roster, and are simply not in it.
+
+**`presence` is the only way to know somebody is actually there.** The
+liveness check underneath is WebSocket ping/pong, which the browser's network
+stack answers without waking the page — a backgrounded tab on a pocketed phone
+looks exactly like somebody at the keyboard. The widget sends `away` when the
+page is hidden, or visible but untouched for ten minutes, and `here` when it
+comes back. It sends transitions only, and a client that never sends it is
+never away, so an older widget behaves as it always did.
+
+With a SharedWorker the aggregate is computed in the worker, not the page: one
+socket carries every tab, so a single hidden tab is not an absent person. Any
+page saying `here` makes the session `here`. The worker re-announces on every
+socket open, because a reconnect is a new session as far as the server knows.
+
+An away user stays in `users` with `away: true` and drops out of `count`. The
+widget greys them and labels them `Away` — they are still in the room, just not
+at it.
 
 `game` marks a user as being inside a game rather than the global room, and
 `rooms` lists the room codes they have joined. Both are optional.
