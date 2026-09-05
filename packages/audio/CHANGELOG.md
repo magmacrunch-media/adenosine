@@ -11,6 +11,32 @@ any other package.
 
 _Nothing yet._
 
+## 0.3.1 — 2026-09-05
+
+### Fixed
+
+- `pauseMusic()` no longer loses the playhead. It stopped the source without
+  recording how far it had got, and `playMusic()` always called `start(0)`, so
+  every resume replayed the track from its opening. The elapsed time is now
+  banked from the context clock on pause and passed as the start offset — and
+  wrapped into the buffer, since a looping source given an offset past its end
+  clamps rather than wrapping, which would pin a resumed loop to its final
+  sample.
+
+  `stopMusic()` and `destroyMusic()` clear that offset. They are ends rather
+  than pauses, and the difference was not expressed anywhere before.
+
+- `onVisibilityChange()` no longer starts music that was never playing. Its
+  resume branch tested only whether a track had been *loaded*, so a page that
+  deliberately had not started one — a title screen, or a game whose music
+  belongs to a run in progress — began playing on the first tab-return, with
+  no `playMusic()` call anywhere in the app. It now resumes only what it
+  paused, which also makes its two branches symmetric: the hide branch already
+  guarded on `musicStarted`.
+
+  Reported as [#14](https://github.com/magmacrunch-media/adenosine/issues/14).
+  Two of the four games using this module had already routed around it.
+
 ## 0.3.0 — 2026-08-29
 
 ### Changed
