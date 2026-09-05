@@ -8,7 +8,7 @@ requests are welcome. Vulnerabilities are not — those go through
 
 ```bash
 npm install
-npm test           # 592 tests, vitest per package
+npm test           # 639 tests, vitest per package
 npm run lint       # oxlint
 npm run build      # tsup (ESM + IIFE) + tsc declarations
 npm run check      # the six guard scripts -- needs a build first
