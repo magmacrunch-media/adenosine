@@ -11,6 +11,27 @@ any other package.
 
 _Nothing yet._
 
+## 0.5.1 — 2026-09-05
+
+### Fixed
+
+- **The online count no longer outlives the connection.** It is written by
+  `user_list` and by nothing else, and a dropped socket produces no frame — so
+  the widget went on displaying the last number it had heard, indefinitely,
+  beside a header it had just marked `disconnected`. Both transports were
+  affected: the SharedWorker path and the per-page socket used when
+  SharedWorker is unavailable. Both now retract the roster, showing an em dash
+  rather than `0` — zero is a claim about the server, and a widget that cannot
+  see the server has no standing to make one.
+
+### Removed
+
+- **`global_users`.** It carried a count of sockets rather than people and was
+  written into the same counter as `user_list`, so whichever frame arrived last
+  decided the number and anyone with two tabs open was counted twice. The
+  arcade's server had it as dead code and has now dropped it; `user_list` is the
+  only online count. See `PROTOCOL.md`.
+
 ## 0.5.0 — 2026-08-29
 
 ### Changed

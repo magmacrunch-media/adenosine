@@ -1,6 +1,6 @@
 {
   "name": "@magmacrunch/adenosine-chat",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "description": "Floating real-time chat widget with SharedWorker for browser games",
   "license": "Apache-2.0",

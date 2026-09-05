@@ -38,9 +38,13 @@ most recently joined; routing is server-side state, not per-message.
 | `room_history` | `messages[]` | Replays a room's backlog |
 | `name_assigned` | `name` | Sets the user's name and persists it to `localStorage` |
 | `user_list` | `users[]`, `count` | Redraws the roster; also how a user learns their own assigned colour |
-| `global_users` | `count` | Updates the online count only |
 | `typing` | `from`, `room` | Shows the typing indicator |
 | `status` | — | Accepted and ignored; free for server-side use |
+
+`global_users` was removed in 0.5.1. It carried a count of sockets rather than
+people and was written into the same counter as `user_list`, so whichever frame
+arrived last decided the number — and a second tab counted twice. The roster in
+`user_list` is the only online count; a server should send that and nothing else.
 
 A message — in `chat`, `room_chat`, or inside a `history` array — renders from
 three fields: `from`, `color` and `text`. A `from` of exactly `system` is styled

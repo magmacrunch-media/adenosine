@@ -19,6 +19,11 @@ let requestedWorkerUrl: string | null = null;
 let requestedServerUrl: string | null = null;
 /** The worker port the widget wired itself to, so a test can feed it messages. */
 let workerPort: { onmessage: ((e: { data: string }) => void) | null } | null = null;
+/** The per-page socket the widget opens when SharedWorker is unavailable. */
+let lastDirectSocket: { onmessage: ((e: { data: string }) => void) | null;
+                       onopen: (() => void) | null;
+                       onclose: (() => void) | null;
+                       onerror: (() => void) | null } | null = null;
 
 /**
  * Stand up a page with a given loading <script>, import the widget into it, and
@@ -29,9 +34,11 @@ async function resolveWith(opts: {
   pageUrl?: string;
   currentScript?: boolean;
   connectOpts?: { workerUrl?: string; server?: string; allowlist?: readonly string[] };
+  /** Emulate a browser without SharedWorker, so the widget opens its own socket. */
+  noSharedWorker?: boolean;
 }): Promise<string | null> {
   const { scriptSrc = null, pageUrl = 'https://magmacrunch.com/arcade/tetris/',
-          currentScript = true, connectOpts } = opts;
+          currentScript = true, connectOpts, noSharedWorker = false } = opts;
 
   const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: pageUrl });
   const { window } = dom;
@@ -49,6 +56,7 @@ async function resolveWith(opts: {
   requestedWorkerUrl = null;
   requestedServerUrl = null;
   workerPort = null;
+  lastDirectSocket = null;
   (window as unknown as Record<string, unknown>)['SharedWorker'] =
     function (this: unknown, url: string) {
       requestedWorkerUrl = url;
@@ -66,8 +74,18 @@ async function resolveWith(opts: {
   // the module reads document/window at evaluation time
   globalThis.window = window as unknown as Window & typeof globalThis;
   globalThis.document = window.document;
+  if (noSharedWorker) {
+    delete (window as unknown as Record<string, unknown>)['SharedWorker'];
+  }
   globalThis.SharedWorker = (window as unknown as Record<string, unknown>)['SharedWorker'] as never;
-  globalThis.WebSocket = window.WebSocket as never;
+  // jsdom's WebSocket would really dial; capture the handlers instead.
+  globalThis.WebSocket = function (this: unknown) {
+    lastDirectSocket = { onmessage: null, onopen: null, onclose: null, onerror: null };
+    Object.assign(this as object, lastDirectSocket, {
+      send() {}, close() {},
+    });
+    lastDirectSocket = this as never;
+  } as never;
   globalThis.localStorage = window.localStorage;
   globalThis.sessionStorage = window.sessionStorage;
 
@@ -279,5 +297,76 @@ describe('message rendering cannot be talked into markup', () => {
     expect(dot.hasAttribute('onmouseover')).toBe(false);
     expect(dot.getAttributeNames().filter((a) => a !== 'class' && a !== 'style')).toEqual([]);
     expect(doc.querySelector('.acw-online-status')!.querySelector('b')).toBeNull();
+  });
+});
+
+/**
+ * Losing the connection must retract the roster.
+ *
+ * The count is written by `user_list` and by nothing else, and a dropped socket
+ * produces no frame at all — so the widget used to keep displaying the last
+ * number it had heard, indefinitely, next to a header marked disconnected. Both
+ * transports need this: the SharedWorker path and the per-page socket the widget
+ * falls back to when SharedWorker is unavailable.
+ */
+describe('the online count does not outlive the connection', () => {
+  const DASH = '—';
+
+  it('retracts the count and the roster when the worker loses the socket', async () => {
+    await resolveWith({ scriptSrc: 'https://magmacrunch.com/arcade/shared/adenosine-chat.js' });
+    const port = workerPort!;
+    if (!port.onmessage) throw new Error('widget never wired the worker port');
+
+    port.onmessage({ data: JSON.stringify({
+      type: 'user_list',
+      users: [{ name: 'Ada', color: '#fff' }, { name: 'Grace', color: '#fff' }],
+      count: 2,
+    }) });
+    const doc = globalThis.document;
+    expect(doc.getElementById('acwOnlineCount')!.textContent).toBe('2');
+    expect(doc.querySelectorAll('.acw-online-user')).toHaveLength(2);
+
+    port.onmessage({ data: JSON.stringify({ _worker: 'disconnect' }) });
+
+    expect(doc.getElementById('acwOnlineCount')!.textContent).toBe(DASH);
+    expect(doc.querySelectorAll('.acw-online-user')).toHaveLength(0);
+    expect(doc.getElementById('arcadeChatWidget')!.classList.contains('disconnected')).toBe(true);
+  });
+
+  it('retracts it on the fallback socket too, where there is no worker', async () => {
+    await resolveWith({
+      scriptSrc: 'https://magmacrunch.com/arcade/shared/adenosine-chat.js',
+      noSharedWorker: true,
+    });
+    const doc = globalThis.document;
+    const sock = lastDirectSocket!;
+
+    sock.onmessage!({ data: JSON.stringify({
+      type: 'user_list', users: [{ name: 'Ada', color: '#fff' }], count: 1,
+    }) });
+    expect(doc.getElementById('acwOnlineCount')!.textContent).toBe('1');
+
+    sock.onclose!();
+
+    expect(doc.getElementById('acwOnlineCount')!.textContent).toBe(DASH);
+    expect(doc.querySelectorAll('.acw-online-user')).toHaveLength(0);
+  });
+
+  it('shows a real count again once the roster comes back', async () => {
+    await resolveWith({ scriptSrc: 'https://magmacrunch.com/arcade/shared/adenosine-chat.js' });
+    const port = workerPort!;
+    const doc = globalThis.document;
+
+    port.onmessage!({ data: JSON.stringify({ _worker: 'disconnect' }) });
+    expect(doc.getElementById('acwOnlineCount')!.textContent).toBe(DASH);
+
+    // The server sends user_list on connect now, so reconnecting is enough.
+    port.onmessage!({ data: JSON.stringify({ _worker: 'connect' }) });
+    port.onmessage!({ data: JSON.stringify({
+      type: 'user_list', users: [{ name: 'Ada', color: '#fff' }], count: 1,
+    }) });
+
+    expect(doc.getElementById('acwOnlineCount')!.textContent).toBe('1');
+    expect(doc.querySelectorAll('.acw-online-user')).toHaveLength(1);
   });
 });
