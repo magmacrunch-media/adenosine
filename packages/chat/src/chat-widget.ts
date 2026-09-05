@@ -435,6 +435,7 @@ export const ChatWidget = (function() {
 
         sock.onclose = function() {
             widgetEl!.classList.add('disconnected');
+            clearOnlinePresence();
             sock = null;
             setTimeout(connectDirect, 5000);
         };
@@ -460,6 +461,7 @@ export const ChatWidget = (function() {
         }
         if (msg._worker === 'disconnect') {
             widgetEl!.classList.add('disconnected');
+            clearOnlinePresence();
             return;
         }
         handleMessage(msg);
@@ -537,9 +539,6 @@ export const ChatWidget = (function() {
                 showTyping(field(msg, 'from'), field(msg, 'room'));
                 break;
 
-            case 'global_users':
-                updateOnlineCount(typeof msg['count'] === 'number' ? msg['count'] : 0);
-                break;
 
             case 'status':
                 break;
@@ -772,6 +771,26 @@ export const ChatWidget = (function() {
     function updateOnlineCount(count: number): void {
         var el = document.getElementById('acwOnlineCount');
         if (el) el.textContent = String(count);
+    }
+
+    /**
+     * Forget who was online, because we can no longer see.
+     *
+     * The count is fed by `user_list` and by nothing else, and the socket
+     * dropping produces no such frame — so without this the last number the
+     * widget ever heard stayed on screen for as long as the page stayed open,
+     * beside a widget visibly marked disconnected. That is where reports of
+     * phantom users came from: a number from a moment that had passed.
+     *
+     * An em dash rather than 0. Zero is a claim about the arcade, and a
+     * disconnected widget has no standing to make one. The roster is emptied
+     * for the same reason — the ONLINE tab would otherwise go on listing
+     * people whose presence we cannot vouch for.
+     */
+    function clearOnlinePresence(): void {
+        var el = document.getElementById('acwOnlineCount');
+        if (el) el.textContent = '—';
+        updateOnlineList([]);
     }
 
     // `_room` is unused for the same reason as `_target` in addMessage: the
