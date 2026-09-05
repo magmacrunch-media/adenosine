@@ -153,12 +153,23 @@ Returns `CribScore`:
 
 | Method | Description |
 |--------|-------------|
-| `.countFifteens(cards)` | Combinations summing to 15 |
+| `.value(rank)` | What the rank counts toward fifteen and thirty-one -- J, Q and K are all 10 |
+| `.order(rank)` | Where the rank sits in a run -- A=1 through K=13, the court cards distinct |
+| `.countFifteens(cards)` | Combinations summing to 15 -- a count, not points |
 | `.countPairs(cards)` | Pairs, counting three- and four-of-a-kind as their pair count |
-| `.countRuns(cards)` | Run points, multiplied by duplicate rank combinations |
+| `.countRuns(cards)` | Points for the longest run in each consecutive block, multiplied by the ways duplicate ranks build it |
 | `.countFlush(hand, starter, isCrib)` | 4 for a flush in hand, 5 including the starter |
 | `.countNobs(hand, starter)` | 1 for the jack matching the starter's suit |
-| `.scorePeggingPlay(card, playedCards)` | Points for one card during the play |
+| `.scorePeggingPlay(card, playedCards)` | Points for one card during the play, every category counted |
+
+A card carries two numbers and only one of them flattens the court. `.value()`
+is for fifteens and thirty-one; `.order()` is what runs are built from, in the
+hand and during the play alike. Scoring J-Q-K or 9-10-J off `.value()` finds no
+run at all.
+
+Runs pay the longest sequence only, so 2-3-4-5 is 4 -- not the 3 + 4 + 3 that
+paying each sub-run gives. Duplicate ranks multiply it: a double run of three is
+6 (its pair is `.countPairs()`'s 2), a triple run 9, a double double run 12.
 
 `CRIBBAGE_SCORE` exports the point values these use — `FIFTEEN`, `PAIR`,
 `THREE_OF_KIND`, `FOUR_OF_KIND`, `FLUSH_4`, `FLUSH_5`, `NIBS`, `HIS_HEELS`, `GO`,

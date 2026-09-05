@@ -4,7 +4,7 @@ TypeScript monorepo of seven browser game-engine packages (npm workspaces), publ
 to npm as `@magmacrunch/adenosine-*`. Zero runtime dependencies. Each package ships
 dual-format: ESM for bundlers plus an IIFE bundle (`dist/index.global.js`) consumed
 via `<script>`/jsDelivr — the magmacrunch.com website repo loads those IIFE bundles
-pinned to exact versions. 592 tests across 36 files. Apache-2.0.
+pinned to exact versions. 639 tests across 37 files. Apache-2.0.
 
 ## AI Attribution
 
@@ -36,7 +36,7 @@ examples/               one page per package, loads local dist/ builds
 
 ```bash
 npm install                        # all workspaces
-npm test                           # 592 tests, vitest per package
+npm test                           # 639 tests, vitest per package
 npm run lint                       # oxlint, zero findings expected
 npm run coverage                   # same tests, with per-package thresholds
 npm run build                      # per package: tsup (ESM + IIFE) + tsc declarations

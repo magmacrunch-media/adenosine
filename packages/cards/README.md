@@ -46,8 +46,8 @@ the constant tables rather than written out by hand.
 Straight from a CDN — no npm, no build step:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.8/cards.css">
-<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.8/dist/index.global.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.9/cards.css">
+<script src="https://cdn.jsdelivr.net/npm/@magmacrunch/adenosine-cards@0.9/dist/index.global.js"></script>
 ```
 
 The IIFE build exposes `window.AdCards`. The version is pinned to a minor here on purpose:

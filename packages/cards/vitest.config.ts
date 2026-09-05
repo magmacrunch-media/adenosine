@@ -17,10 +17,10 @@ export default defineConfig({
       // why this is a re-baseline rather than a lowering. Do not read the drop
       // as lost coverage, and do not lower one of these to land a change.
       thresholds: {
-        statements: 65,
-        branches: 69,
-        functions: 78,
-        lines: 64,
+        statements: 69,
+        branches: 74,
+        functions: 80,
+        lines: 68,
       },
     },
   },

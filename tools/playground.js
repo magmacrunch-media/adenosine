@@ -8,7 +8,7 @@ import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark@6";
 const PACKAGES = {
   rpg:           { global: "AdRPG",     version: "0.3.0", css: [] },
   puzzle:        { global: "AdPuzzle",  version: "0.3.0", css: ["puzzle-base.css","puzzle-grid.css","puzzle-modals.css","puzzle-responsive.css"] },
-  cards:         { global: "AdCards",   version: "0.8.0", css: ["cards.css","chip-animation.css"] },
+  cards:         { global: "AdCards",   version: "0.9.0", css: ["cards.css","chip-animation.css"] },
   audio:         { global: "AdAudio",   version: "0.3.0", css: [] },
   "score-client":{ global: "AdScore",   version: "0.3.0", css: [] },
   multiplayer:   { global: "AdMP",      version: "0.5.0", css: ["lobby.css"] },
