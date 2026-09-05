@@ -16,6 +16,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 type Call = [string, ...number[]];
 const calls: Call[] = [];
 
+/** Offsets passed to BufferSourceNode.start(), one per source created. */
+const sourceStarts: number[] = [];
+const sourceStops: number[] = [];
+const sources: unknown[] = [];
+
 function makeGainParam() {
   return {
     value: 0.3,
@@ -30,11 +35,21 @@ const ctx = {
   state: 'running',
   destination: {},
   createGain: vi.fn(() => ({ gain: makeGainParam(), connect: vi.fn(), disconnect: vi.fn() })),
-  createBufferSource: vi.fn(() => ({
-    buffer: null, loop: false, onended: null,
-    connect: vi.fn(), start: vi.fn(), stop: vi.fn(),
-  })),
-  decodeAudioData: vi.fn(async () => ({ duration: 1 })),
+  createBufferSource: vi.fn(() => {
+    const node = {
+      buffer: null as { duration: number } | null,
+      loop: false,
+      onended: null,
+      connect: vi.fn(),
+      // start(when, offset) — the offset is what says whether a resume picked
+      // up where it left off or went back to the top of the track.
+      start: vi.fn((_when?: number, offset?: number) => { sourceStarts.push(offset ?? 0); }),
+      stop: vi.fn(() => { sourceStops.push(ctx.currentTime); }),
+    };
+    sources.push(node);
+    return node;
+  }),
+  decodeAudioData: vi.fn(async () => ({ duration: 30 })),
 };
 
 vi.mock('./audio-context.js', () => ({
@@ -56,8 +71,38 @@ async function withPlayingTrack(volume = 0.3) {
 beforeEach(async () => {
   vi.resetModules();
   calls.length = 0;
+  sourceStarts.length = 0;
+  sourceStops.length = 0;
+  sources.length = 0;
+  ctx.currentTime = 10;
+  visibilityListeners.length = 0;
+  hidden = false;
   music = await import('./music.js');
 });
+
+// ── document stub, for the visibility handler ────────────────────────────────
+
+let hidden = false;
+const visibilityListeners: (() => void)[] = [];
+
+vi.stubGlobal('document', {
+  get hidden() { return hidden; },
+  addEventListener: (type: string, fn: () => void) => {
+    if (type === 'visibilitychange') visibilityListeners.push(fn);
+  },
+  removeEventListener: (type: string, fn: () => void) => {
+    if (type !== 'visibilitychange') return;
+    const i = visibilityListeners.indexOf(fn);
+    if (i >= 0) visibilityListeners.splice(i, 1);
+  },
+});
+
+/** Flip document.hidden and fire the handler, as a real tab switch would. */
+async function setHidden(value: boolean) {
+  hidden = value;
+  for (const fn of visibilityListeners) fn();
+  await Promise.resolve();      // playMusic() is async
+}
 
 describe('setMusicMuted with rampTime 0', () => {
   it('snaps with setValueAtTime and schedules no ramp', async () => {
@@ -114,5 +159,100 @@ describe('mute state', () => {
   it('does not throw before a track is loaded', () => {
     expect(() => music.setMusicMuted(true, 0)).not.toThrow();
     expect(() => music.setMusicVolume(0.3)).not.toThrow();
+  });
+});
+
+
+// ── Resuming after a pause ───────────────────────────────────────────────────
+//
+// pauseMusic() used to stop the source without recording how far it had got,
+// and playMusic() always called start(0). So every resume — and every
+// tab-return, via onVisibilityChange — replayed the track from its opening.
+
+describe('pauseMusic / playMusic round trip', () => {
+  it('resumes from where it paused rather than the top', async () => {
+    await withPlayingTrack();
+    expect(sourceStarts).toEqual([0]);          // first play starts at the top
+
+    ctx.currentTime = 22;                        // 12s of playback
+    music.pauseMusic();
+    await music.playMusic(0);
+
+    expect(sourceStarts).toEqual([0, 12]);
+  });
+
+  it('accumulates across several pauses', async () => {
+    await withPlayingTrack();
+    ctx.currentTime = 15; music.pauseMusic(); await music.playMusic(0);   // +5
+    ctx.currentTime = 19; music.pauseMusic(); await music.playMusic(0);   // +4
+    expect(sourceStarts).toEqual([0, 5, 9]);
+  });
+
+  it('wraps the offset into the buffer, since the source loops', async () => {
+    await withPlayingTrack();                    // buffer duration is 30
+    ctx.currentTime = 55;                        // 45s of playback
+    music.pauseMusic();
+    await music.playMusic(0);
+    // 45 % 30 — an unwrapped 45 would clamp to the end and pin a looping
+    // track to its final sample.
+    expect(sourceStarts).toEqual([0, 15]);
+  });
+
+  it('stopMusic is an end, not a pause, so the next play starts at the top', async () => {
+    await withPlayingTrack();
+    ctx.currentTime = 20;
+    music.stopMusic();
+    await music.playMusic(0);
+    expect(sourceStarts).toEqual([0, 0]);
+  });
+});
+
+// ── The visibility handler ───────────────────────────────────────────────────
+
+describe('onVisibilityChange', () => {
+  it('resumes a hidden-paused track from its playhead', async () => {
+    await withPlayingTrack();
+    music.onVisibilityChange(true);
+
+    ctx.currentTime = 18;                        // 8s in
+    await setHidden(true);
+    expect(music.isMusicPlaying()).toBe(false);
+
+    await setHidden(false);
+    expect(music.isMusicPlaying()).toBe(true);
+    expect(sourceStarts).toEqual([0, 8]);
+  });
+
+  it('does not start music that was never playing', async () => {
+    // A loaded track that the app has deliberately not started: a title
+    // screen, or a game whose music belongs to a run in progress.
+    globalThis.fetch = vi.fn(async () => ({ arrayBuffer: async () => new ArrayBuffer(8) })) as never;
+    await music.loadMusic('bg.ogg', {});
+    music.onVisibilityChange(true);
+
+    await setHidden(true);
+    await setHidden(false);
+
+    expect(sourceStarts).toEqual([]);
+    expect(music.isMusicPlaying()).toBe(false);
+  });
+
+  it('does not resume a track the app paused itself', async () => {
+    await withPlayingTrack();
+    music.onVisibilityChange(true);
+    music.pauseMusic();                          // the app's own decision
+
+    await setHidden(true);
+    await setHidden(false);                      // must not undo it
+
+    expect(music.isMusicPlaying()).toBe(false);
+    expect(sourceStarts).toEqual([0]);
+  });
+
+  it('does nothing at all when pause is false', async () => {
+    await withPlayingTrack();
+    music.onVisibilityChange(false);
+    await setHidden(true);
+    expect(music.isMusicPlaying()).toBe(true);
   });
 });
