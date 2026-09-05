@@ -11,6 +11,40 @@ any other package.
 
 _Nothing yet._
 
+## 0.6.0 — 2026-09-05
+
+Both changes are about the online count meaning *people who are here*. 0.5.1
+stopped it reporting users who had disconnected; this stops it reporting users
+who never arrived, and users who have wandered off.
+
+### Changed
+
+- **A visitor who never joins in is no longer on the roster.** `set_name` used
+  to go out on every connect, so merely loading a page registered somebody as a
+  `PlayerNN` and the count measured page loads rather than participants. It is
+  now sent when the visitor actually joins in — sends a message, joins a room,
+  picks a name or a colour. Anything the server gates behind having a session
+  registers first, so `joinRoom()` on a lurker is no longer silently dropped.
+- **`user_list.count` is now people present, not people connected.** `users`
+  still carries everyone, each with an `away` flag. Away entries render greyed
+  and labelled `Away`.
+
+### Added
+
+- **`presence` (client → server).** The widget reports `away` when its page is
+  hidden, or visible but untouched for ten minutes, and `here` when it comes
+  back. Nothing below the page can tell: WebSocket ping/pong is answered by the
+  browser's network stack whether or not anybody is looking, so a backgrounded
+  tab on a pocketed phone counted as present indefinitely.
+
+  With a SharedWorker the aggregate is computed in the worker — one socket
+  carries every tab, so one hidden tab is not an absent person, and any page
+  saying `here` wins. The worker re-announces on each socket open, since a
+  reconnect is a new session to the server.
+
+  Transitions only, and a server that does not implement it is unaffected. A
+  client that never sends it is never away, so older widgets behave as before.
+
 ## 0.5.1 — 2026-09-05
 
 ### Fixed
