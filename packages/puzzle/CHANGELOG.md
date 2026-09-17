@@ -9,6 +9,10 @@ any other package.
 
 ## Unreleased
 
+_Nothing yet._
+
+## 0.4.0 — 2026-09-16
+
 ### Added — `createInput` can follow the finger
 
 - `onDrag` reports displacement and the direction a touch would commit to, on
